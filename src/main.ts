@@ -7,7 +7,7 @@ import { apolloPlugin } from '@/plugins/apollo.ts'
 const app = createApp(App)
 
 app.use(apolloPlugin, {
-    uri: 'https://flyby-router-demo.herokuapp.com'
+    uri: 'https://graphqlplaceholder.vercel.app/graphql'
 })
 
 app.mount('#app')
