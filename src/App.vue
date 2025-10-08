@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import { useQuery } from '@/composables/useQuery'
+import { useQuery } from '@/composables/useQuery.ts'
 import { UserByIdDocument } from '@/operations/codegen/graphql.ts'
 
 const { refetch, result } = useQuery(UserByIdDocument, {

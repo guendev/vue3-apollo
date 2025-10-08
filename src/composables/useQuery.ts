@@ -21,7 +21,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     const loading = ref(true)
     const error = ref<any>()
 
-    const onNext = (value: ObservableQuery.Result<TData, 'complete' | 'empty' | 'partial' | 'streaming'>) => {
+    const onNext = (value: ObservableQuery.Result<TData>) => {
         error.value = null
         loading.value = value.loading
         result.value = value.data as TData
