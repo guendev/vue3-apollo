@@ -1,14 +1,15 @@
-import type { App } from 'vue'
+import type { Plugin } from 'vue'
 
 import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client/core'
 
 export interface ApolloPluginOptions {
-    token?: string // optional auth token
+    key?: string | symbol
+    token?: string
     uri: string
 }
 
-export const ApolloPlugin = {
-    install(app: App, options: ApolloPluginOptions) {
+export const apolloPlugin: Plugin<ApolloPluginOptions> = {
+    install(app, options) {
         if (!options?.uri) {
             throw new Error('[ApolloPlugin] Missing `uri` in options')
         }
@@ -20,10 +21,11 @@ export const ApolloPlugin = {
             link: httpLink
         })
 
-        // Provide client toàn cục
-        app.provide('apollo', apolloClient);
+        const _key = options.key || 'apollo'
 
-        // Optionally attach vào app.config.globalProperties để truy cập qua this.$apollo
-        (app.config.globalProperties as any).$apollo = apolloClient
+        // Provide client toàn cục
+        app.provide(_key, apolloClient)
+
+        app.config.globalProperties[`${_key.toString()}`] = apolloClient
     }
 }
