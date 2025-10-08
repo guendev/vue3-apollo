@@ -1,13 +1,19 @@
 import type { ErrorLike, ObservableQuery, OperationVariables, TypedDocumentNode } from '@apollo/client/core'
 import type { DocumentNode } from 'graphql'
+import type { MaybeRefOrGetter } from 'vue'
 
-import { onBeforeUnmount, ref, shallowRef } from 'vue'
+import { onBeforeUnmount, ref, shallowRef, toRef, watch } from 'vue'
 
 import { useApolloClient } from '@/composables/useApolloClient.ts'
 
+export interface UseQueryOptions {
+    enabled?: MaybeRefOrGetter<boolean>
+}
+
 export function useQuery<TData = unknown, TVariables extends OperationVariables = OperationVariables>(
     document: DocumentNode | TypedDocumentNode<TData, TVariables>,
-    variables?: TVariables
+    variables?: TVariables,
+    options?: UseQueryOptions
 ) {
     const client = useApolloClient()
 
@@ -17,6 +23,8 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     const result = shallowRef<TData>()
     const loading = ref(true)
     const error = ref<ErrorLike>()
+
+    const enabled = toRef(options?.enabled ?? true)
 
     const onNext = (value: ObservableQuery.Result<TData, 'complete' | 'empty' | 'partial' | 'streaming'>) => {
         error.value = value.error
@@ -43,7 +51,17 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         })
     }
 
+    const stop = () => {
+        if (observer.value && !observer.value.closed) {
+            observer.value.unsubscribe()
+        }
+    }
+
     const start = () => {
+        if (!enabled.value) {
+            return
+        }
+
         query.value = client.watchQuery<TData, TVariables>({
             errorPolicy: 'all',
             query: document,
@@ -55,8 +73,17 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
 
     start()
 
+    watch(enabled, (isEnabled) => {
+        if (isEnabled) {
+            start()
+        }
+        else {
+            stop()
+        }
+    })
+
     onBeforeUnmount(() => {
-        observer.value?.unsubscribe()
+        stop()
     })
 
     const refetch = async (vars?: TVariables) => {
