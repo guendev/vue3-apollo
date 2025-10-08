@@ -33,7 +33,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
             return
         }
 
-        if (observer.value && observer.value.closed) {
+        if (observer.value && !observer.value.closed) {
             return
         }
 
