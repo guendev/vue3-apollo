@@ -6,13 +6,11 @@ import { UserByIdDocument } from '@/operations/codegen/graphql.ts'
 
 const enabled = ref(true)
 
-const { error, refetch, result } = useQuery(UserByIdDocument, {
-    userByIdId: 1
-}, {
+const vars = ref({ userByIdId: 1 })
+
+const { error, refetch, result } = useQuery(UserByIdDocument, vars, {
     enabled
 })
-
-const userId = ref(1)
 </script>
 
 <template>
@@ -27,7 +25,7 @@ const userId = ref(1)
     </div>
 
     <div class="layer">
-      <input v-model.number="userId" type="number">
+      <input v-model.number="vars.userByIdId" type="number">
     </div>
 
     <div class="layer">

@@ -1,8 +1,9 @@
 import type { ErrorLike, ObservableQuery, OperationVariables, TypedDocumentNode } from '@apollo/client/core'
 import type { DocumentNode } from 'graphql'
-import type { MaybeRefOrGetter } from 'vue'
+import type { MaybeRefOrGetter, Ref } from 'vue'
 
-import { onBeforeUnmount, ref, shallowRef, toRef, watch } from 'vue'
+import { syncRef } from '@vueuse/core'
+import { isReadonly, isRef, onBeforeUnmount, ref, shallowRef, toRef, toValue, watch } from 'vue'
 
 import { useApolloClient } from '@/composables/useApolloClient.ts'
 
@@ -12,7 +13,7 @@ export interface UseQueryOptions {
 
 export function useQuery<TData = unknown, TVariables extends OperationVariables = OperationVariables>(
     document: DocumentNode | TypedDocumentNode<TData, TVariables>,
-    variables?: TVariables,
+    variables?: MaybeRefOrGetter<TVariables>,
     options?: UseQueryOptions
 ) {
     const client = useApolloClient()
@@ -25,6 +26,13 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     const error = ref<ErrorLike>()
 
     const enabled = toRef(options?.enabled ?? true)
+
+    const reactiveVariables = ref(toValue(variables))
+    if (isRef(variables)) {
+        syncRef(variables as Ref, reactiveVariables, {
+            direction: isReadonly(variables) ? 'ltr' : 'both'
+        })
+    }
 
     const onNext = (value: ObservableQuery.Result<TData, 'complete' | 'empty' | 'partial' | 'streaming'>) => {
         error.value = value.error
@@ -64,7 +72,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
 
         query.value = client.watchQuery<TData, TVariables>({
             query: document,
-            variables: variables ?? {} as TVariables
+            variables: toValue(reactiveVariables) as TVariables
         })
 
         startObserver()
@@ -81,18 +89,25 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         }
     })
 
-    onBeforeUnmount(() => {
-        stop()
-    })
-
     const refetch = async (variables?: TVariables) => {
         if (!query.value) {
             return
         }
+        reactiveVariables.value = variables
         error.value = undefined
         loading.value = true
         query.value.refetch(variables)
     }
+
+    watch(reactiveVariables, (newVariables) => {
+        if (enabled.value && query.value) {
+            void refetch(newVariables)
+        }
+    }, { deep: true })
+
+    onBeforeUnmount(() => {
+        stop()
+    })
 
     return { error, loading, refetch, result }
 }
