@@ -1,10 +1,7 @@
 import type { ErrorLike, ObservableQuery, OperationVariables, TypedDocumentNode } from '@apollo/client/core'
 import type { DocumentNode } from 'graphql'
-import type { Subscription } from 'rxjs'
 
 import { onBeforeUnmount, ref, shallowRef } from 'vue'
-
-import type { Nullable } from '@/utils/type.ts'
 
 import { useApolloClient } from '@/composables/useApolloClient.ts'
 
@@ -15,7 +12,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     const client = useApolloClient()
 
     const query = shallowRef<ObservableQuery<TData, TVariables>>()
-    const observer = shallowRef<Nullable<Subscription>>()
+    const observer = shallowRef<ReturnType<ObservableQuery<TData, TVariables>['subscribe']>>()
 
     const result = shallowRef<TData>()
     const loading = ref(true)
