@@ -4,11 +4,11 @@ import { ref } from 'vue'
 import { useQuery } from '@/composables/useQuery.ts'
 import { UserByIdDocument } from '@/operations/codegen/graphql.ts'
 
-const { refetch, result } = useQuery(UserByIdDocument, {
+const { error, refetch, result } = useQuery(UserByIdDocument, {
     userByIdId: 1
 })
 
-const userId = ref(1)
+const userId = ref(1000000000)
 </script>
 
 <template>
@@ -19,22 +19,22 @@ const userId = ref(1)
       </button>
     </div>
 
-    <div class="input">
+    <div class="layer">
       <input v-model.number="userId" type="number">
     </div>
 
-    <div class="data">
+    <div class="layer">
+      {{ error }}
+    </div>
+
+    <div class="layer">
       {{ result?.userById }}
     </div>
   </div>
 </template>
 
 <style>
-.data {
-    margin-top: 20px;
-}
-
-.input {
+.layer {
     margin-top: 20px;
 }
 </style>

@@ -1,4 +1,4 @@
-import type { ObservableQuery, OperationVariables, TypedDocumentNode } from '@apollo/client/core'
+import type { ErrorLike, ObservableQuery, OperationVariables, TypedDocumentNode } from '@apollo/client/core'
 import type { DocumentNode } from 'graphql'
 import type { Subscription } from 'rxjs'
 
@@ -19,15 +19,15 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
 
     const result = shallowRef<TData>()
     const loading = ref(true)
-    const error = ref<any>()
+    const error = ref<ErrorLike>()
 
-    const onNext = (value: ObservableQuery.Result<TData>) => {
-        error.value = null
+    const onNext = (value: ObservableQuery.Result<TData, 'complete' | 'empty' | 'partial' | 'streaming'>) => {
+        error.value = value.error
         loading.value = value.loading
         result.value = value.data as TData
     }
 
-    const onError = (e: any) => {
+    const onError = (e: ErrorLike) => {
         error.value = e
     }
 
@@ -48,6 +48,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
 
     const start = () => {
         query.value = client.watchQuery<TData, TVariables>({
+            errorPolicy: 'all',
             query: document,
             variables: variables ?? {} as TVariables
         })
@@ -65,7 +66,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         if (!query.value) {
             return
         }
-        error.value = null
+        error.value = undefined
         loading.value = true
         query.value.refetch(vars)
     }
