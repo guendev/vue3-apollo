@@ -3,8 +3,6 @@ import type { Plugin } from 'vue'
 import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client/core'
 
 export interface ApolloPluginOptions {
-    key?: string | symbol
-    token?: string
     uri: string
 }
 
@@ -21,11 +19,9 @@ export const apolloPlugin: Plugin<ApolloPluginOptions> = {
             link: httpLink
         })
 
-        const _key = options.key || 'apollo'
-
         // Provide client toàn cục
-        app.provide(_key, apolloClient)
+        app.provide('apollo', apolloClient)
 
-        app.config.globalProperties[`${_key.toString()}`] = apolloClient
+        app.config.globalProperties.$apollo = apolloClient
     }
 }

@@ -1,5 +1,19 @@
 <script setup lang="ts">
+import { onMounted } from 'vue'
+
 import HelloWorld from '@/components/HelloWorld.vue'
+import { useApolloClient } from '@/composables/useApolloClient.ts'
+import { GetLocations } from '@/operations/queries.ts'
+
+const client = useApolloClient()
+
+onMounted(async () => {
+    const { data } = await client.query({
+        query: GetLocations
+    })
+
+    console.warn(data)
+})
 </script>
 
 <template>
