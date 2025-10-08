@@ -63,7 +63,6 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         }
 
         query.value = client.watchQuery<TData, TVariables>({
-            errorPolicy: 'all',
             query: document,
             variables: variables ?? {} as TVariables
         })
