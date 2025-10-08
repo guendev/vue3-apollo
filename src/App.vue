@@ -19,7 +19,9 @@ const userId = ref(1)
       </button>
     </div>
 
-    <input v-model.number="userId" type="number">
+    <div class="input">
+      <input v-model.number="userId" type="number">
+    </div>
 
     <div class="data">
       {{ result?.userById }}
@@ -29,6 +31,10 @@ const userId = ref(1)
 
 <style>
 .data {
+    margin-top: 20px;
+}
+
+.input {
     margin-top: 20px;
 }
 </style>
