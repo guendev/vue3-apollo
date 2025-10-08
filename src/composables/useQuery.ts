@@ -85,13 +85,13 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         stop()
     })
 
-    const refetch = async (vars?: TVariables) => {
+    const refetch = async (variables?: TVariables) => {
         if (!query.value) {
             return
         }
         error.value = undefined
         loading.value = true
-        query.value.refetch(vars)
+        query.value.refetch(variables)
     }
 
     return { error, loading, refetch, result }
