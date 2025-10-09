@@ -2,7 +2,8 @@
 import type { PostsQueryVariables } from '~/operations/codegen/graphql'
 
 import { PostsDocument, UpdatePostDocument } from '~/operations/codegen/graphql'
-import { useMutation, useQuery } from '~core/composables'
+import { useMutation } from '~core/composables/useMutation'
+import { useQuery } from '~core/composables/useQuery'
 import { reactive, ref } from 'vue'
 
 const enabled = ref(true)

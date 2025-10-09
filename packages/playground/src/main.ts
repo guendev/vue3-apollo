@@ -1,7 +1,7 @@
 import 'virtual:uno.css'
 import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client'
 import App from '~/App.vue'
-import { apolloPlugin } from '~core/plugins'
+import { apolloPlugin } from '~core/plugins/apolloPlugin'
 import { createApp } from 'vue'
 
 const app = createApp(App)
