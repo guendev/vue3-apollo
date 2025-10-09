@@ -1,27 +1,37 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 
+import type { PostsQueryVariables } from '@/operations/codegen/graphql.ts'
+
+import { useMutation } from '@/composables/useMutation.ts'
 import { useQuery } from '@/composables/useQuery.ts'
-import { UserByIdDocument } from '@/operations/codegen/graphql.ts'
+import { PostsDocument, UpdatePostDocument } from '@/operations/codegen/graphql.ts'
 
 const enabled = ref(true)
 
-const vars = ref({ userByIdId: 1 })
+const vars = reactive<PostsQueryVariables>({
+    first: 1,
+    userId: 1
+})
 
-const { error, onResult, refetch, result } = useQuery(UserByIdDocument, vars, {
+const { error, onResult, result } = useQuery(PostsDocument, vars, {
     enabled,
     keepPreviousResult: true
 })
 
+const title = ref('')
+
+const { loading, mutate } = useMutation(UpdatePostDocument)
+
 onResult((data) => {
-    console.warn(data)
+    console.warn('onResult', data)
 })
 </script>
 
 <template>
   <div>
     <div>
-      <button type="button" @click="refetch({ userByIdId: vars.userByIdId })">
+      <button type="button">
         Refresh
       </button>
       <button type="button" @click="enabled = !enabled">
@@ -30,7 +40,19 @@ onResult((data) => {
     </div>
 
     <div class="layer">
-      <input v-model.number="vars.userByIdId" type="number">
+      <label>User ID:</label>
+      <input v-model.number="vars.userId" type="number" placeholder="User ID">
+    </div>
+
+    <div>
+      <label>Title:</label>
+      <input v-model="title" type="text" placeholder="Title">
+
+      <button
+        @click="mutate({ postId: 1, post: { title } })"
+      >
+        {{ loading ? 'Loading...' : 'Update' }}
+      </button>
     </div>
 
     <div class="layer">
@@ -42,7 +64,7 @@ onResult((data) => {
     </div>
 
     <div class="layer">
-      {{ result?.userById }}
+      {{ result?.posts }}
     </div>
   </div>
 </template>
