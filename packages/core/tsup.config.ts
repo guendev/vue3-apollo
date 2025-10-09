@@ -6,12 +6,10 @@ export default defineConfig({
     entry: ['src/index.ts'],
     external: ['vue', '@apollo/client', 'graphql', '@vueuse/core'],
     format: ['esm', 'cjs'],
-    minify: true,
+    minify: false,
     outDir: 'dist',
-    skipNodeModulesBundle: true,
     sourcemap: true,
     splitting: false,
     target: 'es2020',
-    treeshake: true,
-    tsconfig: 'tsconfig.json'
+    treeshake: true
 })
