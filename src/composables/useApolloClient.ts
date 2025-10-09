@@ -1,6 +1,5 @@
-import { inject } from 'vue'
-
-import { APOLLO_CLIENTS_KEY, DEFAULT_APOLLO_CLIENT } from '@/constants/apollo.ts'
+import { useApolloClients } from '@/composables/useApolloClients.ts'
+import { DEFAULT_APOLLO_CLIENT } from '@/constants/apollo.ts'
 
 /**
  * Get an Apollo client instance by ID
@@ -17,16 +16,10 @@ import { APOLLO_CLIENTS_KEY, DEFAULT_APOLLO_CLIENT } from '@/constants/apollo.ts
  * const analyticsClient = useApolloClient('analytics')
  * ```
  */
-export function useApolloClient(clientId: string = DEFAULT_APOLLO_CLIENT) {
-    const apolloClients = inject(APOLLO_CLIENTS_KEY)
+export function useApolloClient(clientId?: string) {
+    const apolloClients = useApolloClients()
 
-    if (!apolloClients) {
-        throw new Error(
-            '[useApolloClient] Apollo clients registry not found. Did you forget to install ApolloPlugin?'
-        )
-    }
-
-    const client = apolloClients[clientId]
+    const client = apolloClients[clientId ?? DEFAULT_APOLLO_CLIENT]
 
     if (!client) {
         const availableClients = Object.keys(apolloClients).join(', ')
