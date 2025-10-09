@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { useMutation, useQuery } from '@vue3-apollo/core'
+import type { PostsQueryVariables } from '~/operations/codegen/graphql'
+
+import { PostsDocument, UpdatePostDocument } from '~/operations/codegen/graphql'
+import { useMutation, useQuery } from '~core/composables'
 import { reactive, ref } from 'vue'
-
-import type { PostsQueryVariables } from '@/operations/codegen/graphql'
-
-import { PostsDocument, UpdatePostDocument } from '@/operations/codegen/graphql'
 
 const enabled = ref(true)
 
@@ -28,7 +27,7 @@ onResult((data) => {
 </script>
 
 <template>
-  <div>
+  <div class="size-screen flex flex-col items-center justify-center bg-zinc-900 text-white">
     <div>
       <button type="button">
         Refresh
