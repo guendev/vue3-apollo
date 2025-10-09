@@ -1,9 +1,9 @@
 import type { CodegenConfig } from '@graphql-codegen/cli'
 
 const config: CodegenConfig = {
-    documents: ['src/operations/'],
+    documents: ['src/test/operations/'],
     generates: {
-        'src/operations/codegen/': {
+        'src/test/operations/codegen/': {
             config: {
                 useTypeImports: true
             },
