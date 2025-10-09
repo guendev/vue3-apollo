@@ -2,13 +2,16 @@ import { defineConfig } from 'tsup'
 
 export default defineConfig({
     clean: true,
-    dts: true,
+    dts: { entry: 'src/core/index.ts' },
     entry: ['src/core/index.ts'],
-    format: ['esm', 'cjs'], // dual build
+    external: ['vue', '@apollo/client', 'graphql', '@vueuse/core'],
+    format: ['esm', 'cjs'],
     minify: false,
+    outDir: 'dist',
     skipNodeModulesBundle: true,
     sourcemap: true,
-    splitting: false, // lib nhỏ, tránh split rườm rà
+    splitting: false,
     target: 'es2020',
+    treeshake: true,
     tsconfig: 'tsconfig.build.json'
 })
