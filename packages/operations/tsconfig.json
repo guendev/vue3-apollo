@@ -11,6 +11,11 @@
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-    "skipLibCheck": true
-  }
+    "skipLibCheck": true,
+    "rootDir": "./src"
+  },
+  "include": [
+    "src/**/*",
+    "codegen.ts"
+  ]
 }

@@ -1,0 +1,38 @@
+{
+  "name": "@vue3-apollo/core",
+  "type": "module",
+  "version": "0.0.1",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup --config tsup.config.ts"
+  },
+  "peerDependencies": {
+    "@apollo/client": "^4.0.0",
+    "graphql": "^16.0.0",
+    "vue": "^3.3.0"
+  },
+  "dependencies": {
+    "@vueuse/core": "^13.9.0"
+  },
+  "devDependencies": {
+    "@vue/tsconfig": "^0.8.1",
+    "tsup": "^8.5.0",
+    "vite-plugin-dts": "^4.5.4",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.9",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}

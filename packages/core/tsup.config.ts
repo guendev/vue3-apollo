@@ -2,11 +2,11 @@ import { defineConfig } from 'tsup'
 
 export default defineConfig({
     clean: true,
-    dts: { entry: 'core/src/index.ts', resolve: true },
-    entry: ['core/src/index.ts'],
+    dts: { entry: 'src/index.ts', resolve: true },
+    entry: ['src/index.ts'],
     external: ['vue', '@apollo/client', 'graphql'],
     format: ['esm', 'cjs'],
-    outDir: 'dist/core',
+    outDir: 'dist',
     sourcemap: true,
     treeshake: true
 })

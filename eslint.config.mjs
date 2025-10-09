@@ -76,56 +76,5 @@ export default antfu(
             'perfectionist/sort-switch-case': 'error',
             'perfectionist/sort-union-types': 'error'
         }
-    },
-    {
-        files: ['src/modules/**/*.graphql', 'src/apollo/schema/schema.generated.graphqls'],
-        languageOptions: {
-            parser: graphqlPlugin.parser
-        },
-        plugins: {
-            '@graphql-eslint': graphqlPlugin
-        },
-        rules: {
-            ...graphqlPlugin.configs['flat/schema-recommended'].rules,
-            '@graphql-eslint/alphabetize': [
-                'error',
-                {
-                    fields: ['ObjectTypeDefinition', 'InterfaceTypeDefinition', 'InputObjectTypeDefinition'],
-                    groups: [
-                        'id',
-                        'key',
-                        '*',
-                        'createdAt',
-                        'updatedAt'
-                    ],
-                    values: true
-                }
-            ],
-            '@graphql-eslint/no-hashtag-description': 'off',
-            '@graphql-eslint/no-unreachable-types': 'off',
-            '@graphql-eslint/require-description': 'off',
-            '@graphql-eslint/strict-id-in-types': [
-                'error',
-                {
-                    exceptions: {
-                        types: [
-                            'AudioAttr',
-                            'AuthTokens',
-                            'CardConnection',
-                            'CardEdge',
-                            'ContentRef',
-                            'ImageAttr',
-                            'PageInfo',
-                            'PracticeTask',
-                            'ReviewLog',
-                            'TaskChoices',
-                            'TaskIntro',
-                            'TaskReorder',
-                            'TextAttr'
-                        ]
-                    }
-                }
-            ]
-        }
     }
 )
