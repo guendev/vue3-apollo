@@ -6,8 +6,12 @@ export default defineBuildConfig({
     entries: [
         'core/src/index'
     ],
-    externals: ['vue', '@apollo/client', 'graphql'],
-    outDir: 'dist/core',
+    externals: [
+        'vue',
+        '@apollo/client',
+        'graphql'
+    ],
+    outDir: 'dist',
     rollup: {
         emitCJS: true,
         esbuild: {
