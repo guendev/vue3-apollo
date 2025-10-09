@@ -10,7 +10,7 @@ import type { DocumentNode } from 'graphql'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
 import { createEventHook, syncRef, useDebounceFn, useThrottleFn } from '@vueuse/core'
-import { isReadonly, isRef, onScopeDispose, ref, shallowRef, toRef, toValue, watch } from 'vue'
+import { getCurrentScope, isReadonly, isRef, onScopeDispose, ref, shallowRef, toRef, toValue, watch } from 'vue'
 
 import type { UseBaseOption } from '@/utils'
 
@@ -255,9 +255,14 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         flush: 'post'
     })
 
-    onScopeDispose(() => {
-        stop()
-    })
+    if (getCurrentScope()) {
+        onScopeDispose(() => {
+            stop()
+        })
+    }
+    else {
+        console.warn('[useQuery] The query will not be automatically stopped when runing outside of a scope')
+    }
 
     return {
         /**

@@ -10,7 +10,7 @@ import type { DocumentNode } from 'graphql'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
 import { createEventHook, syncRef } from '@vueuse/core'
-import { isReadonly, isRef, onScopeDispose, ref, shallowRef, toRef, toValue, watch } from 'vue'
+import { getCurrentScope, isReadonly, isRef, onScopeDispose, ref, shallowRef, toRef, toValue, watch } from 'vue'
 
 import type { UseBaseOption } from '@/utils'
 
@@ -151,9 +151,14 @@ export function useSubscription<
         flush: 'post'
     })
 
-    onScopeDispose(() => {
-        stop()
-    })
+    if (getCurrentScope()) {
+        onScopeDispose(() => {
+            stop()
+        })
+    }
+    else {
+        console.warn('[useSubscription] The subscription will not be automatically stopped when runing outside of a scope')
+    }
 
     return {
         /**
