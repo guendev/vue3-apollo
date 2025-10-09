@@ -9,17 +9,114 @@ import type {
 import type { DocumentNode } from 'graphql'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
-import { createEventHook, syncRef } from '@vueuse/core'
+import { createEventHook, syncRef, useDebounceFn, useThrottleFn } from '@vueuse/core'
 import { isDefined } from 'remeda'
 import { isReadonly, isRef, onBeforeUnmount, ref, shallowRef, toRef, toValue, watch } from 'vue'
 
 import { useApolloClient } from '@/composables/useApolloClient.ts'
 
+/**
+ * Options for useQuery composable
+ *
+ * @template TData - Type of the query result data
+ * @template TVariables - Type of the query variables
+ */
 export type UseQueryOptions<TData = unknown, TVariables extends OperationVariables = OperationVariables> = {
+    /**
+     * Delay in milliseconds before executing the query after variables change.
+     * Waits for variables to stop changing before making the request.
+     * Useful for search inputs where you want to wait until the user stops typing.
+     *
+     * Note: If both debounce and throttle are provided, debounce takes priority.
+     *
+     * @example
+     * ```ts
+     * useQuery(SEARCH_QUERY, searchText, {
+     *   debounce: 500, // Wait 500 ms after the last keystroke
+     *   keepPreviousResult: true
+     * })
+     * ```
+     */
+    debounce?: number
+
+    /**
+     * Whether the query should be executed.
+     * Can be a ref or getter for reactive control.
+     * When false, the query will be stopped and no requests will be made.
+     *
+     * @default true
+     *
+     * @example
+     * ```ts
+     * const shouldFetch = ref(false)
+     * useQuery(MY_QUERY, variables, {
+     *   enabled: shouldFetch // Query only runs when shouldFetch is true
+     * })
+     * ```
+     */
     enabled?: MaybeRefOrGetter<boolean>
+
+    /**
+     * Keep the previous query result while fetching new data.
+     * When true, prevents a result from being reset to undefined when variables change
+     * and cache doesn't have data yet.
+     *
+     * Useful for providing better UX by showing old data while loading new data.
+     *
+     * @default false
+     *
+     * @example
+     * ```ts
+     * useQuery(PAGINATED_QUERY, page, {
+     *   keepPreviousResult: true // Show previous page while loading next
+     * })
+     * ```
+     */
     keepPreviousResult?: boolean
+
+    /**
+     * Maximum frequency (in milliseconds) at which the query can be executed
+     * when variables change. Limits the rate of requests but ensures periodic updates.
+     * Useful for real-time filters or scroll events.
+     *
+     * Note: If both debounce and throttle are provided, debounce takes priority.
+     *
+     * @example
+     * ```ts
+     * useQuery(FILTER_QUERY, filters, {
+     *   throttle: 500 // Execute at most once every 500 ms
+     * })
+     * ```
+     */
+    throttle?: number
 } & Omit<ApolloClient.WatchQueryOptions<TData, TVariables>, 'query' | 'variables'>
 
+/**
+ * Composable for executing GraphQL queries with Vue reactivity.
+ * Automatically manages query lifecycle, caching, and reactive updates.
+ *
+ * @template TData - Type of the query result data
+ * @template TVariables - Type of the query variables
+ *
+ * @param document - GraphQL query document or typed document node
+ * @param variables - Query variables (can be reactive ref or getter)
+ * @param options - Query options including Apollo options and custom features
+ *
+ * @returns Object containing query state and control methods
+ *
+ * @example
+ * ```ts
+ * const searchText = ref('')
+ * const { result, loading, error, refetch } = useQuery(
+ *   SEARCH_QUERY,
+ *   searchText,
+ *   {
+ *     debounce: 300,
+ *     keepPreviousResult: true
+ *   }
+ * )
+ * ```
+ */
 export function useQuery<TData = unknown, TVariables extends OperationVariables = OperationVariables>(
     document: DocumentNode | TypedDocumentNode<TData, TVariables>,
     variables?: MaybeRefOrGetter<TVariables>,
@@ -136,10 +233,21 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         query.value.refetch(variables)
     }
 
-    watch(reactiveVariables, (newVariables) => {
+    const updateVariables = (newVariables: TVariables) => {
         if (enabled.value && query.value) {
             void query.value.setVariables(newVariables)
         }
+    }
+
+    // Debounce has priority over throttle if both are provided
+    const optimizedUpdateVariables = options?.debounce
+        ? useDebounceFn(updateVariables, options.debounce)
+        : options?.throttle
+            ? useThrottleFn(updateVariables, options.throttle)
+            : updateVariables
+
+    watch(reactiveVariables, (newVariables) => {
+        optimizedUpdateVariables(newVariables)
     }, { deep: true })
 
     onBeforeUnmount(() => {
@@ -147,14 +255,99 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     })
 
     return {
+        /**
+         * GraphQL error if the query failed.
+         * Includes both network errors and GraphQL errors.
+         */
         error,
+
+        /**
+         * Whether the query is currently loading.
+         * True during initial load and refetch operations.
+         */
         loading,
+
+        /**
+         * Apollo NetworkStatus enum value.
+         * Provides detailed information about the query state.
+         * @see https://www.apollographql.com/docs/react/data/queries/#inspecting-loading-states
+         */
         networkStatus,
+
+        /**
+         * Event hook that fires when a query error occurs.
+         * Use this to react to errors (e.g., show notifications).
+         *
+         * @example
+         * ```ts
+         * onError((error) => {
+         *   toast.error(error.message)
+         * })
+         * ```
+         */
         onError: queryError.on,
+
+        /**
+         * Event hook that fires when new query results are received.
+         * Only fires when actual data is present (not undefined).
+         *
+         * @example
+         * ```ts
+         * onResult((data) => {
+         *   console.log('New data:', data)
+         * })
+         * ```
+         */
         onResult: queryResult.on,
+
+        /**
+         * Manually refetch the query with optional new variables.
+         * Always bypasses cache and makes a network request.
+         *
+         * @param variables - Optional new variables for the refetch
+         *
+         * @example
+         * ```ts
+         * // Refetch with same variables
+         * await refetch()
+         *
+         * // Refetch with new variables
+         * await refetch({ id: '123' })
+         * ```
+         */
         refetch,
+
+        /**
+         * The query result data.
+         * Can be undefined if no data has been loaded yet.
+         * When keepPreviousResult is true, retains previous data during refetch.
+         */
         result,
+
+        /**
+         * Manually start the query.
+         * Useful after stopping the query or when using enabled: false initially.
+         *
+         * @example
+         * ```ts
+         * const { start, stop } = useQuery(QUERY, vars, { enabled: false })
+         * // Later...
+         * start()
+         * ```
+         */
         start,
+
+        /**
+         * Stop the query and unsubscribe from updates.
+         * Useful for pausing queries or cleaning up manually.
+         *
+         * @example
+         * ```ts
+         * const { stop } = useQuery(QUERY, vars)
+         * // Stop when no longer needed
+         * stop()
+         * ```
+         */
         stop
     }
 }
