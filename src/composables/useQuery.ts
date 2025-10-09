@@ -9,7 +9,7 @@ import type {
 import type { DocumentNode } from 'graphql'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
-import { syncRef } from '@vueuse/core'
+import { createEventHook, syncRef } from '@vueuse/core'
 import { isDefined } from 'remeda'
 import { isReadonly, isRef, onBeforeUnmount, ref, shallowRef, toRef, toValue, watch } from 'vue'
 
@@ -35,8 +35,10 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     const networkStatus = ref<NetworkStatus>()
     const error = ref<ErrorLike>()
 
-    const enabled = toRef(options?.enabled ?? true)
+    const queryResult = createEventHook<TData>()
+    const queryError = createEventHook<ErrorLike>()
 
+    const enabled = toRef(options?.enabled ?? true)
     const reactiveVariables = ref(toValue(variables))
     if (isRef(variables)) {
         syncRef(variables as Ref, reactiveVariables, {
@@ -45,20 +47,30 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     }
 
     const onNext = (value: ObservableQuery.Result<TData, 'complete' | 'empty' | 'partial' | 'streaming'>) => {
-        error.value = value.error
         loading.value = value.loading
         networkStatus.value = value.networkStatus
+
+        error.value = value.error
+        if (value.error) {
+            void queryError.trigger(value.error)
+        }
 
         // Only update the result when:
         // - Has new data, or
         // - keepPreviousResult = false (always update even if undefined)
         if (isDefined(value.data) || !options?.keepPreviousResult) {
             result.value = value.data as TData
+            if (isDefined(result.value)) {
+                // eslint-disable-next-line ts/ban-ts-comment
+                // @ts-expect-error
+                void queryResult.trigger(value.data)
+            }
         }
     }
 
     const onError = (e: ErrorLike) => {
         error.value = e
+        void queryError.trigger(e)
     }
 
     const startObserver = () => {
@@ -138,6 +150,8 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         error,
         loading,
         networkStatus,
+        onError: queryError.on,
+        onResult: queryResult.on,
         refetch,
         result,
         start,
