@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2020",
     "baseUrl": ".",
-    "module": "ES2020",
+    "module": "NodeNext",
     "moduleResolution": "Bundler",
     "resolveJsonModule": true,
     "strict": true,
