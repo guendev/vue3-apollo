@@ -23,6 +23,19 @@ import { useApolloClient } from '@/composables/useApolloClient.ts'
  */
 export type UseQueryOptions<TData = unknown, TVariables extends OperationVariables = OperationVariables> = {
     /**
+     * Apollo client identifier to use for this query.
+     * Defaults to the default client if not specified.
+     *
+     * @example
+     * ```ts
+     * useQuery(ANALYTICS_QUERY, variables, {
+     *   clientId: 'analytics'
+     * })
+     * ```
+     */
+    clientId?: string
+
+    /**
      * Delay in milliseconds before executing the query after variables change.
      * Waits for variables to stop changing before making the request.
      * Useful for search inputs where you want to wait until the user stops typing.
@@ -122,7 +135,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     variables?: MaybeRefOrGetter<TVariables>,
     options?: UseQueryOptions<TData, TVariables>
 ) {
-    const client = useApolloClient()
+    const client = useApolloClient(options?.clientId)
 
     const query = shallowRef<ObservableQuery<TData, TVariables>>()
     const observer = shallowRef<ReturnType<ObservableQuery<TData, TVariables>['subscribe']>>()
