@@ -1,8 +1,45 @@
 {
-  "name": "root",
-  "private": true,
+  "name": "vue3-apollo",
   "type": "module",
   "version": "0.0.1",
-  "scripts": {},
-  "packageManager": "pnpm@10.17.1+sha512.17c560fca4867ae9473a3899ad84a88334914f379be46d455cbf92e5cf4b39d34985d452d2583baf19967fa76cb5c17bc9e245529d0b98745721aa7200ecaf7a"
+  "private": false,
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup --config tsup.config.ts",
+    "dev": "tsup --config tsup.config.ts --watch",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix"
+  },
+  "peerDependencies": {
+    "@apollo/client": "^4.0.0",
+    "graphql": "^16.0.0",
+    "vue": "^3.3.0"
+  },
+  "dependencies": {
+    "@vueuse/core": "^13.9.0"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^5.4.1",
+    "@graphql-codegen/cli": "^6.0.0",
+    "@graphql-codegen/client-preset": "^5.1.0",
+    "@graphql-eslint/eslint-plugin": "^4.4.0",
+    "eslint": "^9.36.0",
+    "eslint-plugin-perfectionist": "^4.15.1",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.3",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
 }
