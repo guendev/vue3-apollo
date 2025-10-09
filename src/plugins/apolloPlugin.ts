@@ -1,7 +1,7 @@
 import type { ApolloClient } from '@apollo/client/core'
 import type { Plugin } from 'vue'
 
-import { APOLLO_CLIENTS_KEY, DEFAULT_APOLLO_CLIENT } from '@/constants/apollo.ts'
+import { APOLLO_CLIENTS_KEY, DEFAULT_APOLLO_CLIENT } from '@/constants/apollo'
 
 /**
  * Plugin options supporting single or multiple Apollo clients

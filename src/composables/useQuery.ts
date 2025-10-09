@@ -13,7 +13,9 @@ import { createEventHook, syncRef, useDebounceFn, useThrottleFn } from '@vueuse/
 import { isDefined } from 'remeda'
 import { isReadonly, isRef, onBeforeUnmount, ref, shallowRef, toRef, toValue, watch } from 'vue'
 
-import { useApolloClient } from '@/composables/useApolloClient.ts'
+import type { UseBaseOption } from '@/utils/type'
+
+import { useApolloClient } from '@/composables/useApolloClient'
 
 /**
  * Options for useQuery composable
@@ -22,19 +24,6 @@ import { useApolloClient } from '@/composables/useApolloClient.ts'
  * @template TVariables - Type of the query variables
  */
 export type UseQueryOptions<TData = unknown, TVariables extends OperationVariables = OperationVariables> = {
-    /**
-     * Apollo client identifier to use for this query.
-     * Defaults to the default client if not specified.
-     *
-     * @example
-     * ```ts
-     * useQuery(ANALYTICS_QUERY, variables, {
-     *   clientId: 'analytics'
-     * })
-     * ```
-     */
-    clientId?: string
-
     /**
      * Delay in milliseconds before executing the query after variables change.
      * Waits for variables to stop changing before making the request.
@@ -102,7 +91,7 @@ export type UseQueryOptions<TData = unknown, TVariables extends OperationVariabl
      * ```
      */
     throttle?: number
-} & Omit<ApolloClient.WatchQueryOptions<TData, TVariables>, 'query' | 'variables'>
+} & Omit<ApolloClient.WatchQueryOptions<TData, TVariables>, 'query' | 'variables'> & UseBaseOption
 
 /**
  * Composable for executing GraphQL queries with Vue reactivity.

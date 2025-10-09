@@ -1,5 +1,5 @@
-import { useApolloClients } from '@/composables/useApolloClients.ts'
-import { DEFAULT_APOLLO_CLIENT } from '@/constants/apollo.ts'
+import { useApolloClients } from '@/composables/useApolloClients'
+import { DEFAULT_APOLLO_CLIENT } from '@/constants/apollo'
 
 /**
  * Get an Apollo client instance by ID

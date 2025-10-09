@@ -5,17 +5,76 @@ import { createEventHook } from '@vueuse/core'
 import { isDefined } from 'remeda'
 import { nextTick, ref, shallowRef } from 'vue'
 
-import { useApolloClient } from '@/composables/useApolloClient.ts'
+import type { UseBaseOption } from '@/utils/type'
 
+import { useApolloClient } from '@/composables/useApolloClient'
+
+/**
+ * Options for useMutation composable
+ *
+ * @template TData - Type of the mutation result data
+ * @template TVariables - Type of the mutation variables
+ * @template TCache - Type of the Apollo cache
+ */
 export type UseMutationOptions<
     TData = unknown,
     TVariables extends OperationVariables = OperationVariables,
     TCache extends ApolloCache = ApolloCache
 > = {
-    clientId?: string
-    throws?: 'always' | 'auto' | 'never'
-} & Omit<ApolloClient.MutateOptions<TData, TVariables, TCache>, 'mutation' | 'variables'>
 
+    /**
+     * Controls when the mutation should throw errors.
+     * - 'always': Always throw errors (useful with try/catch)
+     * - 'auto': Default Apollo behavior
+     * - 'never': Never throw, only set error state
+     *
+     * @default 'auto'
+     *
+     * @example
+     * ```ts
+     * useMutation(MUTATION, {
+     *   throws: 'always' // Will throw on error
+     * })
+     * ```
+     */
+    throws?: 'always' | 'auto' | 'never'
+} & Omit<ApolloClient.MutateOptions<TData, TVariables, TCache>, 'mutation' | 'variables'> & UseBaseOption
+
+/**
+ * Composable for executing GraphQL mutations with Vue reactivity.
+ * Provides a function to trigger mutations and reactive state for results.
+ *
+ * @template TData - Type of the mutation result data
+ * @template TVariables - Type of the mutation variables
+ * @template TCache - Type of the Apollo cache
+ *
+ * @param document - GraphQL mutation document or typed document node
+ * @param options - Mutation options including Apollo options and custom features
+ *
+ * @returns Object containing mutation function, state, and event hooks
+ *
+ * @example
+ * ```ts
+ * // Basic usage
+ * const { mutate, loading, error } = useMutation(CREATE_USER_MUTATION)
+ * await mutate({ name: 'John', email: 'john@example.com' })
+ *
+ * // With options
+ * const { mutate, data, onDone } = useMutation(UPDATE_USER_MUTATION, {
+ *   refetchQueries: ['GetUsers'],
+ *   awaitRefetchQueries: true
+ * })
+ *
+ * onDone((data) => {
+ *   console.log('Mutation completed:', data)
+ * })
+ *
+ * // With per-call options
+ * await mutate (variables, {
+ *   optimisticResponse: { updateUser: { id: '1', name: 'John' } }
+ * })
+ * ```
+ */
 export function useMutation<
     TData = unknown,
     TVariables extends OperationVariables = OperationVariables,
@@ -89,13 +148,91 @@ export function useMutation<
     }
 
     return {
+        /**
+         * Whether the mutation has been called at least once.
+         * Useful for conditional rendering based on mutation execution state.
+         */
         called,
+
+        /**
+         * The mutation result data.
+         * Undefined until the mutation completes successfully.
+         */
         data,
+
+        /**
+         * GraphQL error if the mutation failed.
+         * Includes both network errors and GraphQL errors.
+         */
         error,
+
+        /**
+         * Whether the mutation is currently executing.
+         * True from when mutate() is called until completion or error.
+         */
         loading,
+
+        /**
+         * Function to execute the mutation.
+         *
+         * @param variables - Variables for the mutation
+         * @param mutateOptions - Per-call options that override base options
+         * @returns Promise resolving to the mutation result
+         *
+         * @example
+         * ```ts
+         * // Basic call
+         * await mutate({ id: '1', name: 'John' })
+         *
+         * // With per-call options
+         * await mutate (variables, {
+         *   refetchQueries: ['GetSpecificUser'],
+         *   optimisticResponse: { ... }
+         * })
+         * ```
+         */
         mutate,
+
+        /**
+         * Event hook that fires when the mutation completes successfully.
+         * Only fires when actual data is returned (not undefined).
+         *
+         * @example
+         * ```ts
+         * onDone((data) => {
+         *   toast.success('User created!')
+         *   router.push(`/users/${data.createUser.id}`)
+         * })
+         * ```
+         */
         onDone: onDone.on,
+
+        /**
+         * Event hook that fires when the mutation encounters an error.
+         * Fires for both network errors and GraphQL errors.
+         *
+         * @example
+         * ```ts
+         * onError((error) => {
+         *   toast.error(error.message)
+         *   console.error('Mutation failed:', error)
+         * })
+         * ```
+         */
         onError: onError.on,
+
+        /**
+         * Reset the mutation state to initial values.
+         * Clears data, error, loading, and called flags.
+         *
+         * @example
+         * ```ts
+         * // After mutation completes
+         * if (data.value) {
+         *   reset() // Clear state for next use
+         * }
+         * ```
+         */
         reset
     }
 }
