@@ -16,7 +16,7 @@ const { error, refetch, result } = useQuery(UserByIdDocument, vars, {
 <template>
   <div>
     <div>
-      <button type="button" @click="refetch({ userByIdId: userId })">
+      <button type="button" @click="refetch({ userByIdId: vars.userByIdId })">
         Refresh
       </button>
       <button type="button" @click="enabled = !enabled">

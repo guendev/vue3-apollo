@@ -1,4 +1,4 @@
-import type { ErrorLike, ObservableQuery, OperationVariables, TypedDocumentNode } from '@apollo/client/core'
+import type { ApolloClient, ErrorLike, ObservableQuery, OperationVariables, TypedDocumentNode } from '@apollo/client/core'
 import type { DocumentNode } from 'graphql'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
@@ -7,14 +7,14 @@ import { isReadonly, isRef, onBeforeUnmount, ref, shallowRef, toRef, toValue, wa
 
 import { useApolloClient } from '@/composables/useApolloClient.ts'
 
-export interface UseQueryOptions {
+export type UseQueryOptions<TData = unknown, TVariables extends OperationVariables = OperationVariables> = {
     enabled?: MaybeRefOrGetter<boolean>
-}
+} & Omit<ApolloClient.WatchQueryOptions<TData, TVariables>, 'query' | 'variables'>
 
 export function useQuery<TData = unknown, TVariables extends OperationVariables = OperationVariables>(
     document: DocumentNode | TypedDocumentNode<TData, TVariables>,
     variables?: MaybeRefOrGetter<TVariables>,
-    options?: UseQueryOptions
+    options?: UseQueryOptions<TData, TVariables>
 ) {
     const client = useApolloClient()
 
@@ -72,7 +72,8 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
 
         query.value = client.watchQuery<TData, TVariables>({
             query: document,
-            variables: toValue(reactiveVariables) as TVariables
+            variables: toValue(reactiveVariables),
+            ...options
         })
 
         startObserver()
