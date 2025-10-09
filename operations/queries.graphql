@@ -1,0 +1,14 @@
+query UserById($userByIdId: Int!) {
+    userById(id: $userByIdId) {
+        id
+        name
+        email
+    }
+}
+
+query Posts($userId: Int, $first: Int) {
+    posts(userId: $userId, first: $first) {
+        id
+        title
+    }
+}
