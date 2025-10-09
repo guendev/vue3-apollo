@@ -145,8 +145,8 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     const networkStatus = ref<NetworkStatus>()
     const error = ref<ErrorLike>()
 
-    const queryResult = createEventHook<TData>()
-    const queryError = createEventHook<ErrorLike>()
+    const onResult = createEventHook<TData>()
+    const onErrorEvent = createEventHook<ErrorLike>()
 
     const enabled = toRef(options?.enabled ?? true)
     const reactiveVariables = ref(toValue(variables))
@@ -162,7 +162,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
 
         error.value = value.error
         if (value.error) {
-            void queryError.trigger(value.error)
+            void onErrorEvent.trigger(value.error)
         }
 
         // Only update the result when:
@@ -173,14 +173,14 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
             if (isDefined(result.value)) {
                 // eslint-disable-next-line ts/ban-ts-comment
                 // @ts-expect-error
-                void queryResult.trigger(value.data)
+                void onResult.trigger(value.data)
             }
         }
     }
 
     const onError = (e: ErrorLike) => {
         error.value = e
-        void queryError.trigger(e)
+        void onErrorEvent.trigger(e)
     }
 
     const startObserver = () => {
@@ -293,12 +293,12 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
          *
          * @example
          * ```ts
-         * onError((error) => {
+         * onErrorEvent((error) => {
          *   toast.error(error.message)
          * })
          * ```
          */
-        onError: queryError.on,
+        onError: onErrorEvent.on,
 
         /**
          * Event hook that fires when new query results are received.
@@ -311,7 +311,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
          * })
          * ```
          */
-        onResult: queryResult.on,
+        onResult: onResult.on,
 
         /**
          * Manually refetch the query with optional new variables.
