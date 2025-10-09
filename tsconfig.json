@@ -1,7 +1,7 @@
 {
   "references": [
-    { "path": "./packages/core" },
-    { "path": "./examples/vue"}
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
   ],
   "files": []
 }

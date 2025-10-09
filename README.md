@@ -1,34 +1,5 @@
-# vue3-apollo
+# Vue 3 + TypeScript + Vite
 
-A Vue 3 Apollo Client library with composables for GraphQL operations.
+This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
 
-## Project Structure
-
-This is a pnpm monorepo with the following packages:
-
-- **packages/core** - The main vue3-apollo library
-- **playground** - Development and testing environment
-
-## Development
-
-```bash
-# Install dependencies
-pnpm install
-
-# Run playground dev server
-pnpm dev
-
-# Build the core library
-pnpm build
-
-# Generate GraphQL types for playground
-pnpm build:apollo
-```
-
-## Scripts
-
-- `pnpm dev` - Start the playground development server
-- `pnpm build` - Build the core library package
-- `pnpm build:apollo` - Generate GraphQL codegen types for playground
-- `pnpm lint` - Run ESLint
-- `pnpm lint:fix` - Fix ESLint issues
+Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).

@@ -1,9 +1,10 @@
 import antfu from '@antfu/eslint-config'
+import graphqlPlugin from '@graphql-eslint/eslint-plugin'
 
 export default antfu(
     {
         ignores: [
-            '**/codegen/*',
+            'src/**/*.generated.*',
             '.junie/*'
         ],
         stylistic: {
@@ -21,8 +22,7 @@ export default antfu(
                 'node/prefer-global/buffer': 'off',
                 'ts/consistent-type-imports': 'error'
             }
-        },
-        vue: true
+        }
     },
     {
         rules: {
@@ -32,7 +32,7 @@ export default antfu(
                 {
                     patterns: [
                         {
-                            message: 'Please use alias ~[alias] instead.',
+                            message: 'Please use alias @[alias] instead.',
                             regex: '^\\.'
                         }
                     ]
@@ -55,7 +55,7 @@ export default antfu(
             'perfectionist/sort-imports': [
                 'error',
                 {
-                    internalPattern: ['^~/.+'],
+                    internalPattern: ['^@/.+'],
                     newlinesBetween: 'always'
                 }
             ],
@@ -86,6 +86,57 @@ export default antfu(
             ],
             'perfectionist/sort-switch-case': 'error',
             'perfectionist/sort-union-types': 'error'
+        }
+    },
+    {
+        files: ['src/modules/**/*.graphql', 'src/apollo/schema/schema.generated.graphqls'],
+        languageOptions: {
+            parser: graphqlPlugin.parser
+        },
+        plugins: {
+            '@graphql-eslint': graphqlPlugin
+        },
+        rules: {
+            ...graphqlPlugin.configs['flat/schema-recommended'].rules,
+            '@graphql-eslint/alphabetize': [
+                'error',
+                {
+                    fields: ['ObjectTypeDefinition', 'InterfaceTypeDefinition', 'InputObjectTypeDefinition'],
+                    groups: [
+                        'id',
+                        'key',
+                        '*',
+                        'createdAt',
+                        'updatedAt'
+                    ],
+                    values: true
+                }
+            ],
+            '@graphql-eslint/no-hashtag-description': 'off',
+            '@graphql-eslint/no-unreachable-types': 'off',
+            '@graphql-eslint/require-description': 'off',
+            '@graphql-eslint/strict-id-in-types': [
+                'error',
+                {
+                    exceptions: {
+                        types: [
+                            'AudioAttr',
+                            'AuthTokens',
+                            'CardConnection',
+                            'CardEdge',
+                            'ContentRef',
+                            'ImageAttr',
+                            'PageInfo',
+                            'PracticeTask',
+                            'ReviewLog',
+                            'TaskChoices',
+                            'TaskIntro',
+                            'TaskReorder',
+                            'TextAttr'
+                        ]
+                    }
+                }
+            ]
         }
     }
 )

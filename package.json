@@ -1,18 +1,35 @@
 {
-  "name": "@vue3-apollo/root",
+  "name": "vue3-apollo",
   "type": "module",
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build": "pnpm --filter vue3-apollo build",
-    "lint": "eslint .",
+    "apollo:build": "npx graphql-codegen",
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "eslint",
     "lint:fix": "eslint --fix"
+  },
+  "dependencies": {
+    "@apollo/client": "^4.0.7",
+    "@vueuse/core": "^13.9.0",
+    "graphql": "^16.11.0",
+    "vue": "^3.5.22"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^5.4.1",
+    "@graphql-codegen/cli": "^6.0.0",
+    "@graphql-codegen/client-preset": "^5.1.0",
+    "@graphql-eslint/eslint-plugin": "^4.4.0",
+    "@types/node": "^24.6.0",
+    "@vitejs/plugin-vue": "^6.0.1",
     "@vue/tsconfig": "^0.8.1",
     "eslint": "^9.36.0",
-    "eslint-plugin-perfectionist": "^4.15.1"
-  },
-  "packageManager": "pnpm@10.17.1+sha512.17c560fca4867ae9473a3899ad84a88334914f379be46d455cbf92e5cf4b39d34985d452d2583baf19967fa76cb5c17bc9e245529d0b98745721aa7200ecaf7a"
+    "eslint-plugin-perfectionist": "^4.15.1",
+    "typescript": "~5.9.3",
+    "vite": "^7.1.7",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vue-tsc": "^3.1.0"
+  }
 }
