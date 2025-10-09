@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { PostsQueryVariables } from '~/operations/codegen/graphql'
 
+import { useMutation, useQuery } from '@vue3-apollo/core'
 import { PostsDocument, UpdatePostDocument } from '~/operations/codegen/graphql'
-import { useMutation, useQuery } from '~core/composables'
 import { reactive, ref } from 'vue'
 
 const enabled = ref(true)

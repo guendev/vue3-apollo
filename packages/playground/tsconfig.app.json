@@ -4,9 +4,7 @@
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "types": ["vite/client"],
     "paths": {
-      "~/*": ["src/*"],
-      "~core/*": ["../core/src/*"],
-      "~core": ["../core/src"]
+      "~/*": ["src/*"]
     },
 
     /* Linting */
