@@ -10,7 +10,7 @@ import type { DocumentNode } from 'graphql'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
 import { createEventHook, syncRef, useDebounceFn, useThrottleFn } from '@vueuse/core'
-import { getCurrentScope, isReadonly, isRef, onScopeDispose, ref, shallowRef, toRef, toValue, watch } from 'vue'
+import { computed, getCurrentScope, isReadonly, isRef, onScopeDispose, ref, shallowRef, toValue, watch } from 'vue'
 
 import type { UseBaseOption } from '@/utils'
 
@@ -137,7 +137,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     const onResult = createEventHook<TData>()
     const onErrorEvent = createEventHook<ErrorLike>()
 
-    const enabled = toRef(options?.enabled ?? true)
+    const enabled = computed(() => toValue(options?.enabled ?? true))
     const reactiveVariables = ref(toValue(variables))
     if (isRef(variables)) {
         syncRef(variables as Ref, reactiveVariables, {
@@ -207,6 +207,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         }
 
         query.value = client.watchQuery<TData, TVariables>({
+            notifyOnNetworkStatusChange: options?.notifyOnNetworkStatusChange ?? options?.keepPreviousResult,
             query: document,
             variables: toValue(reactiveVariables),
             ...options
