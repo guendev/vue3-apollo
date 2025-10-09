@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@vue3-apollo/core": "workspace:*",
-    "vue": "^3.5.22"
+    "vue": "^3.5.22",
+    "graphql": "^16.11.0",
+    "@apollo/client": "^4.0.7"
   },
   "devDependencies": {
     "@types/node": "^24.6.0",
