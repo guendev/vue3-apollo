@@ -4,7 +4,7 @@ import type { InjectionKey } from 'vue'
 /**
  * Default Apollo client identifier
  */
-export const DEFAULT_APOLLO_CLIENT = 'apollo'
+export const DEFAULT_APOLLO_CLIENT = 'default'
 
 /**
  * Injection key for Apollo clients registry
