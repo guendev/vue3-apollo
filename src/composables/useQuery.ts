@@ -1,4 +1,11 @@
-import type { ApolloClient, ErrorLike, ObservableQuery, OperationVariables, TypedDocumentNode } from '@apollo/client/core'
+import type {
+    ApolloClient,
+    ErrorLike,
+    NetworkStatus,
+    ObservableQuery,
+    OperationVariables,
+    TypedDocumentNode
+} from '@apollo/client/core'
 import type { DocumentNode } from 'graphql'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
@@ -23,6 +30,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
 
     const result = shallowRef<TData>()
     const loading = ref(true)
+    const networkStatus = ref<NetworkStatus>()
     const error = ref<ErrorLike>()
 
     const enabled = toRef(options?.enabled ?? true)
@@ -38,6 +46,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         error.value = value.error
         loading.value = value.loading
         result.value = value.data as TData
+        networkStatus.value = value.networkStatus
     }
 
     const onError = (e: ErrorLike) => {
@@ -60,8 +69,16 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     }
 
     const stop = () => {
+        loading.value = false
+
         if (observer.value && !observer.value.closed) {
             observer.value.unsubscribe()
+        }
+        observer.value = undefined
+
+        if (query.value) {
+            query.value.stopPolling()
+            query.value = undefined
         }
     }
 
@@ -109,5 +126,13 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         stop()
     })
 
-    return { error, loading, refetch, result }
+    return {
+        error,
+        loading,
+        networkStatus,
+        refetch,
+        result,
+        start,
+        stop
+    }
 }
