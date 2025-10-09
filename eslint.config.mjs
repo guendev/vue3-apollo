@@ -32,7 +32,7 @@ export default antfu(
                 {
                     patterns: [
                         {
-                            message: 'Please use alias @[alias] instead.',
+                            message: 'Please use alias ~/[alias] instead.',
                             regex: '^\\.'
                         }
                     ]
@@ -55,7 +55,7 @@ export default antfu(
             'perfectionist/sort-imports': [
                 'error',
                 {
-                    internalPattern: ['^@/.+'],
+                    internalPattern: ['^~/.+'],
                     newlinesBetween: 'always'
                 }
             ],

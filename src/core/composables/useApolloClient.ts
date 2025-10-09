@@ -1,5 +1,6 @@
-import { useApolloClients } from '@/composables/useApolloClients'
-import { DEFAULT_APOLLO_CLIENT } from '@/constants'
+import { inject } from 'vue'
+
+import { APOLLO_CLIENTS_KEY, DEFAULT_APOLLO_CLIENT } from '~/core'
 
 /**
  * Get an Apollo client instance by ID
@@ -17,7 +18,13 @@ import { DEFAULT_APOLLO_CLIENT } from '@/constants'
  * ```
  */
 export function useApolloClient(clientId?: string) {
-    const apolloClients = useApolloClients()
+    const apolloClients = inject(APOLLO_CLIENTS_KEY)
+
+    if (!apolloClients) {
+        throw new Error(
+            '[useApolloClients] Apollo clients registry not found. Did you forget to install ApolloPlugin?'
+        )
+    }
 
     const client = apolloClients[clientId ?? DEFAULT_APOLLO_CLIENT]
 
