@@ -1,5 +1,5 @@
 import { useApolloClients } from '@/composables/useApolloClients'
-import { DEFAULT_APOLLO_CLIENT } from '@/constants/apollo'
+import { DEFAULT_APOLLO_CLIENT } from '@/constants'
 
 /**
  * Get an Apollo client instance by ID

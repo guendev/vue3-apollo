@@ -10,12 +10,12 @@ import type { DocumentNode } from 'graphql'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
 import { createEventHook, syncRef } from '@vueuse/core'
-import { isDefined } from 'remeda'
 import { isReadonly, isRef, onBeforeUnmount, ref, shallowRef, toRef, toValue, watch } from 'vue'
 
-import type { UseBaseOption } from '@/utils/type'
+import type { UseBaseOption } from '@/utils'
 
-import { useApolloClient } from '@/composables/useApolloClient'
+import { useApolloClient } from '@/composables'
+import { isDefined } from '@/utils'
 
 export type UseSubscriptionOptions<
     TData = unknown,

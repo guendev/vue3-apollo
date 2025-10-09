@@ -2,12 +2,12 @@ import type { ApolloCache, ApolloClient, ErrorLike, OperationVariables, TypedDoc
 import type { DocumentNode } from 'graphql'
 
 import { createEventHook } from '@vueuse/core'
-import { isDefined } from 'remeda'
 import { nextTick, ref, shallowRef } from 'vue'
 
-import type { UseBaseOption } from '@/utils/type'
+import type { UseBaseOption } from '@/utils'
 
-import { useApolloClient } from '@/composables/useApolloClient'
+import { useApolloClient } from '@/composables'
+import { isDefined } from '@/utils'
 
 /**
  * Options for useMutation composable
