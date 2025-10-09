@@ -2,7 +2,6 @@
   "name": "vue3-apollo",
   "type": "module",
   "version": "0.0.1",
-  "private": false,
   "sideEffects": false,
   "exports": {
     ".": {
@@ -18,7 +17,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup --config tsup.config.ts"
+    "build": "tsup --config tsup.config.ts && tsc -d --emitDeclarationOnly"
   },
   "peerDependencies": {
     "@apollo/client": "^4.0.0",
@@ -29,6 +28,7 @@
     "@vueuse/core": "^13.9.0"
   },
   "devDependencies": {
+    "@vue/tsconfig": "^0.8.1",
     "tsup": "^8.5.0",
     "typescript": "^5.9.3"
   }

@@ -21,29 +21,7 @@ importers:
         specifier: ^4.15.1
         version: 4.15.1(eslint@9.37.0(jiti@2.6.1))(typescript@5.9.3)
 
-  packages/core:
-    dependencies:
-      '@apollo/client':
-        specifier: ^4.0.0
-        version: 4.0.7(graphql-ws@6.0.6(graphql@16.11.0)(ws@8.18.3))(graphql@16.11.0)(rxjs@7.8.2)
-      '@vueuse/core':
-        specifier: ^13.9.0
-        version: 13.9.0(vue@3.5.22(typescript@5.9.3))
-      graphql:
-        specifier: ^16.0.0
-        version: 16.11.0
-      vue:
-        specifier: ^3.3.0
-        version: 3.5.22(typescript@5.9.3)
-    devDependencies:
-      tsup:
-        specifier: ^8.5.0
-        version: 8.5.0(jiti@2.6.1)(postcss@8.5.6)(typescript@5.9.3)(yaml@2.8.1)
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-
-  playground/vue:
+  examples/vue:
     dependencies:
       '@apollo/client':
         specifier: ^4.0.0
@@ -79,6 +57,31 @@ importers:
       vite-tsconfig-paths:
         specifier: ^5.1.4
         version: 5.1.4(typescript@5.9.3)(vite@6.3.6(@types/node@24.7.0)(jiti@2.6.1)(yaml@2.8.1))
+
+  packages/core:
+    dependencies:
+      '@apollo/client':
+        specifier: ^4.0.0
+        version: 4.0.7(graphql-ws@6.0.6(graphql@16.11.0)(ws@8.18.3))(graphql@16.11.0)(rxjs@7.8.2)
+      '@vueuse/core':
+        specifier: ^13.9.0
+        version: 13.9.0(vue@3.5.22(typescript@5.9.3))
+      graphql:
+        specifier: ^16.0.0
+        version: 16.11.0
+      vue:
+        specifier: ^3.3.0
+        version: 3.5.22(typescript@5.9.3)
+    devDependencies:
+      '@vue/tsconfig':
+        specifier: ^0.8.1
+        version: 0.8.1(typescript@5.9.3)(vue@3.5.22(typescript@5.9.3))
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.0(jiti@2.6.1)(postcss@8.5.6)(typescript@5.9.3)(yaml@2.8.1)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
 
 packages:
 
