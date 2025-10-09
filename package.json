@@ -1,8 +1,9 @@
 {
-  "name": "vue3-apollo-monorepo",
+  "name": "@vue3-apollo/root",
   "type": "module",
   "version": "0.0.1",
   "private": true,
+  "packageManager": "pnpm@10.17.1+sha512.17c560fca4867ae9473a3899ad84a88334914f379be46d455cbf92e5cf4b39d34985d452d2583baf19967fa76cb5c17bc9e245529d0b98745721aa7200ecaf7a",
   "scripts": {
     "build": "pnpm --filter vue3-apollo build",
     "dev": "pnpm --filter playground/vue dev",
@@ -15,6 +16,5 @@
     "@vue/tsconfig": "^0.8.1",
     "eslint": "^9.36.0",
     "eslint-plugin-perfectionist": "^4.15.1"
-  },
-  "packageManager": "pnpm@10.17.1+sha512.17c560fca4867ae9473a3899ad84a88334914f379be46d455cbf92e5cf4b39d34985d452d2583baf19967fa76cb5c17bc9e245529d0b98745721aa7200ecaf7a"
+  }
 }
