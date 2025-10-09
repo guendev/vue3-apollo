@@ -4,10 +4,9 @@ import type { DocumentNode } from 'graphql'
 import { createEventHook } from '@vueuse/core'
 import { nextTick, ref, shallowRef } from 'vue'
 
-import type { UseBaseOption } from '../utils'
+import type { UseBaseOption } from '~/core'
 
-import { isDefined } from '../utils'
-import { useApolloClient } from './index'
+import { isDefined, useApolloClient } from '~/core'
 
 /**
  * Options for useMutation composable

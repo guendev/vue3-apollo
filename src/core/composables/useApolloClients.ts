@@ -2,7 +2,7 @@ import type { ApolloClient } from '@apollo/client/core'
 
 import { inject } from 'vue'
 
-import { APOLLO_CLIENTS_KEY } from '../constants'
+import { APOLLO_CLIENTS_KEY } from '~/core'
 
 /**
  * Get the entire Apollo clients registry

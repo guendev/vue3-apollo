@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
-
 import type { PostsQueryVariables } from '@/operations/codegen/graphql.ts'
 
 import { useMutation } from '@/composables/useMutation.ts'
 import { useQuery } from '@/composables/useQuery.ts'
 import { PostsDocument, UpdatePostDocument } from '@/operations/codegen/graphql.ts'
+import { reactive, ref } from 'vue'
 
 const enabled = ref(true)
 

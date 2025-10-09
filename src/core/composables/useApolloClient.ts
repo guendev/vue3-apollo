@@ -1,5 +1,4 @@
-import { DEFAULT_APOLLO_CLIENT } from '../constants'
-import { useApolloClients } from './useApolloClients'
+import { DEFAULT_APOLLO_CLIENT, useApolloClients } from '~/core'
 
 /**
  * Get an Apollo client instance by ID

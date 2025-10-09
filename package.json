@@ -35,7 +35,6 @@
     "@antfu/eslint-config": "^5.4.1",
     "@graphql-codegen/cli": "^6.0.0",
     "@graphql-codegen/client-preset": "^5.1.0",
-    "@graphql-eslint/eslint-plugin": "^4.4.0",
     "eslint": "^9.36.0",
     "eslint-plugin-perfectionist": "^4.15.1",
     "tsup": "^8.5.0",
