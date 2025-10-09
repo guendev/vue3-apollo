@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vue3-apollo/core": "workspace:*",
     "vue": "^3.5.22"
   },
   "devDependencies": {

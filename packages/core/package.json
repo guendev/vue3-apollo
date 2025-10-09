@@ -25,8 +25,10 @@
   "peerDependencies": {
     "vue": "^3.3.0",
     "graphql": "^16.0.0",
-    "@apollo/client": "^4.0.0",
-    "@vueuse/core": "^10.0.0 || ^11.0.0 || ^13.0.0"
+    "@apollo/client": "^4.0.0"
+  },
+  "dependencies": {
+    "@vueuse/core": "^13.9.0"
   },
   "devDependencies": {
     "tsup": "^8.5.0",
