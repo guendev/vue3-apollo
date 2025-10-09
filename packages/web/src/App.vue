@@ -1,30 +1,74 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
+import type { PostsQueryVariables } from '@vue3-apollo/operations'
+
+import { useMutation, useQuery } from '@vue3-apollo/core'
+import { PostsDocument, UpdatePostDocument } from '@vue3-apollo/operations'
+import { reactive, ref } from 'vue'
+
+const enabled = ref(true)
+
+const vars = reactive<PostsQueryVariables>({
+    first: 1,
+    userId: 1
+})
+
+const { error, onResult, result } = useQuery(PostsDocument, vars, {
+    enabled,
+    keepPreviousResult: true
+})
+
+const title = ref('')
+
+const { loading, mutate } = useMutation(UpdatePostDocument)
+
+onResult((data) => {
+    console.warn('onResult', data)
+})
 </script>
 
 <template>
   <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+    <div>
+      <button type="button">
+        Refresh
+      </button>
+      <button type="button" @click="enabled = !enabled">
+        {{ enabled ? 'Disable' : 'Enable' }} Query
+      </button>
+    </div>
+
+    <div class="layer">
+      <label>User ID:</label>
+      <input v-model.number="vars.userId" type="number" placeholder="User ID">
+    </div>
+
+    <div>
+      <label>Title:</label>
+      <input v-model="title" type="text" placeholder="Title">
+
+      <button
+        @click="mutate({ postId: 1, post: { title } })"
+      >
+        {{ loading ? 'Loading...' : 'Update' }}
+      </button>
+    </div>
+
+    <div class="layer">
+      <strong>Query Status:</strong> {{ enabled ? 'Enabled' : 'Disabled' }}
+    </div>
+
+    <div class="layer">
+      {{ error }}
+    </div>
+
+    <div class="layer">
+      {{ result?.posts }}
+    </div>
   </div>
-  <HelloWorld msg="Vite + Vue" />
 </template>
 
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+<style>
+.layer {
+    margin-top: 20px;
 }
 </style>

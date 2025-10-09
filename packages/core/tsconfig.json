@@ -11,8 +11,7 @@
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-    "skipLibCheck": true,
-    "rootDir": "."
+    "skipLibCheck": true
   },
   "include": ["src/**/*"]
 }

@@ -56,13 +56,22 @@ importers:
         version: 5.1.4(typescript@5.9.3)(vite@7.1.9(@types/node@24.7.0)(jiti@2.6.1)(terser@5.44.0)(yaml@2.8.1))
 
   packages/operations:
-    dependencies:
+    devDependencies:
+      '@apollo/client':
+        specifier: ^4.0.7
+        version: 4.0.7(graphql-ws@6.0.6(crossws@0.3.5)(graphql@16.11.0)(ws@8.18.3))(graphql@16.11.0)(rxjs@7.8.2)
       '@graphql-codegen/cli':
         specifier: ^6.0.0
         version: 6.0.0(@types/node@24.7.0)(crossws@0.3.5)(graphql@16.11.0)(typescript@5.9.3)
       '@graphql-codegen/client-preset':
         specifier: ^5.1.0
         version: 5.1.0(graphql@16.11.0)
+      '@graphql-typed-document-node/core':
+        specifier: ^3.2.0
+        version: 3.2.0(graphql@16.11.0)
+      graphql:
+        specifier: ^16.11.0
+        version: 16.11.0
 
   packages/web:
     dependencies:

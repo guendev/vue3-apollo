@@ -1,8 +1,8 @@
 import antfu from '@antfu/eslint-config'
-import graphqlPlugin from '@graphql-eslint/eslint-plugin'
 
 export default antfu(
     {
+	    vue: true,
         ignores: [
             'src/**/*.generated.*',
             '.junie/*'

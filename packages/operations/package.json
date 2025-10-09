@@ -2,17 +2,20 @@
   "name": "@vue3-apollo/operations",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "./src/index.ts",
   "scripts": {
     "build": "graphql-codegen"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/guendev/vue3-apollo.git"
+  "peerDependencies": {
+    "graphql": "^16.0.0",
+    "@apollo/client": "^4.0.0"
   },
-  "private": true,
-  "dependencies": {
+  "devDependencies": {
+    "graphql": "^16.11.0",
+    "@apollo/client": "^4.0.7",
     "@graphql-codegen/cli": "^6.0.0",
-    "@graphql-codegen/client-preset": "^5.1.0"
+    "@graphql-codegen/client-preset": "^5.1.0",
+    "@graphql-typed-document-node/core": "^3.2.0"
   }
 }
