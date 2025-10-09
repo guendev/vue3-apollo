@@ -4,7 +4,8 @@
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
 
     "paths": {
-      "~/*": ["./src/*"]
+      "~/*": ["./src/*"],
+      "~lib": ["./dist"],
     },
 
     "types": ["vite/client"],

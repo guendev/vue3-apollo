@@ -8,7 +8,7 @@ export default defineConfig({
     minify: false,
     skipNodeModulesBundle: true,
     sourcemap: true,
-    splitting: true, // lib nhỏ, tránh split rườm rà
+    splitting: false, // lib nhỏ, tránh split rườm rà
     target: 'es2020',
-    treeshake: true
+    tsconfig: 'tsconfig.build.json'
 })
