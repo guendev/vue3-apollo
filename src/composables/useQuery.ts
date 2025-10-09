@@ -232,7 +232,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         }
         error.value = undefined
         loading.value = true
-        query.value.refetch(variables)
+        return query.value.refetch(variables)
     }
 
     const updateVariables = (newVariables: TVariables) => {
