@@ -19,7 +19,7 @@
   "scripts": {
     "build": "npm run build:js && npm run build:types",
     "build:js": "tsup --config tsup.config.ts",
-    "build:types": "tsc --declaration --emitDeclarationOnly --outDir dist"
+    "build:types": "tsc --project tsconfig.json"
   },
   "peerDependencies": {
     "@apollo/client": "^4.0.0",
