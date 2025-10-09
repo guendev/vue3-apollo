@@ -10,7 +10,7 @@ import type { DocumentNode } from 'graphql'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
 import { createEventHook, syncRef, useDebounceFn, useThrottleFn } from '@vueuse/core'
-import { isReadonly, isRef, onBeforeUnmount, ref, shallowRef, toRef, toValue, watch } from 'vue'
+import { isReadonly, isRef, onScopeDispose, ref, shallowRef, toRef, toValue, watch } from 'vue'
 
 import type { UseBaseOption } from '@/utils'
 
@@ -250,9 +250,12 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
 
     watch(reactiveVariables, (newVariables) => {
         optimizedUpdateVariables(newVariables)
-    }, { deep: true })
+    }, {
+        deep: true,
+        flush: 'post'
+    })
 
-    onBeforeUnmount(() => {
+    onScopeDispose(() => {
         stop()
     })
 
