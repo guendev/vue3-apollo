@@ -6,7 +6,7 @@ export default defineConfig({
     entry: ['src/core/index.ts'],
     external: ['vue', '@apollo/client', 'graphql', '@vueuse/core'],
     format: ['esm', 'cjs'],
-    minify: false,
+    minify: true,
     outDir: 'dist',
     skipNodeModulesBundle: true,
     sourcemap: true,
