@@ -1,25 +1,38 @@
 {
   "name": "@vue3-apollo/core",
-  "type": "module",
   "version": "1.0.0",
-  "sideEffects": false,
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "development": {
-        "import": "./dist/index.js",
-        "require": "./dist/index.cjs"
-      },
-      "default": {
-        "import": "./dist/index.js",
-        "require": "./dist/index.cjs"
-      }
-    },
-    "./package.json": "./package.json"
+  "description": "Composable Apollo Client utilities for Vue 3.",
+  "keywords": [
+    "vue",
+    "vue3",
+    "apollo",
+    "graphql",
+    "composables",
+    "client"
+  ],
+  "license": "MIT",
+  "author": "Guen <heloo@guen.dev>",
+  "homepage": "https://github.com/guendev/vue3-apollo#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guendev/vue3-apollo.git"
   },
+  "bugs": {
+    "url": "https://github.com/guendev/vue3-apollo/issues"
+  },
+  "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "typesVersions": {
     "*": {
       "*": [
@@ -30,13 +43,15 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
+  "sideEffects": false,
   "scripts": {
-    "build": "tsup --config tsup.config.ts"
+    "dev": "tsup --config tsup.config.ts --watch",
+    "build": "tsup --config tsup.config.ts",
+    "clean": "rimraf dist",
+    "prepublishOnly": "pnpm run build"
   },
   "peerDependencies": {
     "@apollo/client": "^4.0.0",
@@ -48,10 +63,16 @@
   },
   "devDependencies": {
     "@vue/tsconfig": "^0.8.1",
+    "rimraf": "^6.0.1",
     "tsup": "^8.5.0",
-    "vite-plugin-dts": "^4.5.4",
-    "typescript": "^5.9.3",
-    "vite": "^7.1.9",
-    "vite-tsconfig-paths": "^5.1.4"
+    "typescript": "^5.9.3"
+  },
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }
