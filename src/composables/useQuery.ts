@@ -94,7 +94,6 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         if (!query.value) {
             return
         }
-        reactiveVariables.value = variables
         error.value = undefined
         loading.value = true
         query.value.refetch(variables)
@@ -102,7 +101,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
 
     watch(reactiveVariables, (newVariables) => {
         if (enabled.value && query.value) {
-            void refetch(newVariables)
+            void query.value.setVariables(newVariables)
         }
     }, { deep: true })
 
