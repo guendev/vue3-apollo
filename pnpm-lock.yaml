@@ -12,7 +12,7 @@ importers:
         specifier: ^5.4.1
         version: 5.4.1(@vue/compiler-sfc@3.5.22)(eslint@9.37.0(jiti@2.6.1))(typescript@5.9.3)
       eslint:
-        specifier: ^9.36.0
+        specifier: ^9.37.0
         version: 9.37.0(jiti@2.6.1)
       eslint-plugin-perfectionist:
         specifier: ^4.15.1
@@ -66,18 +66,24 @@ importers:
 
   packages/web:
     dependencies:
+      '@apollo/client':
+        specifier: ^4.0.7
+        version: 4.0.7(graphql-ws@6.0.6(crossws@0.3.5)(graphql@16.11.0)(ws@8.18.3))(graphql@16.11.0)(rxjs@7.8.2)
       '@vue3-apollo/core':
         specifier: workspace:*
         version: link:../core
       '@vue3-apollo/operations':
         specifier: workspace:*
         version: link:../operations
+      graphql:
+        specifier: ^16.11.0
+        version: 16.11.0
       vue:
         specifier: ^3.5.22
         version: 3.5.22(typescript@5.9.3)
     devDependencies:
       '@types/node':
-        specifier: ^24.6.0
+        specifier: ^24.7.0
         version: 24.7.0
       '@vitejs/plugin-vue':
         specifier: ^6.0.1
@@ -89,10 +95,10 @@ importers:
         specifier: ~5.9.3
         version: 5.9.3
       vite:
-        specifier: ^7.1.7
+        specifier: ^7.1.9
         version: 7.1.9(@types/node@24.7.0)(jiti@2.6.1)(terser@5.44.0)(yaml@2.8.1)
       vue-tsc:
-        specifier: ^3.1.0
+        specifier: ^3.1.1
         version: 3.1.1(typescript@5.9.3)
 
 packages:
