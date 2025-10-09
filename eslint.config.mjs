@@ -30,17 +30,6 @@ export default defineConfig([
 		{
 			rules: {
 				'eslint-comments/no-unlimited-disable': 'off',
-				'no-restricted-imports': [
-					'error',
-					{
-						patterns: [
-							{
-								message: 'Please use alias @[alias] instead.',
-								regex: '^\\.'
-							}
-						]
-					}
-				],
 				'perfectionist/sort-array-includes': 'error',
 				'perfectionist/sort-classes': 'error',
 				'perfectionist/sort-heritage-clauses': [

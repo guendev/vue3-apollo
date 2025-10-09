@@ -1,1 +1,1 @@
-export * from '@/plugins/apolloPlugin'
+export * from './apolloPlugin'

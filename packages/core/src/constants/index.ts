@@ -1,1 +1,1 @@
-export * from '@/constants/apollo'
+export * from './apollo'

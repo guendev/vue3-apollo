@@ -12,14 +12,11 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "useDefineForClassFields": true,
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    }
+    "useDefineForClassFields": true
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "eslint.config.mjs",
+    "tsup.config.ts"
   ]
 }

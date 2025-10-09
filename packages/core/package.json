@@ -20,7 +20,8 @@
   "scripts": {
     "build": "tsup --config tsup.config.ts",
     "dev": "tsup --config tsup.config.ts --watch",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix"
   },
   "peerDependencies": {
     "vue": "^3.3.0",
@@ -31,6 +32,9 @@
     "@vueuse/core": "^13.9.0"
   },
   "devDependencies": {
+    "eslint": "^9.36.0",
+    "eslint-plugin-perfectionist": "^4.15.1",
+    "@antfu/eslint-config": "^5.4.1",
     "tsup": "^8.5.0",
     "typescript": "^5.9.3"
   }

@@ -1,2 +1,2 @@
-export * from '@/utils/isDefined'
-export * from '@/utils/type'
+export * from './isDefined'
+export * from './type'

@@ -12,10 +12,10 @@ import type { MaybeRefOrGetter, Ref } from 'vue'
 import { createEventHook, syncRef } from '@vueuse/core'
 import { getCurrentScope, isReadonly, isRef, onScopeDispose, ref, shallowRef, toRef, toValue, watch } from 'vue'
 
-import type { UseBaseOption } from '@/utils'
+import type { UseBaseOption } from '../utils'
 
-import { useApolloClient } from '@/composables'
-import { isDefined } from '@/utils'
+import { isDefined } from '../utils'
+import { useApolloClient } from './useApolloClient'
 
 export type UseSubscriptionOptions<
     TData = unknown,
