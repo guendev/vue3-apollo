@@ -21,7 +21,8 @@ export default antfu(
                 'node/prefer-global/buffer': 'off',
                 'ts/consistent-type-imports': 'error'
             }
-        }
+        },
+        vue: true
     },
     {
         rules: {

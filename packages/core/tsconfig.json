@@ -5,8 +5,8 @@
     "lib": ["ES2022", "DOM"],
     "baseUrl": ".",
     "rootDir": "src",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
     "paths": {
       "~/*": ["./src/*"]
     },
