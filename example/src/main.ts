@@ -1,10 +1,10 @@
 import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client'
 
-import '~/style.css'
+import './style.css'
 import { createApp } from 'vue'
 
-import App from '~/App.vue'
-import { apolloPlugin } from '~/core/plugins/apolloPlugin.ts'
+import { apolloPlugin } from '../../core/src'
+import App from './App.vue'
 
 const app = createApp(App)
 

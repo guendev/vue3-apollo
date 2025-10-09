@@ -1,7 +1,11 @@
 {
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
+  "extends": "./tsconfig.base.json",
+  "include": [
+    "core/src/**/*",
+    "example/**/*"
   ],
-  "files": []
+  "exclude": [
+    "dist",
+    "node_modules"
+  ]
 }

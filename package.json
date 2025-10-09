@@ -4,10 +4,9 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "apollo:build": "npx graphql-codegen",
-    "dev": "vite",
-    "build": "vue-tsc -b && vite build",
-    "preview": "vite preview",
+    "build:apollo": "npx graphql-codegen",
+    "build:core": "tsup --config core/tsup.config.ts",
+    "dev:vue": "vite --config example/vite.config.ts",
     "lint": "eslint",
     "lint:fix": "eslint --fix"
   },
@@ -27,6 +26,7 @@
     "@vue/tsconfig": "^0.8.1",
     "eslint": "^9.36.0",
     "eslint-plugin-perfectionist": "^4.15.1",
+    "tsup": "^8.5.0",
     "typescript": "~5.9.3",
     "vite": "^7.1.7",
     "vite-tsconfig-paths": "^5.1.4",
