@@ -17,7 +17,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup --config tsup.config.ts && tsc -d --emitDeclarationOnly"
+    "build": "tsup --config tsup.config.ts"
   },
   "peerDependencies": {
     "@apollo/client": "^4.0.0",
