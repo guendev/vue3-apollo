@@ -1,5 +1,4 @@
 export * from '~/core/composables/useApolloClient'
-export * from '~/core/composables/useApolloClients'
 export * from '~/core/composables/useMutation'
 export * from '~/core/composables/useQuery'
 export * from '~/core/composables/useSubscription'
