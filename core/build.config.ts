@@ -3,12 +3,19 @@ import { defineBuildConfig } from 'unbuild'
 export default defineBuildConfig({
     clean: true,
     declaration: true,
-    entries: ['core/src/index'],
+    entries: [
+        {
+            input: 'core/src/index',
+            name: 'index',
+            outDir: 'dist/core'
+        }
+    ],
     externals: [
         'vue',
         '@apollo/client',
         'graphql'
     ],
+    outDir: 'dist/core',
     rollup: {
         emitCJS: true,
         esbuild: {
