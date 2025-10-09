@@ -1,6 +1,5 @@
 import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client'
-
-import './style.css'
+import 'virtual:uno.css'
 import { apolloPlugin } from '@vue3-apollo/core'
 import { createApp } from 'vue'
 
