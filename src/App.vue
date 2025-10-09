@@ -9,7 +9,8 @@ const enabled = ref(true)
 const vars = ref({ userByIdId: 1 })
 
 const { error, refetch, result } = useQuery(UserByIdDocument, vars, {
-    enabled
+    enabled,
+    keepPreviousResult: true
 })
 </script>
 

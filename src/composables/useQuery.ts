@@ -10,12 +10,14 @@ import type { DocumentNode } from 'graphql'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
 import { syncRef } from '@vueuse/core'
+import { isDefined } from 'remeda'
 import { isReadonly, isRef, onBeforeUnmount, ref, shallowRef, toRef, toValue, watch } from 'vue'
 
 import { useApolloClient } from '@/composables/useApolloClient.ts'
 
 export type UseQueryOptions<TData = unknown, TVariables extends OperationVariables = OperationVariables> = {
     enabled?: MaybeRefOrGetter<boolean>
+    keepPreviousResult?: boolean
 } & Omit<ApolloClient.WatchQueryOptions<TData, TVariables>, 'query' | 'variables'>
 
 export function useQuery<TData = unknown, TVariables extends OperationVariables = OperationVariables>(
@@ -45,8 +47,14 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     const onNext = (value: ObservableQuery.Result<TData, 'complete' | 'empty' | 'partial' | 'streaming'>) => {
         error.value = value.error
         loading.value = value.loading
-        result.value = value.data as TData
         networkStatus.value = value.networkStatus
+
+        // Only update the result when:
+        // - Has new data, or
+        // - keepPreviousResult = false (always update even if undefined)
+        if (isDefined(value.data) || !options?.keepPreviousResult) {
+            result.value = value.data as TData
+        }
     }
 
     const onError = (e: ErrorLike) => {
