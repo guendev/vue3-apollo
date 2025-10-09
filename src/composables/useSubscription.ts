@@ -157,7 +157,7 @@ export function useSubscription<
         })
     }
     else {
-        console.warn('[useSubscription] The subscription will not be automatically stopped when runing outside of a scope')
+        console.warn('[useSubscription] The subscription will not be automatically stopped when running outside of a scope')
     }
 
     return {

@@ -262,7 +262,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         })
     }
     else {
-        console.warn('[useQuery] The query will not be automatically stopped when runing outside of a scope')
+        console.warn('[useQuery] The query will not be automatically stopped when running outside of a scope')
     }
 
     return {
