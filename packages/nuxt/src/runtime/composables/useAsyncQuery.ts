@@ -74,7 +74,7 @@ export type UseAsyncQueryOptions<TData = unknown, TVariables extends OperationVa
      * })
      * ```
      */
-    transform?: (data: TData) => any
+    transform?: (data?: TData) => any
 
     /**
      * Whether to deduplicate requests with the same key.
@@ -138,7 +138,7 @@ export function useAsyncQuery<TData = unknown, TVariables extends OperationVaria
         ])
     }
 
-    return useAsyncData(
+    return useAsyncData<TData | undefined>(
         key,
         async () => {
             const queryResult = await client.query<TData, TVariables>({
@@ -149,11 +149,6 @@ export function useAsyncQuery<TData = unknown, TVariables extends OperationVaria
 
             if (queryResult.error) {
                 throw queryResult.error
-            }
-
-            // Ensure we return the data, throw if undefined
-            if (queryResult.data === undefined || queryResult.data === null) {
-                throw new Error('Query returned no data')
             }
 
             return queryResult.data
