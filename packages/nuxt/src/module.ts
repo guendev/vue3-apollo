@@ -57,13 +57,57 @@ export default defineNuxtModule<ApolloModuleOptions>({
         devtools: true
     },
     meta: {
+        compatibility: {
+            nuxt: '^4.0.0'
+        },
         configKey: 'apollo',
-        name: 'apollo'
+        name: '@vue3-apollo/nuxt'
     },
-    setup(_options, _nuxt) {
+    setup(options, nuxt) {
         const resolver = createResolver(import.meta.url)
 
-        // Do not add the extension since the `.ts` will be transpiled to `.mjs` after `npm run prepack`
+        // Validate configuration
+        if (!options.clients || Object.keys(options.clients).length === 0) {
+            throw new Error('[vue3-apollo] No Apollo clients configured. Please add at least a "default" client in your nuxt.config.ts')
+        }
+
+        if (!options.clients.default) {
+            throw new Error('[vue3-apollo] A "default" client is required. Please configure it in your nuxt.config.ts')
+        }
+
+        // Add runtime config to pass options to the plugin
+        nuxt.options.runtimeConfig.public.apollo = {
+            clients: options.clients
+        }
+
+        // Add plugin to initialize Apollo clients
         addPlugin(resolver.resolve('./runtime/plugin'))
+
+        // Setup auto-imports for composables
+        if (options.autoImports) {
+            nuxt.hook('imports:sources', (sources) => {
+                sources.push({
+                    from: '@vue3-apollo/core',
+                    imports: [
+                        'useQuery',
+                        'useLazyQuery',
+                        'useMutation',
+                        'useSubscription',
+                        'useApolloClient'
+                    ]
+                })
+            })
+        }
+
+        // Add TypeScript declarations
+        nuxt.hook('prepare:types', ({ references }) => {
+            references.push({ types: '@vue3-apollo/nuxt' })
+        })
+
+        // Add devtools integration
+        if (options.devtools && nuxt.options.dev) {
+            // TODO: Implement devtools integration
+            // This can be added later to show Apollo Client state, queries, mutations in Nuxt DevTools
+        }
     }
 })
