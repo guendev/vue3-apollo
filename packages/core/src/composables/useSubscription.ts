@@ -15,6 +15,7 @@ import { getCurrentScope, isReadonly, isRef, onScopeDispose, ref, shallowRef, to
 import type { UseBaseOption } from '../utils/type'
 
 import { isDefined } from '../utils/isDefined'
+import { isServer } from '../utils/isServer'
 import { useApolloClient } from './useApolloClient'
 
 export type UseSubscriptionOptions<
@@ -130,34 +131,38 @@ export function useSubscription<
         startObserver()
     }
 
-    start()
+    // Subscriptions only work on the client-side (require WebSocket)
+    // Skip initialization on server during SSR
+    if (!isServer()) {
+        start()
 
-    watch(enabled, (isEnabled) => {
-        if (isEnabled) {
-            start()
+        watch(enabled, (isEnabled) => {
+            if (isEnabled) {
+                start()
+            }
+            else {
+                stop()
+            }
+        })
+
+        watch(reactiveVariables, () => {
+            if (enabled.value) {
+                stop()
+                start()
+            }
+        }, {
+            deep: true,
+            flush: 'post'
+        })
+
+        if (getCurrentScope()) {
+            onScopeDispose(() => {
+                stop()
+            })
         }
         else {
-            stop()
+            console.warn('[useSubscription] The subscription will not be automatically stopped when running outside of a scope')
         }
-    })
-
-    watch(reactiveVariables, () => {
-        if (enabled.value) {
-            stop()
-            start()
-        }
-    }, {
-        deep: true,
-        flush: 'post'
-    })
-
-    if (getCurrentScope()) {
-        onScopeDispose(() => {
-            stop()
-        })
-    }
-    else {
-        console.warn('[useSubscription] The subscription will not be automatically stopped when running outside of a scope')
     }
 
     return {
