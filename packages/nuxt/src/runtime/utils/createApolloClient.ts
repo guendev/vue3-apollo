@@ -50,7 +50,9 @@ export async function createApolloClient({ clientId, config, nuxtApp }: CreateAp
     })
 
     // Create a cache instance
-    const cache = new InMemoryCache()
+    const cache = new InMemoryCache({
+        ...config.inMemoryCacheOptions
+    })
 
     // Restore cache on client-side from server state
     if (import.meta.client) {
