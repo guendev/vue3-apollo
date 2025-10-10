@@ -98,5 +98,5 @@ declare module '#app' {
     }
 }
 
-// Để tránh lỗi isolated modules
+// avoid isolated modules
 export {}

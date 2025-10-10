@@ -70,6 +70,7 @@ export type ApolloRuntimeConfig = ApolloModuleOptions
 
 /**
  * Shared configuration options for Apollo Client and Module
+ * @remarks Only cookie-based authentication is supported due to SSR constraints
  */
 export interface ApolloSharedConfig {
     /**
@@ -150,17 +151,17 @@ export interface ApolloSharedConfig {
     inMemoryCacheOptions?: InMemoryCacheConfig
 
     /**
-     * Tên của token được sử dụng cho authentication.
-     * Token này sẽ được tìm kiếm trong cookie hoặc localStorage tùy theo cấu hình `tokenStorage`.
+     * Name of the authentication token to retrieve from storage.
+     * The token will be searched in cookie or localStorage depending on `tokenStorage` configuration.
      *
-     * @default 'apollo-token'
+     * @default 'apollo:{clientId}:token' - Falls back to pattern using client ID
      * @example 'auth-token'
      */
     tokenName?: string
 
     /**
-     * Loại authentication scheme được sử dụng trong Authorization header.
-     * Đặt `null` để không thêm prefix vào token.
+     * Authentication scheme used in the Authorization header.
+     * Set to `null` to send the token without any prefix.
      *
      * @default 'Bearer'
      * @example 'Bearer' | 'JWT' | 'Token'
@@ -168,7 +169,7 @@ export interface ApolloSharedConfig {
     authType?: string
 
     /**
-     * Tên của HTTP header được sử dụng để gửi token authentication.
+     * Name of the HTTP header used to send the authentication token.
      *
      * @default 'Authorization'
      * @example 'X-Auth-Token'
