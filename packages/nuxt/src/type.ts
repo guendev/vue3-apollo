@@ -5,7 +5,7 @@ export interface ApolloClientConfig {
     /**
      * GraphQL endpoint URI
      */
-    uri: string
+    httpEndpoint: string
 
     /**
      * Enable devtools integration for each client

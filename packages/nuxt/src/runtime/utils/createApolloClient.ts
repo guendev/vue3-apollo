@@ -16,7 +16,7 @@ interface CreateApolloClientParams {
 export function createApolloClient({ clientId, config, nuxtApp }: CreateApolloClientParams) {
     // Create an HTTP link
     const httpLink = new HttpLink({
-        uri: config.uri
+        uri: config.httpEndpoint
     })
 
     // Create a cache instance
