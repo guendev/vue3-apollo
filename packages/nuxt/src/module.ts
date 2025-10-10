@@ -1,4 +1,5 @@
 import { addPlugin, createResolver, defineNuxtModule } from '@nuxt/kit'
+import { DEFAULT_APOLLO_CLIENT } from '@vue3-apollo/core'
 
 /**
  * Apollo Client configuration options
@@ -68,11 +69,11 @@ export default defineNuxtModule<ApolloModuleOptions>({
 
         // Validate configuration
         if (!options.clients || Object.keys(options.clients).length === 0) {
-            throw new Error('[vue3-apollo] No Apollo clients configured. Please add at least a "default" client in your nuxt.config.ts')
+            throw new Error(`[@vue3-apollo/nuxt] No Apollo clients configured. Please add at least a "${DEFAULT_APOLLO_CLIENT}" client in your nuxt.config.ts`)
         }
 
-        if (!options.clients.default) {
-            throw new Error('[vue3-apollo] A "default" client is required. Please configure it in your nuxt.config.ts')
+        if (!options.clients[DEFAULT_APOLLO_CLIENT]) {
+            throw new Error(`[@vue3-apollo/nuxt] A "${DEFAULT_APOLLO_CLIENT}" client is required. Please configure it in your nuxt.config.ts`)
         }
 
         // Add runtime config to pass options to the plugin
