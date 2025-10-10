@@ -10,11 +10,13 @@ import type { DocumentNode } from 'graphql'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
 import { createEventHook, syncRef, useDebounceFn, useThrottleFn } from '@vueuse/core'
-import { computed, getCurrentScope, isReadonly, isRef, onScopeDispose, ref, shallowRef, toValue, watch } from 'vue'
+import { computed, getCurrentScope, isReadonly, isRef, onScopeDispose, onServerPrefetch, ref, shallowRef, toValue, watch } from 'vue'
 
 import type { UseBaseOption } from '../utils/type'
 
 import { isDefined } from '../utils/isDefined'
+import { isServer } from '../utils/isServer'
+import { omit } from '../utils/omit'
 import { useApolloClient } from './useApolloClient'
 
 /**
@@ -75,6 +77,22 @@ export type UseQueryOptions<TData = unknown, TVariables extends OperationVariabl
      * ```
      */
     keepPreviousResult?: boolean
+
+    /**
+     * Whether to prefetch the query on the server during SSR.
+     * When true, the query will be executed on the server and the result
+     * will be available immediately on the client without refetching.
+     *
+     * @default true
+     *
+     * @example
+     * ```ts
+     * useQuery(USER_QUERY, userId, {
+     *   prefetch: true // Fetch data on server for SSR
+     * })
+     * ```
+     */
+    prefetch?: boolean
 
     /**
      * Maximum frequency (in milliseconds) at which the query can be executed
@@ -145,6 +163,43 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         })
     }
 
+    const getQueryOptions = () => {
+        if (!options) {
+            return {}
+        }
+
+        return omit(
+            options,
+            ['debounce', 'enabled', 'keepPreviousResult', 'throttle', 'clientId', 'prefetch']
+        )
+    }
+
+    // SSR Support: Prefetch a query on server during SSR
+    const prefetch = options?.prefetch ?? true
+    if (prefetch && enabled.value && isServer()) {
+        onServerPrefetch(async () => {
+            try {
+                const queryResult = await client.query<TData, TVariables>({
+                    query: document,
+                    variables: toValue(reactiveVariables),
+                    ...getQueryOptions()
+                })
+
+                // Set initial data from server
+                result.value = queryResult.data
+                // Set loading to false after successful prefetch
+                loading.value = false
+                if (queryResult.error) {
+                    error.value = queryResult.error
+                }
+            }
+            catch (e) {
+                error.value = e as ErrorLike
+                loading.value = false
+            }
+        })
+    }
+
     const onNext = (value: ObservableQuery.Result<TData, 'complete' | 'empty' | 'partial' | 'streaming'>) => {
         loading.value = value.loading
         networkStatus.value = value.networkStatus
@@ -206,26 +261,69 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
             return
         }
 
+        // Check if we have cached data from SSR on the client-side
+        if (!isServer()) {
+            try {
+                const cachedData = client.readQuery<TData, TVariables>({
+                    query: document,
+                    variables: toValue(reactiveVariables)
+                })
+
+                // If we have cached data from SSR, set the result and loading state immediately
+                if (cachedData) {
+                    result.value = cachedData
+                    loading.value = false
+                }
+            }
+            catch {
+                // No cached data continue with normal flow
+            }
+        }
+
         query.value = client.watchQuery<TData, TVariables>({
             notifyOnNetworkStatusChange: options?.notifyOnNetworkStatusChange ?? options?.keepPreviousResult,
             query: document,
             variables: toValue(reactiveVariables),
-            ...options
+            ...getQueryOptions()
         })
 
         startObserver()
     }
 
-    start()
+    // Only start observer on the client-side, not on server
+    // Server-side data is already fetched via onServerPrefetch
+    if (!isServer()) {
+        start()
 
-    watch(enabled, (isEnabled) => {
-        if (isEnabled) {
-            start()
+        watch(enabled, (isEnabled) => {
+            if (isEnabled) {
+                start()
+            }
+            else {
+                stop()
+            }
+        })
+
+        const updateVariables = (newVariables: TVariables) => {
+            if (enabled.value && query.value) {
+                void query.value.setVariables(newVariables)
+            }
         }
-        else {
-            stop()
-        }
-    })
+
+        // Debounce has priority over throttle if both are provided
+        const optimizedUpdateVariables = options?.debounce
+            ? useDebounceFn(updateVariables, options.debounce)
+            : options?.throttle
+                ? useThrottleFn(updateVariables, options.throttle)
+                : updateVariables
+
+        watch(reactiveVariables, (newVariables) => {
+            optimizedUpdateVariables(newVariables)
+        }, {
+            deep: true,
+            flush: 'post'
+        })
+    }
 
     const refetch = async (variables?: TVariables) => {
         if (!query.value) {
@@ -235,26 +333,6 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         loading.value = true
         return query.value.refetch(variables)
     }
-
-    const updateVariables = (newVariables: TVariables) => {
-        if (enabled.value && query.value) {
-            void query.value.setVariables(newVariables)
-        }
-    }
-
-    // Debounce has priority over throttle if both are provided
-    const optimizedUpdateVariables = options?.debounce
-        ? useDebounceFn(updateVariables, options.debounce)
-        : options?.throttle
-            ? useThrottleFn(updateVariables, options.throttle)
-            : updateVariables
-
-    watch(reactiveVariables, (newVariables) => {
-        optimizedUpdateVariables(newVariables)
-    }, {
-        deep: true,
-        flush: 'post'
-    })
 
     if (getCurrentScope()) {
         onScopeDispose(() => {
