@@ -148,4 +148,30 @@ export interface ApolloSharedConfig {
      * ```
      */
     inMemoryCacheOptions?: InMemoryCacheConfig
+
+    /**
+     * Tên của token được sử dụng cho authentication.
+     * Token này sẽ được tìm kiếm trong cookie hoặc localStorage tùy theo cấu hình `tokenStorage`.
+     *
+     * @default 'apollo-token'
+     * @example 'auth-token'
+     */
+    tokenName?: string
+
+    /**
+     * Loại authentication scheme được sử dụng trong Authorization header.
+     * Đặt `null` để không thêm prefix vào token.
+     *
+     * @default 'Bearer'
+     * @example 'Bearer' | 'JWT' | 'Token'
+     */
+    authType?: string
+
+    /**
+     * Tên của HTTP header được sử dụng để gửi token authentication.
+     *
+     * @default 'Authorization'
+     * @example 'X-Auth-Token'
+     */
+    authHeader?: string
 }

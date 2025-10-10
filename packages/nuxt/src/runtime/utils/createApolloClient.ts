@@ -3,12 +3,14 @@ import type { NuxtApp } from '#app'
 
 import { ApolloClient, ApolloLink, HttpLink, InMemoryCache } from '@apollo/client'
 import { CombinedGraphQLErrors, CombinedProtocolErrors } from '@apollo/client/errors'
+import { SetContextLink } from '@apollo/client/link/context'
 import { ErrorLink } from '@apollo/client/link/error'
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions'
 import { getMainDefinition } from '@apollo/client/utilities'
+import { useCookie } from '#app'
 import { defu } from 'defu'
 
-import type { ApolloClientConfig } from '../../type'
+import type { ApolloClientConfig, ApolloSharedConfig } from '../../type'
 import type { ApolloErrorHookPayload } from '../types'
 
 const APOLLO_STATE_KEY_PREFIX = 'apollo:'
@@ -20,6 +22,39 @@ interface CreateApolloClientParams {
 }
 
 export async function createApolloClient({ clientId, config, nuxtApp }: CreateApolloClientParams) {
+    const mergedAuthConfig: Pick<ApolloSharedConfig, 'authHeader' | 'authType' | 'tokenName'> = defu(
+        {
+            authHeader: config.authHeader,
+            authType: config.authType
+        },
+        {
+            authHeader: 'Authorization',
+            authType: 'Bearer',
+            tokenName: config.tokenName
+        }
+    )
+
+    const getAuthCredentials = () => {
+        const token = useCookie(mergedAuthConfig.tokenName || `apollo:${clientId}:token`).value
+
+        if (!token || !mergedAuthConfig.authHeader) {
+            return
+        }
+
+        return {
+            [mergedAuthConfig.authHeader]: `${mergedAuthConfig.authType} ${token}`
+        }
+    }
+
+    // Create an auth link to inject authentication token into headers
+    const authLink = new SetContextLink(() => {
+        return {
+            headers: {
+                ...getAuthCredentials()
+            }
+        }
+    })
+
     // Create an HTTP link
     const httpLink = new HttpLink({
         ...config.httpLinkOptions,
@@ -75,6 +110,11 @@ export async function createApolloClient({ clientId, config, nuxtApp }: CreateAp
             const wsLink = new GraphQLWsLink(
                 createClient({
                     ...config.wsLinkOptions,
+                    connectionParams: () => {
+                        return {
+                            ...getAuthCredentials()
+                        }
+                    },
                     url: config.wsEndpoint
                 })
             )
@@ -120,8 +160,9 @@ export async function createApolloClient({ clientId, config, nuxtApp }: CreateAp
             enabled: config.devtools ?? config.devtools,
             name: clientId
         },
-        // Combine the error link with the main link chain
-        link: ApolloLink.from([errorLink, link]),
+        // Combine the auth link, error link, and main link chain
+        // Order matters: auth -> error -> http/ws
+        link: ApolloLink.from([authLink, errorLink, link]),
         // Prevent refetching immediately after SSR hydration
         ssrForceFetchDelay: 100,
         // Enable server-side rendering support
