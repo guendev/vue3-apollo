@@ -1,17 +1,61 @@
 import { addPlugin, createResolver, defineNuxtModule } from '@nuxt/kit'
 
-// Module options TypeScript interface definition
-export interface ModuleOptions {
-    clients: Record<string, ModuleClientOption>
-}
-
-interface ModuleClientOption {
+/**
+ * Apollo Client configuration options
+ */
+export interface ApolloClientConfig {
+    /**
+     * GraphQL endpoint URI
+     */
     uri: string
 }
 
-export default defineNuxtModule<ModuleOptions>({
+/**
+ * Nuxt Apollo Module configuration options
+ */
+export interface ApolloModuleOptions {
+    /**
+     * Multiple client configurations for Apollo.
+     * Provide a record mapping client IDs to their configuration.
+     * Must include a 'default' client.
+     *
+     * @example
+     * ```ts
+     * export default defineNuxtConfig({
+     *   apollo: {
+     *     clients: {
+     *       default: {
+     *         uri: 'https://api.example.com/graphql'
+     *       },
+     *       analytics: {
+     *         uri: 'https://analytics.example.com/graphql'
+     *       }
+     *     }
+     *   }
+     * })
+     * ```
+     */
+    clients?: Record<string, ApolloClientConfig>
+
+    /**
+     * Enable auto-import for Apollo composables
+     * @default true
+     */
+    autoImports?: boolean
+
+    /**
+     * Enable devtools integration
+     * @default true
+     */
+    devtools?: boolean
+}
+
+export default defineNuxtModule<ApolloModuleOptions>({
     // Default configuration options of the Nuxt module
-    defaults: {},
+    defaults: {
+        autoImports: true,
+        devtools: true
+    },
     meta: {
         configKey: 'apollo',
         name: 'apollo'
