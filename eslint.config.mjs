@@ -2,9 +2,9 @@ import antfu from '@antfu/eslint-config'
 
 export default antfu(
     {
-	    vue: true,
         ignores: [
             'src/**/*.generated.*',
+            '.nuxt',
             '.junie/*'
         ],
         stylistic: {
@@ -22,7 +22,8 @@ export default antfu(
                 'node/prefer-global/buffer': 'off',
                 'ts/consistent-type-imports': 'error'
             }
-        }
+        },
+        vue: true
     },
     {
         rules: {
