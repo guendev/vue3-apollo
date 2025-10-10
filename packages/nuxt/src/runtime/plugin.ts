@@ -36,6 +36,10 @@ export default defineNuxtPlugin((nuxtApp) => {
                     fetchPolicy: import.meta.server ? 'no-cache' : 'cache-first'
                 }
             },
+            devtools: {
+                enabled: clientConfig.devtools ?? apolloConfig.devtools,
+                name: clientId
+            },
             link: httpLink,
             // Enable server-side rendering support
             ssrMode: import.meta.server

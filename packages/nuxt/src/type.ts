@@ -6,6 +6,12 @@ export interface ApolloClientConfig {
      * GraphQL endpoint URI
      */
     uri: string
+
+    /**
+     * Enable devtools integration for each client
+     * @default true
+     */
+    devtools?: boolean
 }
 
 /**
@@ -51,6 +57,4 @@ export interface ApolloModuleOptions {
 /**
  * Apollo runtime configuration
  */
-export interface ApolloRuntimeConfig {
-    clients: Record<string, ApolloClientConfig>
-}
+export type ApolloRuntimeConfig = Pick<ApolloModuleOptions, 'clients' | 'devtools'>
