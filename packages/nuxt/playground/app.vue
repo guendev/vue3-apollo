@@ -24,7 +24,7 @@ onResult((data) => {
     console.warn('onResult', data)
 })
 
-const { data } = await useAsyncQuery(
+const res = await useAsyncQuery(
     {
         query: PostsDocument
     }
