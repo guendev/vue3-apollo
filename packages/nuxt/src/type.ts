@@ -14,22 +14,6 @@ export interface ApolloClientConfig extends ApolloSharedConfig {
     httpEndpoint: string
 
     /**
-     * Tùy chọn bổ sung cho HTTP link.
-     * Cho phép tùy chỉnh headers, credentials, fetch options, v.v.
-     *
-     * @example
-     * ```ts
-     * {
-     *   headers: {
-     *     authorization: 'Bearer token'
-     *   },
-     *   credentials: 'include'
-     * }
-     * ```
-     */
-    httpLinkOptions?: Omit<HttpLink.Options, 'uri'>
-
-    /**
      * URI của WebSocket endpoint cho GraphQL subscriptions.
      * Khi được cấu hình, subscriptions sẽ sử dụng kết nối WebSocket.
      *
@@ -37,24 +21,6 @@ export interface ApolloClientConfig extends ApolloSharedConfig {
      * @example 'wss://api.example.com/graphql'
      */
     wsEndpoint?: string
-
-    /**
-     * Tùy chọn bổ sung cho WebSocket link.
-     * Cho phép tùy chỉnh connection params, retry logic, keepAlive, v.v.
-     * Chỉ có hiệu lực khi `wsEndpoint` được cấu hình.
-     *
-     * @example
-     * ```ts
-     * {
-     *   connectionParams: {
-     *     authToken: 'token'
-     *   },
-     *   retryAttempts: 5,
-     *   keepAlive: 10000
-     * }
-     * ```
-     */
-    wsLinkOptions?: Omit<ClientOptions, 'url'>
 }
 
 /**
@@ -107,14 +73,42 @@ export type ApolloRuntimeConfig = ApolloModuleOptions
  */
 export interface ApolloSharedConfig {
     /**
+     * Tùy chọn bổ sung cho HTTP link.
+     * Cho phép tùy chỉnh headers, credentials, fetch options, v.v.
+     *
+     * @example
+     * ```ts
+     * {
+     *   credentials: 'include'
+     * }
+     * ```
+     */
+    httpLinkOptions?: Omit<HttpLink.Options, 'uri'>
+
+    /**
+     * Tùy chọn bổ sung cho WebSocket link.
+     * Cho phép tùy chỉnh connection params, retry logic, keepAlive, v.v.
+     * Chỉ có hiệu lực khi `wsEndpoint` được cấu hình.
+     *
+     * @example
+     * ```ts
+     * {
+     *   retryAttempts: 5,
+     *   keepAlive: 10000
+     * }
+     * ```
+     */
+    wsLinkOptions?: Omit<ClientOptions, 'connectionParams' | 'url'>
+
+    /**
      * Enable devtools integration for each client
      * @default true
      */
     devtools?: boolean
 
     /**
-     * Tùy chọn mặc định cho các operations của Apollo Client.
-     * Cho phép cấu hình fetch policy, error handling, polling interval mặc định, v.v.
+     * Default options for Apollo Client operations.
+     * Allows configuration of fetch policies, error handling, polling intervals, etc.
      *
      * @example
      * ```ts
@@ -135,8 +129,8 @@ export interface ApolloSharedConfig {
     defaultOptions?: ApolloClient.DefaultOptions
 
     /**
-     * Tùy chọn cho InMemoryCache của Apollo Client.
-     * Cho phép cấu hình type policies, cache normalization, pagination, v.v.
+     * Configuration options for Apollo Client's InMemoryCache.
+     * Allows customization of type policies, cache normalization, pagination, etc.
      *
      * @example
      * ```ts
