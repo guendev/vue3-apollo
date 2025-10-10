@@ -16,6 +16,7 @@ interface CreateApolloClientParams {
 export function createApolloClient({ clientId, config, nuxtApp }: CreateApolloClientParams) {
     // Create an HTTP link
     const httpLink = new HttpLink({
+        ...config.httpLinkOptions,
         uri: config.httpEndpoint
     })
 

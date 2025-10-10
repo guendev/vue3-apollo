@@ -1,3 +1,5 @@
+import type { HttpLink } from '@apollo/client/link/http'
+
 /**
  * Apollo Client configuration options
  */
@@ -6,6 +8,17 @@ export interface ApolloClientConfig {
      * GraphQL endpoint URI
      */
     httpEndpoint: string
+
+    /**
+     * Optional configuration object for HTTP link options used in configuring Apollo Client.
+     * Excludes the `uri` property from `HttpLink.Options`.
+     *
+     * This object allows customization of settings such as headers, credentials, and other
+     * options supported by the `HttpLink` of Apollo Client, except for specifying the URI.
+     *
+     * @type {Omit<HttpLink.Options, 'uri'>}
+     */
+    httpLinkOptions?: Omit<HttpLink.Options, 'uri'>
 
     /**
      * Enable devtools integration for each client
