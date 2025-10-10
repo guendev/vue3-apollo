@@ -2,7 +2,8 @@ import type { ApolloClient } from '@apollo/client/core'
 
 import { APOLLO_CLIENTS_KEY } from '@vue3-apollo/core'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
-import { createApolloClient } from '~/src/runtime/utils/createApolloClient'
+
+import { createApolloClient } from './utils/createApolloClient'
 
 export default defineNuxtPlugin((nuxtApp) => {
     const runTimeconfig = useRuntimeConfig()

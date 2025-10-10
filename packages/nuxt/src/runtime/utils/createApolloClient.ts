@@ -1,8 +1,9 @@
 import type { NormalizedCacheObject } from '@apollo/client/core'
 import type { NuxtApp } from '#app'
-import type { ApolloClientConfig } from '~/src/type'
 
 import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client'
+
+import type { ApolloClientConfig } from '../../type'
 
 const APOLLO_STATE_KEY_PREFIX = 'apollo:'
 

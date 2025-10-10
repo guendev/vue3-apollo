@@ -1,8 +1,12 @@
-import type { ApolloModuleOptions } from '~/src/type'
-
 import { addPlugin, createResolver, defineNuxtModule, updateRuntimeConfig } from '@nuxt/kit'
 
+import type { ApolloModuleOptions } from './type'
+
 export default defineNuxtModule<ApolloModuleOptions>({
+    defaults: {
+        autoImports: true,
+        devtools: true
+    },
     meta: {
         compatibility: {
             nuxt: '^4.0.0'
@@ -34,12 +38,11 @@ export default defineNuxtModule<ApolloModuleOptions>({
                 sources.push({
                     from: '@vue3-apollo/core',
                     imports: [
-                        'useQuery',
-                        'useLazyQuery',
-                        'useMutation',
-                        'useSubscription',
                         'useApolloClient',
-                        'useApolloClients'
+                        'useApolloClients',
+                        'useMutation',
+                        'useQuery',
+                        'useSubscription'
                     ]
                 })
             })

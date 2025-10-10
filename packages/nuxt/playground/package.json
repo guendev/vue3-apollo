@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "my-module-playground",
+  "name": "@vue3-apollo/playground",
   "type": "module",
   "scripts": {
     "dev": "nuxi dev",
@@ -8,6 +8,13 @@
     "generate": "nuxi generate"
   },
   "dependencies": {
-    "nuxt": "^4.1.3"
+    "@apollo/client": "^4.0.0",
+    "graphql": "^16.0.0",
+    "nuxt": "^4.1.3",
+    "@vue3-apollo/operations": "workspace:*"
+  },
+  "devDependencies": {
+    "@unocss/nuxt": "^66.5.2",
+    "unocss": "^66.5.2"
   }
 }
