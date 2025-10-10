@@ -5,8 +5,8 @@ import { defineNuxtPlugin, useRuntimeConfig } from '#app'
 import { createApolloClient } from '~/src/runtime/utils/createApolloClient'
 
 export default defineNuxtPlugin((nuxtApp) => {
-    const config = useRuntimeConfig()
-    const apolloConfig = config.public.apollo
+    const runTimeconfig = useRuntimeConfig()
+    const apolloConfig = runTimeconfig.public.apollo
 
     if (!apolloConfig?.clients) {
         throw new Error('[vue3-apollo] No Apollo clients configured')
@@ -14,8 +14,12 @@ export default defineNuxtPlugin((nuxtApp) => {
 
     const apolloClients: Record<string, ApolloClient> = {}
 
-    Object.entries(apolloConfig.clients).forEach(([clientId, clientConfig]) => {
-        apolloClients[clientId] = createApolloClient(clientId, clientConfig)
+    Object.entries(apolloConfig.clients).forEach(([clientId, config]) => {
+        apolloClients[clientId] = createApolloClient({
+            clientId,
+            config,
+            nuxtApp
+        })
     })
 
     nuxtApp.vueApp.provide(APOLLO_CLIENTS_KEY, apolloClients)
