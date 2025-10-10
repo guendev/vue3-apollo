@@ -2,17 +2,20 @@ import type { NormalizedCacheObject } from '@apollo/client/core'
 import type { NuxtApp } from '#app'
 
 import { ApolloClient, ApolloLink, HttpLink, InMemoryCache } from '@apollo/client'
+import { CombinedGraphQLErrors, CombinedProtocolErrors } from '@apollo/client/errors'
+import { ErrorLink } from '@apollo/client/link/error'
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions'
 import { getMainDefinition } from '@apollo/client/utilities'
 
 import type { ApolloClientConfig } from '../../type'
+import type { ApolloErrorHookPayload } from '../types'
 
 const APOLLO_STATE_KEY_PREFIX = 'apollo:'
 
 interface CreateApolloClientParams {
     clientId: string
     config: ApolloClientConfig
-    nuxtApp: Pick<NuxtApp, 'hook' | 'payload'>
+    nuxtApp: Pick<NuxtApp, 'callHook' | 'hook' | 'payload'>
 }
 
 export async function createApolloClient({ clientId, config, nuxtApp }: CreateApolloClientParams) {
@@ -20,6 +23,29 @@ export async function createApolloClient({ clientId, config, nuxtApp }: CreateAp
     const httpLink = new HttpLink({
         ...config.httpLinkOptions,
         uri: config.httpEndpoint
+    })
+
+    // Create an error link to handle and broadcast errors
+    const errorLink = new ErrorLink(({ error, forward, operation }) => {
+        // Prepare typed payload for hook
+        const payload: ApolloErrorHookPayload = {
+            clientId,
+            operation
+        }
+        if (CombinedGraphQLErrors.is(error)) {
+            payload.graphQLErrors = error
+        }
+        else if (CombinedProtocolErrors.is(error)) {
+            payload.protocolErrors = error
+        }
+        else {
+            payload.networkError = error
+        }
+
+        // Trigger Nuxt hook for centralized error handling
+        void nuxtApp.callHook('apollo:error', payload)
+
+        return forward(operation)
     })
 
     // Create a cache instance
@@ -40,7 +66,6 @@ export async function createApolloClient({ clientId, config, nuxtApp }: CreateAp
     if (import.meta.client && config.wsEndpoint) {
         try {
             // Dynamic import to avoid bundling graphql-ws on the server
-
             // - graphql-ws is an optional peer dependency
             const { createClient } = await import('graphql-ws')
 
@@ -91,7 +116,8 @@ export async function createApolloClient({ clientId, config, nuxtApp }: CreateAp
             enabled: config.devtools ?? config.devtools,
             name: clientId
         },
-        link,
+        // Combine the error link with the main link chain
+        link: ApolloLink.from([errorLink, link]),
         // Prevent refetching immediately after SSR hydration
         ssrForceFetchDelay: 100,
         // Enable server-side rendering support
