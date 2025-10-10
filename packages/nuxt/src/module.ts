@@ -55,11 +55,5 @@ export default defineNuxtModule<ApolloModuleOptions>({
         nuxt.hook('prepare:types', ({ references }) => {
             references.push({ types: '@vue3-apollo/nuxt' })
         })
-
-        // Add devtools integration
-        if (options.devtools && nuxt.options.dev) {
-            // TODO: Implement devtools integration
-            // This can be added later to show Apollo Client state, queries, mutations in Nuxt DevTools
-        }
     }
 })
