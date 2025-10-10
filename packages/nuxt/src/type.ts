@@ -1,3 +1,4 @@
+import type { ApolloClient } from '@apollo/client'
 import type { HttpLink } from '@apollo/client/link/http'
 import type { ClientOptions } from 'graphql-ws'
 
@@ -42,6 +43,8 @@ export interface ApolloClientConfig {
      * @default true
      */
     devtools?: boolean
+
+    defaultOptions?: ApolloClient.DefaultOptions
 }
 
 /**

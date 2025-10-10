@@ -6,6 +6,7 @@ import { CombinedGraphQLErrors, CombinedProtocolErrors } from '@apollo/client/er
 import { ErrorLink } from '@apollo/client/link/error'
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions'
 import { getMainDefinition } from '@apollo/client/utilities'
+import { defu } from 'defu'
 
 import type { ApolloClientConfig } from '../../type'
 import type { ApolloErrorHookPayload } from '../types'
@@ -100,18 +101,19 @@ export async function createApolloClient({ clientId, config, nuxtApp }: CreateAp
         }
     }
 
+    const defaultOptions: ApolloClient.DefaultOptions = defu({
+        query: {
+            fetchPolicy: import.meta.server ? 'network-only' : 'cache-first'
+        },
+        watchQuery: {
+            fetchPolicy: import.meta.server ? 'network-only' : 'cache-first'
+        }
+    }, config.defaultOptions)
+
     // Create an Apollo Client instance
     const client = new ApolloClient({
         cache,
-        // Configure cache policies for optimal SSR
-        defaultOptions: {
-            query: {
-                fetchPolicy: import.meta.server ? 'network-only' : 'cache-first'
-            },
-            watchQuery: {
-                fetchPolicy: import.meta.server ? 'network-only' : 'cache-first'
-            }
-        },
+        defaultOptions,
         devtools: {
             enabled: config.devtools ?? config.devtools,
             name: clientId

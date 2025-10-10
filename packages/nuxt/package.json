@@ -33,7 +33,8 @@
   "dependencies": {
     "@nuxt/kit": "^4.1.3",
     "ohash": "^2.0.11",
-    "@vue3-apollo/core": "workspace:^"
+    "@vue3-apollo/core": "workspace:^",
+    "defu": "^6.1.4"
   },
   "peerDependencies": {
     "@apollo/client": "^4.0.0",
