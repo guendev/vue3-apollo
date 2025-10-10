@@ -24,10 +24,7 @@ export default defineNuxtModule<ApolloModuleOptions>({
 
         updateRuntimeConfig({
             public: {
-                apollo: {
-                    clients: options.clients,
-                    devtools: options.devtools
-                }
+                apollo: options
             }
         })
 

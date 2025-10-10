@@ -1,7 +1,8 @@
 import type { ApolloClient } from '@apollo/client/core'
 
-import { APOLLO_CLIENTS_KEY } from '@vue3-apollo/core'
+import { APOLLO_CLIENTS_KEY, omit } from '@vue3-apollo/core'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
+import { defu } from 'defu'
 
 import { createApolloClient } from './utils/createApolloClient'
 
@@ -18,7 +19,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     for (const [clientId, config] of Object.entries(apolloConfig.clients)) {
         apolloClients[clientId] = await createApolloClient({
             clientId,
-            config,
+            config: defu(config, omit(apolloConfig, ['clients'])),
             nuxtApp
         })
     }
