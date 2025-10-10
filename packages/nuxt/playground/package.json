@@ -15,6 +15,7 @@
   },
   "devDependencies": {
     "@unocss/nuxt": "^66.5.2",
+    "@unocss/preset-wind4": "^66.5.2",
     "unocss": "^66.5.2"
   }
 }
