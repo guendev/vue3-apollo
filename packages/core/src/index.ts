@@ -9,4 +9,5 @@ export * from './constants/apollo'
 export * from './plugins/apolloPlugin'
 
 export * from './utils/isDefined'
+export * from './utils/omit'
 export * from './utils/type'

@@ -180,9 +180,9 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         onServerPrefetch(async () => {
             try {
                 const queryResult = await client.query<TData, TVariables>({
+                    ...getQueryOptions(),
                     query: document,
-                    variables: toValue(reactiveVariables),
-                    ...getQueryOptions()
+                    variables: toValue(reactiveVariables)
                 })
 
                 // Set initial data from server

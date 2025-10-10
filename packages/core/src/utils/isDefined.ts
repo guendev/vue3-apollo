@@ -1,1 +1,1 @@
-export const isDefined = <T>(value: T | undefined): value is T => value !== undefined
+export const isDefined = <T>(value?: T): value is T => value !== undefined

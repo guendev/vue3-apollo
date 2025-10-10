@@ -23,6 +23,8 @@ const { loading, mutate } = useMutation(UpdatePostDocument)
 onResult((data) => {
     console.warn('onResult', data)
 })
+
+const { data } = await useAsyncQuery(PostsDocument)
 </script>
 
 <template>
@@ -33,7 +35,7 @@ onResult((data) => {
           Apollo Demo • Posts
         </h1>
         <p class="text-sm text-gray-400 mt-1">
-          Get posts by user ID and update title
+          Get posts by user ID and update title {{ data }}
         </p>
       </header>
 

@@ -7,7 +7,7 @@ import type { UseBaseOption } from '@vue3-apollo/core'
 import type { DocumentNode } from 'graphql'
 import type { MaybeRefOrGetter } from 'vue'
 
-import { useApolloClient } from '@vue3-apollo/core'
+import { omit, useApolloClient } from '@vue3-apollo/core'
 import { useAsyncData } from '#app'
 import { toValue } from 'vue'
 
@@ -96,7 +96,7 @@ export type UseAsyncQueryOptions<TData = unknown, TVariables extends OperationVa
  * @param variables - Query variables (can be reactive ref or getter)
  * @param options - Query options including Apollo options and Nuxt async data options
  *
- * @returns Nuxt async data object with data, pending, error, refresh, etc.
+ * @returns Nuxt async a data object with data, pending, error, refresh, etc.
  *
  * @example
  * ```ts
@@ -121,29 +121,21 @@ export function useAsyncQuery<TData = unknown, TVariables extends OperationVaria
     const key = options?.key || `apollo-query-${document.loc?.source.body.slice(0, 50) || 'unknown'}`
 
     // Extract Apollo-specific options
-    const getQueryOptions = (): ApolloClient.QueryOptions<TData, TVariables> => {
-        const apolloOptions: any = {}
-
-        if (options) {
-            // Copy Apollo-specific options
-            const apolloKeys = [
-                'context',
-                'errorPolicy',
-                'fetchPolicy',
-                'canonizeResults',
-                'returnPartialData',
-                'partialRefetch',
-                'notifyOnNetworkStatusChange'
-            ]
-
-            for (const k of apolloKeys) {
-                if (k in options) {
-                    apolloOptions[k] = (options as any)[k]
-                }
-            }
+    const getQueryOptions = () => {
+        if (!options) {
+            return {}
         }
 
-        return apolloOptions
+        return omit(options, [
+            'clientId',
+            'key',
+            'server',
+            'lazy',
+            'immediate',
+            'watch',
+            'transform',
+            'dedupe'
+        ])
     }
 
     return useAsyncData(
@@ -152,7 +144,7 @@ export function useAsyncQuery<TData = unknown, TVariables extends OperationVaria
             const queryResult = await client.query<TData, TVariables>({
                 ...getQueryOptions(),
                 query: document,
-                variables: toValue(variables)
+                variables: toValue(variables) as NoInfer<TVariables>
             })
 
             if (queryResult.error) {
