@@ -1,7 +1,13 @@
 import { defineNuxtModule, addPlugin, createResolver } from '@nuxt/kit'
 
+interface ModuleClientOption {
+  uri: string
+}
+
 // Module options TypeScript interface definition
-export interface ModuleOptions {}
+export interface ModuleOptions {
+  clients: Record<string, ModuleClientOption>
+}
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
