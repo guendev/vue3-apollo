@@ -29,7 +29,6 @@ export function useAsyncQuery<
     const client = useApolloClient(options?.clientId)
 
     // Generate a unique key for the query if not provided
-    // Todo: Add support for custom key generation
     const key = options.key || hash({
         clientId: options.clientId,
         query: print(options.query),
