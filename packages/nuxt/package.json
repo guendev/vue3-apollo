@@ -38,7 +38,13 @@
   "peerDependencies": {
     "@apollo/client": "^4.0.0",
     "graphql": "^16.0.0",
+    "graphql-ws": "^6.0.0",
     "vue": "^3.5.0"
+  },
+  "peerDependenciesMeta": {
+    "graphql-ws": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@apollo/client": "^4.0.7",
@@ -49,6 +55,7 @@
     "@types/node": "latest",
     "changelogen": "^0.6.2",
     "graphql": "^16.11.0",
+    "graphql-ws": "^6.0.6",
     "nuxt": "^4.1.3",
     "typescript": "~5.9.3",
     "vitest": "^3.2.4",

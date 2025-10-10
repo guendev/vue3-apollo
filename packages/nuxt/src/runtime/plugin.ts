@@ -5,7 +5,7 @@ import { defineNuxtPlugin, useRuntimeConfig } from '#app'
 
 import { createApolloClient } from './utils/createApolloClient'
 
-export default defineNuxtPlugin((nuxtApp) => {
+export default defineNuxtPlugin(async (nuxtApp) => {
     const runTimeconfig = useRuntimeConfig()
     const apolloConfig = runTimeconfig.public.apollo
 
@@ -15,13 +15,13 @@ export default defineNuxtPlugin((nuxtApp) => {
 
     const apolloClients: Record<string, ApolloClient> = {}
 
-    Object.entries(apolloConfig.clients).forEach(([clientId, config]) => {
-        apolloClients[clientId] = createApolloClient({
+    for (const [clientId, config] of Object.entries(apolloConfig.clients)) {
+        apolloClients[clientId] = await createApolloClient({
             clientId,
             config,
             nuxtApp
         })
-    })
+    }
 
     nuxtApp.vueApp.provide(APOLLO_CLIENTS_KEY, apolloClients)
 

@@ -1,4 +1,5 @@
 import type { HttpLink } from '@apollo/client/link/http'
+import type { ClientOptions } from 'graphql-ws'
 
 /**
  * Apollo Client configuration options
@@ -16,9 +17,25 @@ export interface ApolloClientConfig {
      * This object allows customization of settings such as headers, credentials, and other
      * options supported by the `HttpLink` of Apollo Client, except for specifying the URI.
      *
-     * @type {Omit<HttpLink.Options, 'uri'>}
      */
     httpLinkOptions?: Omit<HttpLink.Options, 'uri'>
+
+    /**
+     * WebSocket endpoint URI for GraphQL subscriptions.
+     * When provided, subscriptions will be routed through WebSocket connection.
+     * Requires 'graphql-ws' package to be installed.
+     *
+     * @example 'wss://api.example.com/graphql'
+     */
+    wsEndpoint?: string
+
+    /**
+     * Optional configuration object for WebSocket link options.
+     * Excludes the `url` property from `ClientOptions`.
+     * Only used when `wsEndpoint` is provided.
+     *
+     */
+    wsLinkOptions?: Omit<ClientOptions, 'url'>
 
     /**
      * Enable devtools integration for each client
