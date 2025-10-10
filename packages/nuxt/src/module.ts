@@ -45,6 +45,12 @@ export default defineNuxtModule<ApolloModuleOptions>({
                         'useSubscription'
                     ]
                 })
+                sources.push({
+                    from: resolver.resolve('./runtime/composables/useAsyncQuery'),
+                    imports: [
+                        'useAsyncQuery'
+                    ]
+                })
             })
         }
 
