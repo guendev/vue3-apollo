@@ -8,7 +8,7 @@ import { useApolloClients } from './useApolloClients'
  *
  * @example
  * ```ts
- * // Get a first available client (usually 'default')
+ * // Get the first available client (usually 'default')
  * const client = useApolloClient()
  *
  * // Get specific client
