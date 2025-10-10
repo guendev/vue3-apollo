@@ -1,3 +1,5 @@
+import type { ApolloClientConfig } from '~/src/type'
+
 import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client/core'
 import { APOLLO_CLIENTS_KEY, DEFAULT_APOLLO_CLIENT } from '@vue3-apollo/core'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
@@ -19,13 +21,13 @@ export default defineNuxtPlugin((nuxtApp) => {
     const apolloClients: Record<string, ApolloClient> = {}
 
     // Create each Apollo client from config
-    Object.entries(apolloConfig.clients).forEach(([clientId, clientConfig]: [string, any]) => {
-        // Create HTTP link
+    Object.entries(apolloConfig.clients).forEach(([clientId, clientConfig]: [string, ApolloClientConfig]) => {
+        // Create an HTTP link
         const httpLink = new HttpLink({
             uri: clientConfig.uri
         })
 
-        // Create Apollo Client instance
+        // Create an Apollo Client instance
         const client = new ApolloClient({
             cache: new InMemoryCache(),
             // Disable force fetch on server
@@ -42,7 +44,7 @@ export default defineNuxtPlugin((nuxtApp) => {
         // Register client in registry
         apolloClients[clientId] = client
 
-        // Set default client on global properties
+        // Set the default client on global properties
         if (clientId === DEFAULT_APOLLO_CLIENT) {
             nuxtApp.vueApp.config.globalProperties.$apollo = client
         }

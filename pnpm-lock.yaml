@@ -64,6 +64,9 @@ importers:
       '@vue3-apollo/core':
         specifier: workspace:^
         version: link:../core
+      defu:
+        specifier: ^6.1.4
+        version: 6.1.4
       vue:
         specifier: ^3.5.0
         version: 3.5.22(typescript@5.9.3)
