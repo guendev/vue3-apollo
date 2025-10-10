@@ -1,7 +1,6 @@
 import type { ApolloModuleOptions } from '~/src/type'
 
 import { addPlugin, createResolver, defineNuxtModule, updateRuntimeConfig } from '@nuxt/kit'
-import { DEFAULT_APOLLO_CLIENT } from '@vue3-apollo/core'
 
 export default defineNuxtModule<ApolloModuleOptions>({
     meta: {
@@ -13,18 +12,12 @@ export default defineNuxtModule<ApolloModuleOptions>({
     },
     setup(options, nuxt) {
         const resolver = createResolver(import.meta.url)
-        // Validate configuration
+
         if (!options.clients || Object.keys(options.clients).length === 0) {
             console.warn('[@vue3-apollo/nuxt] No Apollo clients configured.')
             return
         }
 
-        if (!options.clients[DEFAULT_APOLLO_CLIENT]) {
-            console.warn(`[@vue3-apollo/nuxt] A "${DEFAULT_APOLLO_CLIENT}" client is required.`)
-            return
-        }
-
-        // Add runtime config to pass options to the plugin with proper typing
         updateRuntimeConfig({
             public: {
                 apollo: {
@@ -34,10 +27,8 @@ export default defineNuxtModule<ApolloModuleOptions>({
             }
         })
 
-        // Add plugin to initialize Apollo clients
         addPlugin(resolver.resolve('./runtime/plugin'))
 
-        // Setup auto-imports for composables
         if (options.autoImports) {
             nuxt.hook('imports:sources', (sources) => {
                 sources.push({
@@ -47,7 +38,8 @@ export default defineNuxtModule<ApolloModuleOptions>({
                         'useLazyQuery',
                         'useMutation',
                         'useSubscription',
-                        'useApolloClient'
+                        'useApolloClient',
+                        'useApolloClients'
                     ]
                 })
             })
