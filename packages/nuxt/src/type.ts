@@ -47,3 +47,10 @@ export interface ApolloModuleOptions {
      */
     devtools?: boolean
 }
+
+/**
+ * Apollo runtime configuration
+ */
+export interface ApolloRuntimeConfig {
+    clients: Record<string, ApolloClientConfig>
+}

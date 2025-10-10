@@ -1,6 +1,6 @@
 import type { ApolloModuleOptions } from '~/src/type'
 
-import { addPlugin, createResolver, defineNuxtModule } from '@nuxt/kit'
+import { addPlugin, createResolver, defineNuxtModule, updateRuntimeConfig } from '@nuxt/kit'
 import { DEFAULT_APOLLO_CLIENT } from '@vue3-apollo/core'
 
 export default defineNuxtModule<ApolloModuleOptions>({
@@ -24,10 +24,14 @@ export default defineNuxtModule<ApolloModuleOptions>({
             return
         }
 
-        // Add runtime config to pass options to the plugin
-        nuxt.options.runtimeConfig.public.apollo = {
-            clients: options.clients
-        }
+        // Add runtime config to pass options to the plugin with proper typing
+        updateRuntimeConfig({
+            public: {
+                apollo: {
+                    clients: options.clients
+                }
+            }
+        })
 
         // Add plugin to initialize Apollo clients
         addPlugin(resolver.resolve('./runtime/plugin'))
