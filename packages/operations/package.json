@@ -1,5 +1,6 @@
 {
   "name": "@vue3-apollo/operations",
+  "private": true,
   "version": "1.0.0",
   "description": "",
   "type": "module",

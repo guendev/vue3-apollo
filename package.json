@@ -3,14 +3,26 @@
   "type": "module",
   "version": "1.0.0",
   "scripts": {
-    "build:core": "unbuild --config packages/core/build.config.ts",
+    "build": "pnpm run build:core && pnpm run build:nuxt && pnpm run build:docs",
+    "build:core": "pnpm --filter @vue3-apollo/core run build",
+    "build:nuxt": "pnpm --filter @vue3-apollo/nuxt run prepack",
+    "build:docs": "pnpm --filter @vue3-apollo/docs run build",
+    "dev:docs": "pnpm --filter @vue3-apollo/docs run dev",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "release": "pnpm build && changeset publish",
+    "version": "changeset version && pnpm install --lockfile-only",
+    "changeset": "changeset",
+    "changeset:add": "changeset add",
     "update:dependencies": "ncu --deep -u"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^5.4.1",
+    "@changesets/cli": "^2.27.10",
     "eslint": "^9.37.0",
     "eslint-plugin-perfectionist": "^4.15.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "unbuild": "^3.1.2"
   },
   "packageManager": "pnpm@10.18.2"
 }
