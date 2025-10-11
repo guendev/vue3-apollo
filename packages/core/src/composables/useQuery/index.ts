@@ -12,13 +12,13 @@ import type { MaybeRefOrGetter, Ref } from 'vue'
 import { createEventHook, syncRef, useDebounceFn, useThrottleFn } from '@vueuse/core'
 import { computed, getCurrentScope, isReadonly, isRef, onScopeDispose, onServerPrefetch, ref, shallowRef, toValue, watch } from 'vue'
 
-import type { UseBaseOption } from '../utils/type'
+import type { UseBaseOption } from '../../utils/type'
 
-import { isDefined } from '../utils/isDefined'
-import { isServer } from '../utils/isServer'
-import { omit } from '../utils/omit'
-import { useApolloClient } from './useApolloClient'
-import { useApolloTracking } from './useApolloTracking'
+import { isDefined } from '../../utils/isDefined'
+import { isServer } from '../../utils/isServer'
+import { omit } from '../../utils/omit'
+import { useApolloClient } from '../useApolloClient'
+import { useApolloTracking } from '../useApolloTracking'
 
 /**
  * Options for useQuery composable

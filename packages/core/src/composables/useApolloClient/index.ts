@@ -1,4 +1,4 @@
-import { useApolloClients } from './useApolloClients'
+import { useApolloClients } from '../useApolloClients'
 
 /**
  * Get an Apollo client instance by ID

@@ -12,12 +12,12 @@ import type { MaybeRefOrGetter, Ref } from 'vue'
 import { createEventHook, syncRef } from '@vueuse/core'
 import { getCurrentScope, isReadonly, isRef, onScopeDispose, ref, shallowRef, toRef, toValue, watch } from 'vue'
 
-import type { UseBaseOption } from '../utils/type'
+import type { UseBaseOption } from '../../utils/type'
 
-import { isDefined } from '../utils/isDefined'
-import { isServer } from '../utils/isServer'
-import { useApolloClient } from './useApolloClient'
-import { useApolloTracking } from './useApolloTracking'
+import { isDefined } from '../../utils/isDefined'
+import { isServer } from '../../utils/isServer'
+import { useApolloClient } from '../useApolloClient'
+import { useApolloTracking } from '../useApolloTracking'
 
 export type UseSubscriptionOptions<
     TData = unknown,

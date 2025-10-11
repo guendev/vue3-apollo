@@ -1,25 +1,25 @@
 ---
-# https://vitepress.dev/reference/default-theme-home-page
 layout: home
-
 hero:
-  name: "Vue Apollo"
-  text: "Vue Apollo"
-  tagline: My great project tagline
+  name: Vue3 Apollo
+  text: Lightweight Vue 3 + Apollo Client utilities and a Nuxt module
+  tagline: Ergonomic composables for queries and subscriptions, with first‑class Nuxt 4 support.
   actions:
     - theme: brand
-      text: Markdown Examples
-      link: /markdown-examples
+      text: Get Started
+      link: /getting-started
     - theme: alt
-      text: API Examples
-      link: /api-examples
-
+      text: Core Composables
+      link: /core
+    - theme: alt
+      text: Nuxt Module
+      link: /nuxt
 features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - title: Vue 3 First
+    details: Built with the Composition API and VueUse utilities for a smooth developer experience.
+  - title: Apollo Client v4
+    details: Thin wrappers over Apollo Client with sensible defaults and SSR in mind.
+  - title: Nuxt Integration
+    details: Batteries‑included Nuxt 4 module with SSR hydration, error hooks, and multi‑client support.
 ---
 

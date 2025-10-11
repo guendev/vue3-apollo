@@ -2,9 +2,9 @@ import type { ComputedRef } from 'vue'
 
 import { computed, getCurrentInstance } from 'vue'
 
-import type { ApolloLoadingId } from './useApolloLoading'
+import type { ApolloLoadingId } from '../useApolloLoading'
 
-import { useApolloLoading } from './useApolloLoading'
+import { useApolloLoading } from '../useApolloLoading'
 
 /**
  * Track the loading state for Apollo mutations in a specific component or scope

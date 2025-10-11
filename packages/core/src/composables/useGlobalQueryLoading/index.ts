@@ -2,7 +2,7 @@ import type { ComputedRef } from 'vue'
 
 import { computed } from 'vue'
 
-import { useApolloLoading } from './useApolloLoading'
+import { useApolloLoading } from '../useApolloLoading'
 
 /**
  * Track the global loading state for all Apollo queries across the entire application

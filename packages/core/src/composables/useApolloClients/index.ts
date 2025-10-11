@@ -1,6 +1,6 @@
 import { inject } from 'vue'
 
-import { APOLLO_CLIENTS_KEY } from '../constants/apollo'
+import { APOLLO_CLIENTS_KEY } from '../../constants/apollo'
 
 /**
  * Get all Apollo client instances

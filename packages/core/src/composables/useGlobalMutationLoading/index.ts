@@ -2,7 +2,7 @@ import type { ComputedRef } from 'vue'
 
 import { computed } from 'vue'
 
-import { useApolloLoading } from './useApolloLoading'
+import { useApolloLoading } from '../useApolloLoading'
 
 /**
  * Track global loading state for all Apollo mutations across the entire application
