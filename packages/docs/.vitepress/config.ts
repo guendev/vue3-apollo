@@ -88,7 +88,7 @@ export default defineConfig({
             { icon: 'github', link: 'https://github.com/guendev/vue3-apollo' }
         ]
     },
-    title: 'Vue3 Apollo',
+    title: 'Vue Apollo',
     vite: {
         plugins: [
             groupIconVitePlugin()
