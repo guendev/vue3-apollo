@@ -85,7 +85,8 @@ export default defineConfig({
             }
         ],
         socialLinks: [
-            { icon: 'github', link: 'https://github.com/guendev/vue3-apollo' }
+            { icon: 'github', link: 'https://github.com/guendev/vue3-apollo' },
+            { icon: 'facebook', link: 'https://www.facebook.com/guen.dev' }
         ]
     },
     title: 'Vue Apollo',
