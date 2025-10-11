@@ -1,27 +1,38 @@
 <script setup lang="ts">
 import type { PostsQueryVariables } from '@vue3-apollo/operations'
 
+import { gql } from '@apollo/client'
 import { PostsDocument, UpdatePostDocument } from '@vue3-apollo/operations'
 import { reactive, ref } from 'vue'
 
-const enabled = ref(true)
+// Constants
+const rawQuery = gql`
+    query Users($userId: Int) {
+        users(userId: $userId) {
+            id
+            email
+            name
+            phone
+        }
+    }
+`
 
+// Refs
+const enabled = ref(true)
+const title = ref('')
+
+// Reactive variables
 const vars = reactive<PostsQueryVariables>({
     first: 1,
     userId: 1
 })
 
+const rawQueryVars = computed(() => ({ userId: vars.userId }))
+
+// Queries
 const { error, onResult, refetch, result } = useQuery(PostsDocument, vars, {
     enabled,
     keepPreviousResult: true
-})
-
-const title = ref('')
-
-const { loading, mutate } = useMutation(UpdatePostDocument)
-
-onResult((data) => {
-    console.warn('onResult', data)
 })
 
 const { data: ssrData, error: ssrError } = await useAsyncQuery(
@@ -33,10 +44,25 @@ const { data: ssrData, error: ssrError } = await useAsyncQuery(
     }
 )
 
-const isGlobalLoading = useGlobalLoading()
+const { error: rawQueryError, result: rawQueryResult } = useQuery(rawQuery, rawQueryVars, {
+    enabled,
+    keepPreviousResult: true
+})
 
+// Mutations
+const { loading, mutate } = useMutation(UpdatePostDocument)
+
+// Event handlers
+onResult((data) => {
+    console.warn('onResult', data)
+})
+
+// Composables
+const route = useRoute()
+const isGlobalLoading = useGlobalLoading()
 const { finish, start } = useLoadingIndicator()
 
+// Watchers
 watch(isGlobalLoading, (loading) => {
     if (loading) {
         start()
@@ -45,8 +71,6 @@ watch(isGlobalLoading, (loading) => {
         finish()
     }
 })
-
-const route = useRoute()
 </script>
 
 <template>
@@ -54,10 +78,10 @@ const route = useRoute()
     <div class="max-w-5xl mx-auto p-6">
       <header class="mb-6">
         <h1 class="text-2xl font-semibold tracking-tight">
-          Apollo Demo • Posts
+          Apollo Demo
         </h1>
         <p class="text-sm text-gray-400 mt-1">
-          Get posts by user ID and update title
+          Get posts and users and update post title
         </p>
       </header>
 
@@ -142,10 +166,23 @@ const route = useRoute()
           </div>
 
           <div class="text-sm text-gray-300">
-            Kết quả:
+            Posts:
           </div>
           <pre class="w-full overflow-auto text-sm leading-relaxed bg-slate-950/60 border border-white/10 rounded-lg p-3">
 {{ result?.posts }}
+          </pre>
+        </div>
+
+        <div class="border-white/10 pt-4 space-y-3">
+          <div v-if="rawQueryError" class="text-sm text-rose-400 bg-rose-900/20 border border-rose-700/40 rounded-lg p-3">
+            {{ rawQueryError }}
+          </div>
+
+          <div class="text-sm text-gray-300">
+            Users:
+          </div>
+          <pre class="w-full overflow-auto text-sm leading-relaxed bg-slate-950/60 border border-white/10 rounded-lg p-3">
+{{ rawQueryResult?.users }}
           </pre>
         </div>
       </section>
