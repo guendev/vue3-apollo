@@ -8,6 +8,7 @@ import type { UseBaseOption } from '../utils/type'
 
 import { isDefined } from '../utils/isDefined'
 import { useApolloClient } from './useApolloClient'
+import { useApolloTracking } from './useApolloTracking'
 
 /**
  * Options for useMutation composable
@@ -92,6 +93,11 @@ export function useMutation<
 
     const onDone = createEventHook<TData>()
     const onError = createEventHook<ErrorLike>()
+
+    useApolloTracking({
+        state: loading,
+        type: 'mutation'
+    })
 
     const mutate = async (
         variables?: TVariables,

@@ -17,6 +17,7 @@ import type { UseBaseOption } from '../utils/type'
 import { isDefined } from '../utils/isDefined'
 import { isServer } from '../utils/isServer'
 import { useApolloClient } from './useApolloClient'
+import { useApolloTracking } from './useApolloTracking'
 
 export type UseSubscriptionOptions<
     TData = unknown,
@@ -53,14 +54,14 @@ export function useSubscription<
     const subscription = shallowRef<SubscriptionObservable<ApolloClient.SubscribeResult<TData>>>()
     const observer = shallowRef<ReturnType<Observable<TData>['subscribe']>>()
 
+    const enabled = toRef(options?.enabled ?? true)
+
     const data = shallowRef<TData>()
-    const loading = ref(true)
+    const loading = ref(toValue(enabled))
     const error = ref<ErrorLike>()
 
     const subscriptionData = createEventHook<TData>()
     const subscriptionError = createEventHook<ErrorLike>()
-
-    const enabled = toRef(options?.enabled ?? true)
 
     const reactiveVariables = ref(toValue(variables))
     if (isRef(variables)) {
@@ -68,6 +69,11 @@ export function useSubscription<
             direction: isReadonly(variables) ? 'ltr' : 'both'
         })
     }
+
+    useApolloTracking({
+        state: loading,
+        type: 'subscription'
+    })
 
     const onNext = (value: { data?: TData }) => {
         loading.value = false

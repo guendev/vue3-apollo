@@ -1,9 +1,9 @@
 import { createGlobalState } from '@vueuse/core'
 import { shallowRef } from 'vue'
 
-type Ops = 'all' | 'mutation' | 'query' | 'subscription'
+export type OperationType = 'all' | 'mutation' | 'query' | 'subscription'
 
-type PerType = Partial<Record<Ops, number>>
+type PerType = Partial<Record<OperationType, number>>
 
 interface TrackParams {
     /**
@@ -17,7 +17,7 @@ interface TrackParams {
     /**
      * Type of operation ('query', 'mutation', 'subscription')
      */
-    type: Exclude<Ops, 'all'>
+    type: Exclude<OperationType, 'all'>
 }
 
 export const useApolloLoading = createGlobalState(

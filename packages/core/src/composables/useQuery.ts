@@ -10,7 +10,7 @@ import type { DocumentNode } from 'graphql'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
 import { createEventHook, syncRef, useDebounceFn, useThrottleFn } from '@vueuse/core'
-import { computed, getCurrentInstance, getCurrentScope, isReadonly, isRef, onScopeDispose, onServerPrefetch, ref, shallowRef, toValue, watch } from 'vue'
+import { computed, getCurrentScope, isReadonly, isRef, onScopeDispose, onServerPrefetch, ref, shallowRef, toValue, watch } from 'vue'
 
 import type { UseBaseOption } from '../utils/type'
 
@@ -18,7 +18,7 @@ import { isDefined } from '../utils/isDefined'
 import { isServer } from '../utils/isServer'
 import { omit } from '../utils/omit'
 import { useApolloClient } from './useApolloClient'
-import { useApolloLoading } from './useApolloLoading'
+import { useApolloTracking } from './useApolloTracking'
 
 /**
  * Options for useQuery composable
@@ -148,8 +148,10 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     const query = shallowRef<ObservableQuery<TData, TVariables>>()
     const observer = shallowRef<ReturnType<ObservableQuery<TData, TVariables>['subscribe']>>()
 
+    const enabled = computed(() => toValue(options?.enabled ?? true))
+
     const result = shallowRef<TData>()
-    const loading = ref(false)
+    const loading = ref(toValue(enabled))
     const networkStatus = ref<NetworkStatus>()
     const error = ref<ErrorLike>()
 
@@ -157,23 +159,11 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     const onErrorEvent = createEventHook<ErrorLike>()
 
     // Setup loading tracking
-    const currentScope = getCurrentScope()
-    if (currentScope && !isServer()) {
-        const { track } = useApolloLoading()
-        const currentInstance = getCurrentInstance()
+    useApolloTracking({
+        state: loading,
+        type: 'query'
+    })
 
-        const id = currentInstance?.uid ?? Math.random().toString(36).slice(2)
-
-        watch(loading, (isLoading) => {
-            track({
-                id,
-                state: isLoading,
-                type: 'query'
-            })
-        })
-    }
-
-    const enabled = computed(() => toValue(options?.enabled ?? true))
     const reactiveVariables = ref(toValue(variables))
     if (isRef(variables)) {
         syncRef(variables as Ref, reactiveVariables, {
@@ -352,7 +342,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         return query.value.refetch(variables)
     }
 
-    if (currentScope) {
+    if (getCurrentScope()) {
         onScopeDispose(() => {
             stop()
         })
