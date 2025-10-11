@@ -24,4 +24,5 @@ dist-ssr
 *.sw?
 .nuxt
 .out
+.output
 packages/.vitepress/cache/
