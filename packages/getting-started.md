@@ -1,45 +1,61 @@
 # Getting Started
 
-This project provides two public packages:
+Vue3 Apollo provides a lightweight integration between **Vue 3** and **Apollo Client v4**, offering a composable-first API for GraphQL queries, mutations, and subscriptions.
 
-- @vue3-apollo/core — Vue 3 composables and utilities around Apollo Client.
-- @vue3-apollo/nuxt — A Nuxt 4 module that wires Apollo Client into your app with SSR support.
-
-The docs are written in English and focus on these two packages.
 
 ## Installation
 
-Using pnpm (recommended):
+You can install Vue3 Apollo using your preferred package manager:
 
-```bash
-# Core only
+::: code-group
+
+```bash [npm]
+npm install @vue3-apollo/core @apollo/client graphql
+```
+
+```bash [pnpm]
 pnpm add @vue3-apollo/core @apollo/client graphql
-
-# Nuxt module
-pnpm add @vue3-apollo/nuxt @apollo/client graphql
 ```
 
-Optional dependency for subscriptions:
-
-```bash
-pnpm add graphql-ws
+```bash [bun]
+bun add @vue3-apollo/core @apollo/client graphql
 ```
 
-Peer requirements:
+:::
 
-- vue >= 3.5
-- @apollo/client >= 4
-- graphql >= 16
+## Creating an Apollo Client
 
-## Quick Links
-
-- Core Composables: useQuery, useSubscription, useApolloClient, useApolloClients → /core
-- Nuxt Module usage and options → /nuxt
-
-## TypeScript
-
-Both packages ship full TypeScript typings. For queries and subscriptions, prefer TypedDocumentNode for strong typing:
+To start, create one or more Apollo Client instances with your desired GraphQL endpoints.
 
 ```ts
-import type { TypedDocumentNode } from '@apollo/client/core'
+import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client/core'
+
+const client = new ApolloClient({
+  cache: new InMemoryCache(),
+  link: new HttpLink({
+      // Example public GraphQL API
+      uri: 'https://graphqlplaceholder.vercel.app/graphql'
+  })
+})
 ```
+
+## Plugin Setup
+
+Vue3 Apollo provides a simple plugin for registering one or multiple Apollo clients.
+
+```ts
+import { createApp } from 'vue'
+import { apolloPlugin } from '@vue3-apollo/core'
+import { defaultClient, analyticsClient } from './apollo-clients'
+
+const app = createApp(App)
+
+app.use(apolloPlugin, {
+  clients: {
+    default: defaultClient,
+    analytics: analyticsClient
+  }
+})
+```
+
+The plugin injects all Apollo clients into your app context, allowing you to access them from composables or any Vue component.

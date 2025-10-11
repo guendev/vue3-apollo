@@ -1,30 +1,68 @@
 import { defineConfig } from 'vitepress'
 
+function createComposablesLink(composables: string[]) {
+    return composables.map((composable) => {
+        return {
+            link: `/composables/${composable}`,
+            text: composable
+        }
+    })
+}
+
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+    cleanUrls: true,
     description: 'Vue 3 + Apollo Client utilities and Nuxt 4 module',
+    ignoreDeadLinks: true,
+    rewrites: {
+        'core/src/:pkg(composables|plugins)/:slug*': ':pkg/:slug*'
+    },
     themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
         nav: [
-            { link: '/', text: 'Home' },
-            { link: '/getting-started', text: 'Getting Started' },
-            { link: '/core', text: 'Core' },
-            { link: '/nuxt', text: 'Nuxt' }
+            {
+                link: '/',
+                text: 'Home'
+            },
+            {
+                link: '/getting-started',
+                text: 'Getting Started'
+            }
         ],
-
         sidebar: [
             {
                 items: [
-                    { link: '/getting-started', text: 'Getting Started' }
+                    {
+                        link: '/introduction',
+                        text: 'Introduction'
+                    },
+                    {
+                        link: '/getting-started',
+                        text: 'Getting Started'
+                    }
                 ],
                 text: 'Guide'
             },
             {
-                items: [
-                    { link: '/core', text: 'Core' },
-                    { link: '/nuxt', text: 'Nuxt' }
-                ],
-                text: 'Packages'
+                items: createComposablesLink(['useMutation', 'useQuery', 'useSubscription']),
+                text: 'Composables'
+            },
+            {
+                collapsed: true,
+                items: createComposablesLink([
+                    'useApolloClient',
+                    'useApolloClients',
+                    'useApolloLoading',
+                    'useApolloTracking',
+                    'useGlobalLoading',
+                    'useGlobalMutationLoading',
+                    'useGlobalQueryLoading',
+                    'useGlobalSubscriptionLoading',
+                    'useMutationLoading',
+                    'useQueryLoading',
+                    'useSubscriptionLoading'
+                ]),
+                text: 'Utilities'
             }
         ],
 
