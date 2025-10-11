@@ -182,7 +182,7 @@ watch(isGlobalLoading, (loading) => {
             Users:
           </div>
           <pre class="w-full overflow-auto text-sm leading-relaxed bg-slate-950/60 border border-white/10 rounded-lg p-3">
-{{ rawQueryResult?.users }}
+{{ (rawQueryResult as any)?.users }}
           </pre>
         </div>
       </section>
