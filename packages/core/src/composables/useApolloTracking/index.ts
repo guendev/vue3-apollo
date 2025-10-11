@@ -1,6 +1,6 @@
 import type { Ref } from 'vue'
 
-import { getCurrentInstance, getCurrentScope, watch } from 'vue'
+import { getCurrentInstance, getCurrentScope, onScopeDispose, watch } from 'vue'
 
 import type { ApolloOperationType } from '../useApolloTracker'
 
@@ -28,5 +28,11 @@ export function useApolloTracking({ state, type }: UseApolloTrackingOptions) {
                 type
             })
         })
+
+        onScopeDispose(() => track({
+            id,
+            state: false,
+            type
+        }))
     }
 }
