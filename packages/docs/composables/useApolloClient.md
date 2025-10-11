@@ -25,8 +25,3 @@ const result = await client.query({
 
 ### Returns
 - **`ApolloClient`** – the Apollo client instance.
-
-### Behavior
-- Internally calls [`useApolloClients()`](../useApolloClients) to access the registry.
-- If no `clientId` is provided, it uses the first registered client.
-- Throws a descriptive error if no clients exist or the requested one is missing.

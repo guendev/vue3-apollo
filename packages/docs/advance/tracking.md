@@ -1,4 +1,4 @@
-# Apollo Loading & Activity Tracking (All Hooks)
+# Activity Tracking
 
 This page documents the **loading tracker hooks** for Apollo operations:
 

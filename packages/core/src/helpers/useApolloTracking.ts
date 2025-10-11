@@ -2,10 +2,10 @@ import type { Ref } from 'vue'
 
 import { getCurrentInstance, getCurrentScope, onScopeDispose, watch } from 'vue'
 
-import type { ApolloOperationType } from '../useApolloTracker'
+import type { ApolloOperationType } from './useApolloTracker'
 
-import { isServer } from '../../utils/isServer'
-import { useApolloTracker } from '../useApolloTracker'
+import { isServer } from '../utils/isServer'
+import { useApolloTracker } from './useApolloTracker'
 
 interface UseApolloTrackingOptions {
     state: Ref<boolean>

@@ -5,10 +5,6 @@ export default defineConfig({
     cleanUrls: true,
     description: 'Vue 3 + Apollo Client utilities and Nuxt 4 module',
     ignoreDeadLinks: true,
-    rewrites: {
-        'core/src/:pkg(composables|plugins)/:slug*': ':pkg/:slug*',
-        'nuxt/src/runtime/composables/useAsyncQuery/index.md': 'composables/useAsyncQuery/index.md'
-    },
     themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
         nav: [
@@ -42,7 +38,7 @@ export default defineConfig({
                         text: 'Integration'
                     },
                     {
-                        link: '/composables/useAsyncQuery',
+                        link: '/nuxt/composables/useAsyncQuery',
                         text: 'useAsyncQuery'
                     }
                 ],
@@ -50,6 +46,10 @@ export default defineConfig({
             },
             {
                 items: [
+                    {
+                        link: '/composables/useApolloClient',
+                        text: 'useApolloClient'
+                    },
                     {
                         link: '/composables/useMutation',
                         text: 'useMutation'
@@ -66,7 +66,12 @@ export default defineConfig({
                 text: 'Composables'
             },
             {
-                items: [],
+                items: [
+                    {
+                        link: '/advance/tracking',
+                        text: 'Tracking'
+                    }
+                ],
                 text: 'Advance'
             }
         ],

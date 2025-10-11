@@ -5,9 +5,9 @@
   "scripts": {
     "build:core": "unbuild --config packages/core/build.config.ts",
     "update:dependencies": "ncu --deep -u",
-    "docs:dev": "vitepress dev packages",
-    "docs:build": "vitepress build packages",
-    "docs:preview": "vitepress preview packages"
+    "docs:dev": "vitepress dev packages/docs",
+    "docs:build": "vitepress build packages/docs",
+    "docs:preview": "vitepress preview packages/docs"
   },
   "devDependencies": {
     "vitepress": "^1.6.4",

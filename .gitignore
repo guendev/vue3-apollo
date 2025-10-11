@@ -25,4 +25,4 @@ dist-ssr
 .nuxt
 .out
 .output
-packages/.vitepress/cache/
+packages/docs/.vitepress/cache/

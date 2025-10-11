@@ -1,6 +1,6 @@
 import { computed, getCurrentInstance } from 'vue'
 
-import { useApolloTracker } from '../useApolloTracker'
+import { useApolloTracker } from './useApolloTracker'
 
 /**
  * Track the loading state for Apollo subscriptions in a specific component or scope

@@ -33,12 +33,6 @@ const asyncData = useAsyncQuery(options, config?)
 
 **Returns:** `AsyncData<T, ErrorLike | NuxtError | undefined>`
 
-## Behavior
-- Runs `client.query` server‑side on the initial request and reuses the result client‑side via Nuxt hydration.
-- If **`key` is not provided**, a deterministic key is generated with `ohash` based on the **printed** query and **unref’d** variables.
-- If `queryResult.error` exists, it is **thrown**, so `useAsyncData` places it in `error`.
-- `variables` are passed as‑is to Apollo; you can provide plain objects or refs/computed via Nuxt/Vue.
-
 ## Error handling
 - If Apollo returns `result.error`, it is thrown; Nuxt catches it and sets the `error` field of `AsyncData`.
 - The `error` type is `ErrorLike | NuxtError | undefined` to align with Apollo and Nuxt error shapes.
