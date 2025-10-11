@@ -342,6 +342,16 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         return query.value.refetch(variables)
     }
 
+    const fetchMore = async (options: Pick<ObservableQuery.FetchMoreOptions<TData, TVariables>, 'updateQuery' | 'variables'>) => {
+        if (!query.value) {
+            return
+        }
+
+        error.value = undefined
+        loading.value = true
+        return query.value.fetchMore(options)
+    }
+
     if (getCurrentScope()) {
         onScopeDispose(() => {
             stop()
@@ -357,6 +367,37 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
          * Includes both network errors and GraphQL errors.
          */
         error,
+
+        /**
+         * Fetch more data and merge it with existing results.
+         * Useful for pagination, infinite scroll, or load more functionality.
+         * Uses Apollo Client's updateQuery to merge new data with existing cache.
+         *
+         * @param updateQuery - Function to merge previous result with new data
+         * @param variables - New variables for the query (e.g., next page offset)
+         *
+         * @example
+         * ```ts
+         * // Load more items for pagination
+         * const { result, fetchMore } = useQuery(ITEMS_QUERY, { offset: 0, limit: 10 })
+         *
+         * const loadMore = async () => {
+         *   await fetchMore({
+         *     variables: {
+         *       offset: result.value.items.length
+         *     },
+         *     updateQuery: (previousResult, { fetchMoreResult }) => {
+         *       if (!fetchMoreResult) return previousResult
+         *       return {
+         *         ...previousResult,
+         *         items: [...previousResult.items, ...fetchMoreResult.items]
+         *       }
+         *     }
+         *   })
+         * }
+         * ```
+         */
+        fetchMore,
 
         /**
          * Whether the query is currently loading.
