@@ -17,7 +17,7 @@ interface TrackParams {
     /**
      * Type of operation ('queries', 'mutations', 'subscriptions')
      */
-    type: Exclude<ApolloOperationType, 'all'>
+    type: ApolloOperationType
 }
 
 export const useApolloTracker = createGlobalState(

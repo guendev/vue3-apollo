@@ -9,7 +9,7 @@ import { useApolloTracker } from '../useApolloTracker'
 
 interface UseApolloTrackingOptions {
     state: Ref<boolean>
-    type: Exclude<ApolloOperationType, 'all'>
+    type: ApolloOperationType
 }
 
 export function useApolloTracking({ state, type }: UseApolloTrackingOptions) {

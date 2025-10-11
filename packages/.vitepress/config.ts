@@ -1,14 +1,5 @@
 import { defineConfig } from 'vitepress'
 
-function createComposablesLink(composables: string[]) {
-    return composables.map((composable) => {
-        return {
-            link: `/composables/${composable}`,
-            text: composable
-        }
-    })
-}
-
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
     cleanUrls: true,
@@ -58,25 +49,25 @@ export default defineConfig({
                 text: 'Nuxt'
             },
             {
-                items: createComposablesLink(['useMutation', 'useQuery', 'useSubscription']),
+                items: [
+                    {
+                        link: '/composables/useMutation',
+                        text: 'useMutation'
+                    },
+                    {
+                        link: '/composables/useQuery',
+                        text: 'useQuery'
+                    },
+                    {
+                        link: '/composables/useSubscription',
+                        text: 'useSubscription'
+                    }
+                ],
                 text: 'Composables'
             },
             {
-                collapsed: true,
-                items: createComposablesLink([
-                    'useApolloClient',
-                    'useApolloClients',
-                    'useApolloLoading',
-                    'useApolloTracking',
-                    'useGlobalLoading',
-                    'useGlobalMutationLoading',
-                    'useGlobalQueryLoading',
-                    'useGlobalSubscriptionLoading',
-                    'useMutationLoading',
-                    'useQueryLoading',
-                    'useSubscriptionLoading'
-                ]),
-                text: 'Utilities'
+                items: [],
+                text: 'Advance'
             }
         ],
 
