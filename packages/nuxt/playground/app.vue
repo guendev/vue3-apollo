@@ -39,7 +39,7 @@ const { data, error } = await useAsyncQuery(
           Apollo Demo • Posts
         </h1>
         <p class="text-sm text-gray-400 mt-1">
-          Get posts by user ID and update title {{ data }}
+          Get posts by user ID and update title
         </p>
       </header>
 

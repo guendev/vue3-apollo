@@ -12,7 +12,7 @@ import { omit, useApolloClient } from '@vue3-apollo/core'
 import { print } from 'graphql'
 import { useAsyncData } from 'nuxt/app'
 import { hash } from 'ohash'
-import { toValue, unref } from 'vue'
+import { unref } from 'vue'
 
 export type UseAsyncQueryOptions<TData = unknown, TVariables extends OperationVariables = OperationVariables> = {
     key?: MaybeRefOrGetter<string>
@@ -53,7 +53,7 @@ export function useAsyncQuery<
     const client = useApolloClient(options?.clientId)
 
     // Generate a unique key for the query if not provided
-    const key = toValue(options.key) || hash({
+    const key = options.key || hash({
         clientId: options.clientId,
         query: print(options.query),
         variables: unref(options.variables)
