@@ -7,7 +7,7 @@ import type { ApolloLoadingId } from './useApolloLoading'
 import { useApolloLoading } from './useApolloLoading'
 
 /**
- * Track loading state for Apollo mutations in a specific component or scope
+ * Track the loading state for Apollo mutations in a specific component or scope
  *
  * @param id - Optional unique identifier. If not provided, uses current component instance uid
  * @returns A computed ref indicating whether any mutations are currently loading for the given id
