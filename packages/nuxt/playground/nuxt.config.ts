@@ -8,7 +8,11 @@ export default defineNuxtConfig({
     },
     compatibilityDate: '2025-10-10',
     devtools: {
-        enabled: true
+        enabled: true,
+
+        timeline: {
+            enabled: true
+        }
     },
     modules: [
         '../src/module',

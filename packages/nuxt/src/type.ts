@@ -69,8 +69,39 @@ export interface ApolloModuleOptions extends ApolloSharedConfig {
 export type ApolloRuntimeConfig = ApolloModuleOptions
 
 /**
- * Shared configuration options for Apollo Client and Module
+ * Shared authentication configuration options for Apollo Client and Module
  * @remarks Only cookie-based authentication is supported due to SSR constraints
+ */
+export interface ApolloSharedAuthConfig {
+    /**
+     * Name of the authentication token to retrieve from storage.
+     * The token will be searched in cookie or localStorage depending on `tokenStorage` configuration.
+     *
+     * @default 'apollo:{clientId}:token' - Falls back to pattern using client ID
+     * @example 'auth-token'
+     */
+    tokenName?: string
+
+    /**
+     * Authentication scheme used in the Authorization header.
+     * Set to `null` to send the token without any prefix.
+     *
+     * @default 'Bearer'
+     * @example 'Bearer' | 'JWT' | 'Token'
+     */
+    authType?: string
+
+    /**
+     * Name of the HTTP header used to send the authentication token.
+     *
+     * @default 'Authorization'
+     * @example 'X-Auth-Token'
+     */
+    authHeader?: string
+}
+
+/**
+ * Shared configuration options for Apollo Client and Module
  */
 export interface ApolloSharedConfig {
     /**
@@ -151,28 +182,9 @@ export interface ApolloSharedConfig {
     inMemoryCacheOptions?: InMemoryCacheConfig
 
     /**
-     * Name of the authentication token to retrieve from storage.
-     * The token will be searched in cookie or localStorage depending on `tokenStorage` configuration.
-     *
-     * @default 'apollo:{clientId}:token' - Falls back to pattern using client ID
-     * @example 'auth-token'
+     * Optional configuration for authentication in Apollo Shared Settings.
+     * This property can either be an object of type `ApolloSharedAuthConfig` to enable specific authentication settings
+     * or a boolean value `false` to disable authentication altogether.
      */
-    tokenName?: string
-
-    /**
-     * Authentication scheme used in the Authorization header.
-     * Set to `null` to send the token without any prefix.
-     *
-     * @default 'Bearer'
-     * @example 'Bearer' | 'JWT' | 'Token'
-     */
-    authType?: string
-
-    /**
-     * Name of the HTTP header used to send the authentication token.
-     *
-     * @default 'Authorization'
-     * @example 'X-Auth-Token'
-     */
-    authHeader?: string
+    auth?: ApolloSharedAuthConfig | false
 }

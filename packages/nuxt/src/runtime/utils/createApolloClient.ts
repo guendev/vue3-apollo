@@ -10,7 +10,7 @@ import { getMainDefinition } from '@apollo/client/utilities'
 import { defu } from 'defu'
 import { useCookie } from 'nuxt/app'
 
-import type { ApolloClientConfig, ApolloSharedConfig } from '../../type'
+import type { ApolloClientConfig } from '../../type'
 import type { ApolloErrorHookPayload } from '../types'
 
 const APOLLO_STATE_KEY_PREFIX = 'apollo:'
@@ -22,27 +22,28 @@ interface CreateApolloClientParams {
 }
 
 export async function createApolloClient({ clientId, config, nuxtApp }: CreateApolloClientParams) {
-    const mergedAuthConfig: Pick<ApolloSharedConfig, 'authHeader' | 'authType' | 'tokenName'> = defu(
-        {
-            authHeader: config.authHeader,
-            authType: config.authType
-        },
+    const mergedAuthConfig = config.auth && defu(
+        config.auth,
         {
             authHeader: 'Authorization',
             authType: 'Bearer',
-            tokenName: config.tokenName
+            tokenName: `apollo:${clientId}:token`
         }
     )
 
-    const getAuthCredentials = () => {
-        const token = useCookie(mergedAuthConfig.tokenName || `apollo:${clientId}:token`).value
+    const tokenRef = mergedAuthConfig ? useCookie(mergedAuthConfig.tokenName) : undefined
 
-        if (!token || !mergedAuthConfig.authHeader) {
+    const getAuthCredentials = () => {
+        if (!mergedAuthConfig || !tokenRef?.value) {
+            return {}
+        }
+
+        if (!mergedAuthConfig.authHeader) {
             return
         }
 
         return {
-            [mergedAuthConfig.authHeader]: `${mergedAuthConfig.authType} ${token}`
+            [mergedAuthConfig.authHeader]: `${mergedAuthConfig.authType} ${tokenRef.value}`
         }
     }
 

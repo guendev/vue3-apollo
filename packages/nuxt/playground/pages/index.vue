@@ -42,6 +42,8 @@ watch(isGlobalLoading, (loading) => {
         finish()
     }
 })
+
+const route = useRoute()
 </script>
 
 <template>
@@ -58,11 +60,22 @@ watch(isGlobalLoading, (loading) => {
 
       <section class="bg-slate-900/60 border border-white/10 rounded-xl shadow-lg backdrop-blur p-4 sm:p-6 space-y-4">
         <div class="flex flex-wrap items-center gap-3">
-          <button type="button" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white transition-colors">
+          <button type="button" class="inline-flex cursor-pointer items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white transition-colors">
             Refresh
           </button>
-          <button type="button" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 active:bg-slate-800 text-gray-200 border border-white/10 transition-colors" @click="enabled = !enabled">
+          <button type="button" class="inline-flex cursor-pointer items-center gap-2 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 active:bg-slate-800 text-gray-200 border border-white/10 transition-colors" @click="enabled = !enabled">
             {{ enabled ? 'Disable' : 'Enable' }} Query
+          </button>
+          <button
+            v-if="ssrData"
+            type="button"
+            class="inline-flex cursor-pointer items-center gap-2 px-3 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white transition-colors"
+            @click="openViewSource(route.fullPath)"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+            View SSR Source
           </button>
           <span class="ml-auto text-xs text-gray-400">Query Status: <strong class="text-gray-200">{{ enabled ? 'Enabled' : 'Disabled' }}</strong></span>
         </div>
@@ -101,10 +114,19 @@ watch(isGlobalLoading, (loading) => {
           </div>
         </div>
 
-        <div class="text-sm text-gray-300 pt-3">
+        <div class="text-sm text-gray-300 pt-3 flex gap-2">
           SSR Data:
-          <span v-if="ssrError" class="text-rose-400">{{ ssrError }}</span>
-          <span v-else class="text-emerald-400">{{ ssrData?.posts?.length }} posts</span>
+          <div v-if="ssrError" class="text-rose-400">
+            {{ ssrError }}
+          </div>
+          <div v-else>
+            <div class="text-emerald-400">
+              {{ ssrData?.posts?.length }} posts
+            </div>
+            <div class="sr-only">
+              {{ ssrData?.posts }}
+            </div>
+          </div>
         </div>
 
         <div class="border-t border-white/10 pt-4 space-y-3">
