@@ -70,6 +70,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Type check (Nuxt)
-        run: pnpm --filter @vue3-apollo/nuxt run test:types
+      - name: Type check
+        run: pnpm run typecheck
         continue-on-error: true
