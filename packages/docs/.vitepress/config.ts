@@ -1,20 +1,29 @@
 import { defineConfig } from 'vitepress'
+import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-icons'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
     cleanUrls: true,
     description: 'Vue 3 + Apollo Client utilities and Nuxt 4 module',
     ignoreDeadLinks: true,
+    markdown: {
+        config(md) {
+            md.use(groupIconMdPlugin)
+        }
+    },
     themeConfig: {
-    // https://vitepress.dev/reference/default-theme-config
+        editLink: {
+            pattern: 'https://github.com/guendev/vue3-apollo/tree/main/packages/docs/:path',
+            text: 'Edit this page on GitHub'
+        },
         nav: [
             {
-                link: '/',
-                text: 'Home'
+                link: '/getting-started',
+                text: 'Guide'
             },
             {
-                link: '/getting-started',
-                text: 'Getting Started'
+                link: '/nuxt',
+                text: 'Nuxt'
             }
         ],
         sidebar: [
@@ -75,10 +84,14 @@ export default defineConfig({
                 text: 'Advance'
             }
         ],
-
         socialLinks: [
             { icon: 'github', link: 'https://github.com/guendev/vue3-apollo' }
         ]
     },
-    title: 'Vue3 Apollo'
+    title: 'Vue3 Apollo',
+    vite: {
+        plugins: [
+            groupIconVitePlugin()
+        ]
+    }
 })

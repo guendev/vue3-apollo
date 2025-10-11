@@ -6,15 +6,15 @@ Lightweight Nuxt module for Apollo Client v4 with SSR and WebSocket subscription
 
 ::: code-group
 
-```bash [🟥 npm]
+```bash [npm]
 npm i @vue3-apollo/nuxt @apollo/client graphql
 ```
 
-```bash [🟨 pnpm]
+```bash [pnpm]
 pnpm add @vue3-apollo/nuxt @apollo/client graphql
 ```
 
-```bash [👶 bun]
+```bash [bun]
 bun add @vue3-apollo/nuxt @apollo/client graphql
 ```
 
@@ -59,15 +59,15 @@ const { result: livePost } = useSubscription(POST_ADDED)
 
 ::: code-group
 
-```bash [🟥 npm]
+```bash [npm]
 npm i graphql-ws
 ```
 
-```bash [🟨 pnpm]
+```bash [pnpm]
 pnpm add graphql-ws
 ```
 
-```bash [👶 bun]
+```bash [bun]
 bun add graphql-ws
 ```
 
