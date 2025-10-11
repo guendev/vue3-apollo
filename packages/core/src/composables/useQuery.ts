@@ -10,7 +10,7 @@ import type { DocumentNode } from 'graphql'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
 import { createEventHook, syncRef, useDebounceFn, useThrottleFn } from '@vueuse/core'
-import { computed, getCurrentScope, isReadonly, isRef, onScopeDispose, onServerPrefetch, ref, shallowRef, toValue, watch } from 'vue'
+import { computed, getCurrentInstance, getCurrentScope, isReadonly, isRef, onScopeDispose, onServerPrefetch, ref, shallowRef, toValue, watch } from 'vue'
 
 import type { UseBaseOption } from '../utils/type'
 
@@ -18,6 +18,7 @@ import { isDefined } from '../utils/isDefined'
 import { isServer } from '../utils/isServer'
 import { omit } from '../utils/omit'
 import { useApolloClient } from './useApolloClient'
+import { useApolloLoading } from './useApolloLoading'
 
 /**
  * Options for useQuery composable
@@ -148,12 +149,29 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     const observer = shallowRef<ReturnType<ObservableQuery<TData, TVariables>['subscribe']>>()
 
     const result = shallowRef<TData>()
-    const loading = ref(true)
+    const loading = ref(false)
     const networkStatus = ref<NetworkStatus>()
     const error = ref<ErrorLike>()
 
     const onResult = createEventHook<TData>()
     const onErrorEvent = createEventHook<ErrorLike>()
+
+    // Setup loading tracking
+    const currentScope = getCurrentScope()
+    if (currentScope && !isServer()) {
+        const { track } = useApolloLoading()
+        const currentInstance = getCurrentInstance()
+
+        const id = currentInstance?.uid ?? Math.random().toString(36).slice(2)
+
+        watch(loading, (isLoading) => {
+            track({
+                id,
+                state: isLoading,
+                type: 'query'
+            })
+        })
+    }
 
     const enabled = computed(() => toValue(options?.enabled ?? true))
     const reactiveVariables = ref(toValue(variables))
@@ -334,7 +352,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         return query.value.refetch(variables)
     }
 
-    if (getCurrentScope()) {
+    if (currentScope) {
         onScopeDispose(() => {
             stop()
         })
