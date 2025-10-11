@@ -26,7 +26,10 @@ onResult((data) => {
 
 const { data: ssrData, error: ssrError } = await useAsyncQuery(
     {
-        query: PostsDocument
+        query: PostsDocument,
+        variables: {
+            userId: 1
+        }
     }
 )
 
