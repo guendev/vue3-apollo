@@ -2,7 +2,7 @@
 
 Composable that returns a **computed ref** representing whether any Apollo **queries** are currently loading within a specific component or custom owner scope.
 
-It reads from the `activeByOwner` map provided by [`useApolloLoading`](../useApolloLoading) and updates automatically when the tracked query states change.
+It reads from the `activeByOwner` map provided by [`useApolloLoading`](../useApolloTracker) and updates automatically when the tracked query states change.
 
 ## Quick start
 
@@ -67,6 +67,6 @@ watch(isFetching, (active) => {
 ---
 
 **See also**
-- [`useApolloLoading`](../useApolloLoading) — provides the owner counters.
+- [`useApolloLoading`](../useApolloTracker) — provides the owner counters.
 - [`useGlobalQueryLoading`](../useGlobalQueryLoading) — tracks all queries globally.
 - [`useApolloTracking`](../useApolloTracking) — automatically reports loading states to the tracker.

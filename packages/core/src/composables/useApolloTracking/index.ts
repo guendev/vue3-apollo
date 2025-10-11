@@ -2,10 +2,10 @@ import type { Ref } from 'vue'
 
 import { getCurrentInstance, getCurrentScope, watch } from 'vue'
 
-import type { ApolloOperationType } from '../useApolloLoading'
+import type { ApolloOperationType } from '../useApolloTracker'
 
 import { isServer } from '../../utils/isServer'
-import { useApolloLoading } from '../useApolloLoading'
+import { useApolloTracker } from '../useApolloTracker'
 
 interface UseApolloTrackingOptions {
     state: Ref<boolean>
@@ -16,7 +16,7 @@ export function useApolloTracking({ state, type }: UseApolloTrackingOptions) {
     // Setup loading tracking
     const currentScope = getCurrentScope()
     if (currentScope && !isServer()) {
-        const { track } = useApolloLoading()
+        const { track } = useApolloTracker()
         const currentInstance = getCurrentInstance()
 
         const id = currentInstance?.uid ?? Math.random().toString(36).slice(2)

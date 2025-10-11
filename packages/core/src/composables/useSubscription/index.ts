@@ -72,7 +72,7 @@ export function useSubscription<
 
     useApolloTracking({
         state: loading,
-        type: 'subscription'
+        type: 'subscriptions'
     })
 
     const onNext = (value: { data?: TData }) => {

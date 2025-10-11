@@ -4,7 +4,7 @@
 
 Composable that returns a **computed ref** representing whether any Apollo **subscriptions** are currently loading (connecting or awaiting first data) within a specific component or custom owner scope.
 
-It reads from the `activeByOwner` map provided by [`useApolloLoading`](../useApolloLoading) and updates automatically as the tracked subscription states change.
+It reads from the `activeByOwner` map provided by [`useApolloLoading`](../useApolloTracker) and updates automatically as the tracked subscription states change.
 
 ## Quick start
 
@@ -71,6 +71,6 @@ watch(isSyncing, (active) => {
 ---
 
 **See also**
-- [`useApolloLoading`](../useApolloLoading) — provides the owner counters.
+- [`useApolloLoading`](../useApolloTracker) — provides the owner counters.
 - [`useGlobalSubscriptionLoading`](../useGlobalSubscriptionLoading) — tracks all subscriptions globally.
 - [`useApolloTracking`](../useApolloTracking) — automatically reports loading states to the tracker.

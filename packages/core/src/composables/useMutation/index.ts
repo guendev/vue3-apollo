@@ -96,7 +96,7 @@ export function useMutation<
 
     useApolloTracking({
         state: loading,
-        type: 'mutation'
+        type: 'mutations'
     })
 
     const mutate = async (

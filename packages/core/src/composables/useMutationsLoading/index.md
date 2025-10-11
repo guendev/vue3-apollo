@@ -2,7 +2,7 @@
 
 Composable that returns a **computed ref** representing whether any Apollo **mutations** are currently loading within a specific component or custom owner scope.
 
-It reads from the `activeByOwner` map provided by [`useApolloLoading`](../useApolloLoading) and updates automatically as tracked mutation states change.
+It reads from the `activeByOwner` map provided by [`useApolloLoading`](../useApolloTracker) and updates automatically as tracked mutation states change.
 
 ## Quick start
 
@@ -70,6 +70,6 @@ watch(isSaving, (active) => {
 ---
 
 **See also**
-- [`useApolloLoading`](../useApolloLoading) — provides the owner counters.
+- [`useApolloLoading`](../useApolloTracker) — provides the owner counters.
 - [`useGlobalMutationLoading`](../useGlobalMutationLoading) — tracks all mutations globally.
 - [`useApolloTracking`](../useApolloTracking) — automatically reports loading states to the tracker.

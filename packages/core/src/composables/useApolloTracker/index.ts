@@ -1,9 +1,7 @@
 import { createGlobalState } from '@vueuse/core'
 import { shallowRef } from 'vue'
 
-export type ApolloLoadingId = number | string
-
-export type ApolloOperationType = 'all' | 'mutation' | 'query' | 'subscription'
+export type ApolloOperationType = 'mutations' | 'queries' | 'subscriptions'
 
 type PerType = Partial<Record<ApolloOperationType, number>>
 
@@ -11,21 +9,21 @@ interface TrackParams {
     /**
      * Unique identifier for the owner (component uid, composable id, etc.)
      */
-    id: ApolloLoadingId
+    id: number | string
     /**
      * Loading state (true = loading, false = idle)
      */
     state: boolean
     /**
-     * Type of operation ('query', 'mutation', 'subscription')
+     * Type of operation ('queries', 'mutations', 'subscriptions')
      */
     type: Exclude<ApolloOperationType, 'all'>
 }
 
-export const useApolloLoading = createGlobalState(
+export const useApolloTracker = createGlobalState(
     () => {
         // { id -> counters per type }
-        const activeByOwner = shallowRef<Record<ApolloLoadingId, PerType>>({})
+        const activeByOwner = shallowRef<Record<number | string, PerType>>({})
 
         // Global counters across all owners
         const activeGlobal = shallowRef<PerType>({})
@@ -33,7 +31,7 @@ export const useApolloLoading = createGlobalState(
         /**
          * Track the loading state of Apollo operations
          * @example
-         * const { track } = useApolloLoading()
+         * const { track } = useApolloTracker()
          * track({ id: getCurrentInstance()?.uid, state: true, type: 'query' })
          */
         const track = ({ id, state, type }: TrackParams) => {
@@ -41,7 +39,6 @@ export const useApolloLoading = createGlobalState(
 
             // Update global counters
             activeGlobal.value[type] = Math.max(0, (activeGlobal.value[type] || 0) + delta)
-            activeGlobal.value.all = Math.max(0, (activeGlobal.value.all || 0) + delta)
 
             // Update by-owner counters
             if (!activeByOwner.value[id]) {
@@ -50,11 +47,9 @@ export const useApolloLoading = createGlobalState(
 
             const ownerCounters = activeByOwner.value[id]
             ownerCounters[type] = Math.max(0, (ownerCounters[type] || 0) + delta)
-            ownerCounters.all = Math.max(0, (ownerCounters.all || 0) + delta)
 
-            // Clean up empty owner entries
-            if (ownerCounters.all === 0) {
-                delete activeByOwner.value[id]
+            if (ownerCounters[type] === 0) {
+                delete ownerCounters[type]
             }
 
             // Trigger reactivity

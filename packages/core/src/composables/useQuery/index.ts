@@ -161,7 +161,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     // Setup loading tracking
     useApolloTracking({
         state: loading,
-        type: 'query'
+        type: 'queries'
     })
 
     const reactiveVariables = ref(toValue(variables))

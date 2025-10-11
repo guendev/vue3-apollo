@@ -2,9 +2,7 @@ import type { ComputedRef } from 'vue'
 
 import { computed, getCurrentInstance } from 'vue'
 
-import type { ApolloLoadingId } from '../useApolloLoading'
-
-import { useApolloLoading } from '../useApolloLoading'
+import { useApolloTracker } from '../useApolloTracker'
 
 /**
  * Track the loading state for Apollo queries in a specific component or scope
@@ -21,8 +19,8 @@ import { useApolloLoading } from '../useApolloLoading'
  * const isLoading = useQueryLoading('my-custom-id')
  * ```
  */
-export function useQueryLoading(id?: ApolloLoadingId): ComputedRef<boolean> {
-    const { activeByOwner } = useApolloLoading()
+export function useQueriesLoading(id?: number | string): ComputedRef<boolean> {
+    const { activeByOwner } = useApolloTracker()
 
     const loadingId = id ?? getCurrentInstance()?.uid
 
@@ -37,6 +35,6 @@ export function useQueryLoading(id?: ApolloLoadingId): ComputedRef<boolean> {
             return false
         }
 
-        return (ownerCounters.query || 0) > 0
+        return (ownerCounters.queries || 0) > 0
     })
 }
