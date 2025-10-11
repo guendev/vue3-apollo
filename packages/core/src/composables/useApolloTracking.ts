@@ -2,14 +2,14 @@ import type { Ref } from 'vue'
 
 import { getCurrentInstance, getCurrentScope, watch } from 'vue'
 
-import type { OperationType } from './useApolloLoading'
+import type { ApolloOperationType } from './useApolloLoading'
 
 import { isServer } from '../utils/isServer'
 import { useApolloLoading } from './useApolloLoading'
 
 interface UseApolloTrackingOptions {
     state: Ref<boolean>
-    type: Exclude<OperationType, 'all'>
+    type: Exclude<ApolloOperationType, 'all'>
 }
 
 export function useApolloTracking({ state, type }: UseApolloTrackingOptions) {

@@ -1,15 +1,17 @@
 import { createGlobalState } from '@vueuse/core'
 import { shallowRef } from 'vue'
 
-export type OperationType = 'all' | 'mutation' | 'query' | 'subscription'
+export type ApolloLoadingId = number | string
 
-type PerType = Partial<Record<OperationType, number>>
+export type ApolloOperationType = 'all' | 'mutation' | 'query' | 'subscription'
+
+type PerType = Partial<Record<ApolloOperationType, number>>
 
 interface TrackParams {
     /**
      * Unique identifier for the owner (component uid, composable id, etc.)
      */
-    id: number | string
+    id: ApolloLoadingId
     /**
      * Loading state (true = loading, false = idle)
      */
@@ -17,13 +19,13 @@ interface TrackParams {
     /**
      * Type of operation ('query', 'mutation', 'subscription')
      */
-    type: Exclude<OperationType, 'all'>
+    type: Exclude<ApolloOperationType, 'all'>
 }
 
 export const useApolloLoading = createGlobalState(
     () => {
         // { id -> counters per type }
-        const activeByOwner = shallowRef<Record<number | string, PerType>>({})
+        const activeByOwner = shallowRef<Record<ApolloLoadingId, PerType>>({})
 
         // Global counters across all owners
         const activeGlobal = shallowRef<PerType>({})

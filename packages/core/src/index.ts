@@ -1,8 +1,17 @@
 export * from './composables/useApolloClient'
 export * from './composables/useApolloClients'
+export * from './composables/useApolloLoading'
+export * from './composables/useApolloTracking'
+export * from './composables/useGlobalLoading'
+export * from './composables/useGlobalMutationLoading'
+export * from './composables/useGlobalQueryLoading'
+export * from './composables/useGlobalSubscriptionLoading'
 export * from './composables/useMutation'
+export * from './composables/useMutationLoading'
 export * from './composables/useQuery'
+export * from './composables/useQueryLoading'
 export * from './composables/useSubscription'
+export * from './composables/useSubscriptionLoading'
 
 export * from './constants/apollo'
 
