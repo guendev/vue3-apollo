@@ -11,7 +11,7 @@ const vars = reactive<PostsQueryVariables>({
     userId: 1
 })
 
-const { error, onResult, result } = useQuery(PostsDocument, vars, {
+const { onResult, result } = useQuery(PostsDocument, vars, {
     enabled,
     keepPreviousResult: true
 })
@@ -24,7 +24,7 @@ onResult((data) => {
     console.warn('onResult', data)
 })
 
-const res = await useAsyncQuery(
+const { data, error } = await useAsyncQuery(
     {
         query: PostsDocument
     }

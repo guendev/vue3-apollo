@@ -1,5 +1,5 @@
 import type { NormalizedCacheObject } from '@apollo/client/core'
-import type { NuxtApp } from '#app'
+import type { NuxtApp } from 'nuxt/app'
 
 import { ApolloClient, ApolloLink, HttpLink, InMemoryCache } from '@apollo/client'
 import { CombinedGraphQLErrors, CombinedProtocolErrors } from '@apollo/client/errors'
@@ -7,8 +7,8 @@ import { SetContextLink } from '@apollo/client/link/context'
 import { ErrorLink } from '@apollo/client/link/error'
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions'
 import { getMainDefinition } from '@apollo/client/utilities'
-import { useCookie } from '#app'
 import { defu } from 'defu'
+import { useCookie } from 'nuxt/app'
 
 import type { ApolloClientConfig, ApolloSharedConfig } from '../../type'
 import type { ApolloErrorHookPayload } from '../types'
