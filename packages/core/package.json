@@ -51,6 +51,7 @@
     "dev": "tsup --config tsup.config.ts --watch",
     "build": "tsup --config tsup.config.ts",
     "clean": "rimraf dist",
+    "typecheck": "tsc --noEmit",
     "prepublishOnly": "pnpm run build"
   },
   "peerDependencies": {

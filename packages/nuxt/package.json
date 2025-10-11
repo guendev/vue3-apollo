@@ -1,7 +1,7 @@
 {
   "name": "@vue3-apollo/nuxt",
   "version": "1.0.0",
-  "description": "My new Nuxt module",
+  "description": "Nuxt module for Apollo Client integration with Vue 3",
   "repository": "https://github.com/guendev/vue3-apollo",
   "license": "MIT",
   "type": "module",
@@ -28,7 +28,7 @@
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
     "release": "npm run prepack && npm publish && git push --follow-tags",
-    "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
+    "typecheck": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
   },
   "dependencies": {
     "@nuxt/kit": "^4.1.3",

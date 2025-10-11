@@ -5,16 +5,23 @@
   "scripts": {
     "build": "pnpm run build:core && pnpm run build:nuxt && pnpm run build:docs",
     "build:core": "pnpm --filter @vue3-apollo/core run build",
-    "build:nuxt": "pnpm --filter @vue3-apollo/nuxt run prepack",
     "build:docs": "pnpm --filter @vue3-apollo/docs run build",
+    "build:nuxt": "pnpm --filter @vue3-apollo/nuxt run prepack",
+    "changeset": "changeset",
+    "changeset:add": "changeset add",
+    "dev:core": "pnpm --filter @vue3-apollo/core run dev",
     "dev:docs": "pnpm --filter @vue3-apollo/docs run dev",
+    "dev:nuxt": "pnpm --filter @vue3-apollo/nuxt run dev",
+    "dev:web": "pnpm --filter @vue3-apollo/web run dev",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "release": "pnpm build && changeset publish",
-    "version": "changeset version && pnpm install --lockfile-only",
-    "changeset": "changeset",
-    "changeset:add": "changeset add",
-    "update:dependencies": "ncu --deep -u"
+    "typecheck": "pnpm run typecheck:core && pnpm run typecheck:nuxt && pnpm run typecheck:web",
+    "typecheck:core": "pnpm --filter @vue3-apollo/core run typecheck",
+    "typecheck:nuxt": "pnpm --filter @vue3-apollo/nuxt run typecheck",
+    "typecheck:web": "pnpm --filter @vue3-apollo/web run typecheck",
+    "update:dependencies": "ncu --deep -u",
+    "version": "changeset version && pnpm install --lockfile-only"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^5.4.1",
