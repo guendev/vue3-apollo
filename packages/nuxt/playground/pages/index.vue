@@ -11,7 +11,7 @@ const vars = reactive<PostsQueryVariables>({
     userId: 1
 })
 
-const { error, onResult, result } = useQuery(PostsDocument, vars, {
+const { error, onResult, refetch, result } = useQuery(PostsDocument, vars, {
     enabled,
     keepPreviousResult: true
 })
@@ -63,8 +63,12 @@ const route = useRoute()
 
       <section class="bg-slate-900/60 border border-white/10 rounded-xl shadow-lg backdrop-blur p-4 sm:p-6 space-y-4">
         <div class="flex flex-wrap items-center gap-3">
-          <button type="button" class="inline-flex cursor-pointer items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white transition-colors">
-            Refresh
+          <button
+            type="button"
+            class="inline-flex cursor-pointer items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white transition-colors"
+            @click="refetch()"
+          >
+            Refetch
           </button>
           <button type="button" class="inline-flex cursor-pointer items-center gap-2 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 active:bg-slate-800 text-gray-200 border border-white/10 transition-colors" @click="enabled = !enabled">
             {{ enabled ? 'Disable' : 'Enable' }} Query
