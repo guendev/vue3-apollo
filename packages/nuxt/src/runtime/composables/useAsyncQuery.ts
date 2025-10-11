@@ -9,6 +9,7 @@ import type { AsyncData, AsyncDataOptions, NuxtError } from 'nuxt/app'
 import type { MaybeRefOrGetter } from 'vue'
 
 import { omit, useApolloClient } from '@vue3-apollo/core'
+import { useNuxtApp } from '#imports'
 import { print } from 'graphql'
 import { useAsyncData } from 'nuxt/app'
 import { hash } from 'ohash'
@@ -50,6 +51,9 @@ export function useAsyncQuery<
     options: UseAsyncQueryOptions<DataT, TVariables>,
     config?: AsyncDataOptions<DataT, DataT, PickKeys, DefaultT>
 ) {
+    const nuxtApp = useNuxtApp()
+    console.log(nuxtApp)
+
     const client = useApolloClient(options?.clientId)
 
     // Generate a unique key for the query if not provided

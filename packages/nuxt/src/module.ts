@@ -37,9 +37,18 @@ export default defineNuxtModule<ApolloModuleOptions>({
                     imports: [
                         'useApolloClient',
                         'useApolloClients',
+                        'useApolloLoading',
+                        'useApolloTracking',
+                        'useGlobalLoading',
+                        'useGlobalMutationLoading',
+                        'useGlobalQueryLoading',
+                        'useGlobalSubscriptionLoading',
                         'useMutation',
+                        'useMutationLoading',
                         'useQuery',
-                        'useSubscription'
+                        'useQueryLoading',
+                        'useSubscription',
+                        'useSubscriptionLoading'
                     ]
                 })
                 sources.push({
