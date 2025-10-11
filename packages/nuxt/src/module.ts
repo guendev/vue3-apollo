@@ -35,20 +35,18 @@ export default defineNuxtModule<ApolloModuleOptions>({
                 sources.push({
                     from: '@vue3-apollo/core',
                     imports: [
+                        // composables
                         'useApolloClient',
-                        'useApolloClients',
-                        'useApolloLoading',
-                        'useApolloTracking',
-                        'useGlobalLoading',
-                        'useGlobalMutationLoading',
-                        'useGlobalQueryLoading',
-                        'useGlobalSubscriptionLoading',
                         'useMutation',
-                        'useMutationLoading',
                         'useQuery',
-                        'useQueryLoading',
                         'useSubscription',
-                        'useSubscriptionLoading'
+
+                        // helpers
+                        'useApolloTracker',
+                        'useApolloTracking',
+                        'useMutationsLoading',
+                        'useQueriesLoading',
+                        'useSubscriptionsLoading'
                     ]
                 })
                 sources.push({
