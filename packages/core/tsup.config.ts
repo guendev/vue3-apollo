@@ -4,7 +4,7 @@ export default defineConfig({
     clean: true,
     dts: true,
     entry: ['src/index.ts'],
-    external: ['vue', '@apollo/client', 'graphql'],
+    external: ['vue', '@apollo/client', 'graphql', '@vueuse/core'],
     format: ['esm', 'cjs'],
     minify: false,
     outDir: 'dist',
