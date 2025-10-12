@@ -18,10 +18,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  setup:
+  lint:
     runs-on: ubuntu-latest
-    outputs:
-      cache-key: ${{ steps.cache-keys.outputs.cache-key }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,55 +33,14 @@ jobs:
           node-version: 20
           cache: 'pnpm'
 
-      - name: Generate cache keys
-        id: cache-keys
-        run: |
-          echo "cache-key=${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}" >> $GITHUB_OUTPUT
-
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        id: cache-deps
-        with:
-          path: |
-            node_modules
-            packages/*/node_modules
-          key: ${{ steps.cache-keys.outputs.cache-key }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
-
       - name: Install dependencies
-        if: steps.cache-deps.outputs.cache-hit != 'true'
-        run: pnpm install --frozen-lockfile --prefer-offline
-
-  lint:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Restore dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            packages/*/node_modules
-          key: ${{ needs.setup.outputs.cache-key }}
+        run: pnpm install --frozen-lockfile
 
       - name: Lint
         run: pnpm run lint
         continue-on-error: true
 
   build:
-    needs: setup
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -96,29 +53,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'pnpm'
 
-      - name: Restore dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            packages/*/node_modules
-          key: ${{ needs.setup.outputs.cache-key }}
-
-      - name: Cache build outputs
-        uses: actions/cache@v4
-        with:
-          path: |
-            packages/*/dist
-          key: ${{ runner.os }}-build-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-build-
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Build packages
         run: pnpm run build
 
   type-check:
-    needs: setup
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -131,14 +74,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'pnpm'
 
-      - name: Restore dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            packages/*/node_modules
-          key: ${{ needs.setup.outputs.cache-key }}
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Type check
         run: pnpm run typecheck
