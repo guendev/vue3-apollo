@@ -2,7 +2,6 @@
 
 Vue3 Apollo provides a lightweight integration between **Vue 3** and **Apollo Client v4**, offering a composable-first API for GraphQL queries, mutations, and subscriptions.
 
-
 ## Installation
 
 You can install Vue3 Apollo using your preferred package manager:
@@ -28,14 +27,14 @@ bun add @vue3-apollo/core @apollo/client graphql
 To start, create one or more Apollo Client instances with your desired GraphQL endpoints.
 
 ```ts
-import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client/core'
+import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client/core'
 
 const client = new ApolloClient({
-  cache: new InMemoryCache(),
-  link: new HttpLink({
-      // Example public GraphQL API
-      uri: 'https://graphqlplaceholder.vercel.app/graphql'
-  })
+    cache: new InMemoryCache(),
+    link: new HttpLink({
+        // Example public GraphQL API
+        uri: 'https://graphqlplaceholder.vercel.app/graphql'
+    })
 })
 ```
 
@@ -44,17 +43,18 @@ const client = new ApolloClient({
 Vue3 Apollo provides a simple plugin for registering one or multiple Apollo clients.
 
 ```ts
-import { createApp } from 'vue'
 import { apolloPlugin } from '@vue3-apollo/core'
-import { defaultClient, analyticsClient } from './apollo-clients'
+import { createApp } from 'vue'
+
+import { analyticsClient, defaultClient } from './apollo-clients'
 
 const app = createApp(App)
 
 app.use(apolloPlugin, {
-  clients: {
-    default: defaultClient,
-    analytics: analyticsClient
-  }
+    clients: {
+        analytics: analyticsClient,
+        default: defaultClient
+    }
 })
 ```
 

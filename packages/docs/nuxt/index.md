@@ -25,21 +25,21 @@ bun add @vue3-apollo/nuxt @apollo/client graphql
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ['@vue3-apollo/nuxt'],
-  apollo: {
-    clients: {
-      default: {
-        // HTTP link
-        httpEndpoint: 'https://graphqlplaceholder.vercel.app/graphql',
-        // WebSocket link (optional; install `graphql-ws` in your project)
-        wsEndpoint: 'wss://graphqlplaceholder.vercel.app/graphql'
-      }
-    },
+    apollo: {
+        clients: {
+            default: {
+                // HTTP link
+                httpEndpoint: 'https://graphqlplaceholder.vercel.app/graphql',
+                // WebSocket link (optional; install `graphql-ws` in your project)
+                wsEndpoint: 'wss://graphqlplaceholder.vercel.app/graphql'
+            }
+        },
 
-    // Common transport options
-    httpLinkOptions: { credentials: 'include' },
-    wsLinkOptions: { retryAttempts: 3 }
-  }
+        // Common transport options
+        httpLinkOptions: { credentials: 'include' },
+        wsLinkOptions: { retryAttempts: 3 }
+    },
+    modules: ['@vue3-apollo/nuxt']
 })
 ```
 
@@ -47,14 +47,14 @@ Use anywhere in your app:
 
 ```ts
 // Query
-const { result, loading, error } = useQuery(GET_POSTS)
+const { error, loading, result } = useQuery(GET_POSTS)
 
 // Subscription
 const { result: livePost } = useSubscription(POST_ADDED)
 ```
 
-> **Note:**  
-> 1. To enable WebSocket subscriptions, you need to install `graphql-ws`.  
+> **Note:**
+> 1. To enable WebSocket subscriptions, you need to install `graphql-ws`.
 > 2. WebSocket connections only support the **`graphql-ws`** subprotocol.
 
 ::: code-group
@@ -80,15 +80,15 @@ The token is only read from cookies (SSR‑safe) for now.
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ['@vue3-apollo/nuxt'],
-  apollo: {
-    auth: {
-      tokenName: 'auth-token',     // default: apollo:{clientId}:token
-      authType: 'Bearer',          // set null to send raw token
-      authHeader: 'Authorization'  // custom header name
-    }
+    apollo: {
+        auth: {
+            authHeader: 'Authorization', // custom header name
+            authType: 'Bearer', // set null to send raw token
+            tokenName: 'auth-token' // default: apollo:{clientId}:token
+        }
     // or disable entirely:
     // auth: false
-  }
+    },
+    modules: ['@vue3-apollo/nuxt']
 })
 ```

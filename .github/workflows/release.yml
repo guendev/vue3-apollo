@@ -6,9 +6,9 @@ on:
       - main
     paths:
       - 'packages/**'
-      - 'package.json'
-      - 'pnpm-lock.yaml'
-      - 'pnpm-workspace.yaml'
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
       - '.changeset/**'
 
 concurrency:
@@ -36,7 +36,7 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: 20
-          cache: 'pnpm'
+          cache: pnpm
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies

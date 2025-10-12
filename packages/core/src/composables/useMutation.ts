@@ -4,7 +4,7 @@ import type { DocumentNode } from 'graphql'
 import { createEventHook } from '@vueuse/core'
 import { nextTick, ref, shallowRef } from 'vue'
 
-import type { UseBaseOption } from '../utils/type'
+import type { HookContext, UseBaseOption } from '../utils/type'
 
 import { useApolloTracking } from '../helpers/useApolloTracking'
 import { isDefined } from '../utils/isDefined'
@@ -91,8 +91,8 @@ export function useMutation<
     const error = ref<ErrorLike>()
     const called = ref(false)
 
-    const onDone = createEventHook<TData>()
-    const onError = createEventHook<ErrorLike>()
+    const onDone = createEventHook<[TData, HookContext]>()
+    const onError = createEventHook<[ErrorLike, HookContext]>()
 
     useApolloTracking({
         state: loading,
@@ -119,14 +119,12 @@ export function useMutation<
 
             if (isDefined(result.data)) {
                 await nextTick()
-                // eslint-disable-next-line ts/ban-ts-comment
-                // @ts-expect-error
-                void onDone.trigger(result.data)
+                void onDone.trigger(result.data, { client })
             }
 
             if (result.error) {
                 error.value = result.error
-                void onError.trigger(result.error)
+                void onError.trigger(result.error, { client })
             }
 
             return result
@@ -136,7 +134,7 @@ export function useMutation<
             error.value = mutationErrorValue
 
             await nextTick()
-            void onError.trigger(mutationErrorValue)
+            void onError.trigger(mutationErrorValue, { client })
             if (options?.throws === 'always') {
                 throw e
             }
@@ -205,9 +203,11 @@ export function useMutation<
          *
          * @example
          * ```ts
-         * onDone((data) => {
+         * onDone((data, context) => {
          *   toast.success('User created!')
          *   router.push(`/users/${data.createUser.id}`)
+         *   // Access Apollo client for manual cache updates
+         *   context.client.cache.evict({ fieldName: 'users' })
          * })
          * ```
          */
@@ -219,9 +219,11 @@ export function useMutation<
          *
          * @example
          * ```ts
-         * onError((error) => {
+         * onError((error, context) => {
          *   toast.error(error.message)
          *   console.error('Mutation failed:', error)
+         *   // Access Apollo client for error handling
+         *   context.client.clearStore()
          * })
          * ```
          */

@@ -1,5 +1,3 @@
-
-
 # useApolloClient
 Useful when you want direct access to a specific Apollo Client (e.g., for advanced cache operations, direct queries, or managing multiple clients).
 
@@ -13,7 +11,7 @@ const client = useApolloClient()
 
 // Run a query directly
 const result = await client.query({
-  query: GET_USERS,
+    query: GET_USERS,
 })
 ```
 

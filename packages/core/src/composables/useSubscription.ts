@@ -12,7 +12,7 @@ import type { MaybeRefOrGetter, Ref } from 'vue'
 import { createEventHook, syncRef } from '@vueuse/core'
 import { getCurrentScope, isReadonly, isRef, onScopeDispose, ref, shallowRef, toRef, toValue, watch } from 'vue'
 
-import type { UseBaseOption } from '../utils/type'
+import type { HookContext, UseBaseOption } from '../utils/type'
 
 import { useApolloTracking } from '../helpers/useApolloTracking'
 import { isDefined } from '../utils/isDefined'
@@ -60,8 +60,8 @@ export function useSubscription<
     const loading = ref(toValue(enabled))
     const error = ref<ErrorLike>()
 
-    const subscriptionData = createEventHook<TData>()
-    const subscriptionError = createEventHook<ErrorLike>()
+    const subscriptionData = createEventHook<[TData, HookContext]>()
+    const subscriptionError = createEventHook<[ErrorLike, HookContext]>()
 
     const reactiveVariables = ref(toValue(variables))
     if (isRef(variables)) {
@@ -80,16 +80,14 @@ export function useSubscription<
 
         if (isDefined(value.data)) {
             data.value = value.data
-            // eslint-disable-next-line ts/ban-ts-comment
-            // @ts-expect-error
-            void subscriptionData.trigger(value.data)
+            void subscriptionData.trigger(value.data, { client })
         }
     }
 
     const onError = (e: ErrorLike) => {
         loading.value = false
         error.value = e
-        void subscriptionError.trigger(e)
+        void subscriptionError.trigger(e, { client })
     }
 
     const onComplete = () => {
@@ -198,10 +196,18 @@ export function useSubscription<
          *
          * @example
          * ```ts
-         * onData((newData) => {
+         * onData((newData, context) => {
          *   console.log('Received update:', newData)
          *   playNotificationSound()
          *   updateUI(newData)
+         *   // Access Apollo client for cache operations
+         *   context.client.cache.modify({
+         *     fields: {
+         *       messages(existing = []) {
+         *         return [...existing, newData]
+         *       }
+         *     }
+         *   })
          * })
          * ```
          */
@@ -213,9 +219,11 @@ export function useSubscription<
          *
          * @example
          * ```ts
-         * onError((error) => {
+         * onError((error, context) => {
          *   console.error('Subscription error:', error)
          *   toast.error('Connection lost. Reconnecting...')
+         *   // Access Apollo client for reconnection logic
+         *   context.client.reFetchObservableQueries()
          * })
          * ```
          */

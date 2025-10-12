@@ -2,13 +2,11 @@
 
 This plugin is designed to make migration from **@vue/apollo-composable** effortless.
 
-
 ## Quick Overview
-1. Upgrade to **Apollo Client v4**  
-2. Update imports from `@vue/apollo-composable` → `@vue3-apollo/core`  
-3. Integrate new **loading tracking system** (optional but recommended)  
-4. Review **Breaking Changes** and update types or options accordingly  
-
+1. Upgrade to **Apollo Client v4**
+2. Update imports from `@vue/apollo-composable` → `@vue3-apollo/core`
+3. Integrate new **loading tracking system** (optional but recommended)
+4. Review **Breaking Changes** and update types or options accordingly
 
 ## 1. Migration Steps
 
@@ -37,11 +35,10 @@ import { useQuery } from '@vue/apollo-composable'
 
 **After:**
 ```ts
-import { useQuery, useMutation, useSubscription } from '@vue3-apollo/core'
+import { useMutation, useQuery, useSubscription } from '@vue3-apollo/core'
 ```
 
 All composables maintain the same API, so migration typically only involves updating import paths.
-
 
 ## 2. Enhanced Loading Tracking
 
@@ -66,7 +63,7 @@ You can pass an optional **`id`** parameter to share loading states across compo
 
 The new `useAsyncQuery` for Nuxt is close to the old one but there are some **notable differences** you should adjust for:
 
-### 1) Positional overloads removed → object options only
+### 3.1) Positional overloads removed → object options only
 **Before (positional):**
 ```ts
 useAsyncQuery(query, variables?, clientId?, context?, options?)
@@ -74,89 +71,157 @@ useAsyncQuery(query, variables?, clientId?, context?, options?)
 **After (object):**
 ```ts
 useAsyncQuery({
-  query,
-  variables,
-  clientId, // optional
-  context,  // optional
+    clientId, // optional
+    context, // optional
+    query,
+    variables,
 })
 ```
 > This simplifies typing and aligns with Apollo `QueryOptions`.
 
-### 2) `useLazyAsyncQuery` removed
+### 3.2) `useLazyAsyncQuery` removed
 Use `useAsyncQuery` with Nuxt `AsyncData` options instead of the dedicated "lazy" variant.
 
 **Before:**
 ```ts
 useLazyAsyncQuery({
-  query,
-  variables,
+    query,
+    variables,
 })
 ```
 **After (Nuxt AsyncData):**
 ```ts
 useAsyncQuery(
-  {
-    query,
-    variables,
-  },
-  {
-    lazy: true, // do not block navigation; fetch after route resolves
-  },
+    {
+        query,
+        variables,
+    },
+    {
+        lazy: true, // do not block navigation; fetch after route resolves
+    },
 )
 ```
 
-### 3) `cache` option removed
+### 3.3) `cache` option removed
 The old `cache?: boolean` flag is replaced by **Apollo fetch policies**.
 
 **Before:**
 ```ts
 useAsyncQuery({
-  query,
-  variables,
-  cache: true,
+    cache: true,
+    query,
+    variables,
 })
 ```
 **After:**
 ```ts
 useAsyncQuery({
-  query,
-  variables,
-  fetchPolicy: 'cache-first',
+    fetchPolicy: 'cache-first',
+    query,
+    variables,
 })
 ```
 
-## 4. Summary
-| Feature | Old | New | Notes |
-|----------|-----|-----|-------|
-| Async Query (SSR) | `useAsyncQuery` from old package | `useAsyncQuery` (object options) | Unified API for Nuxt 4 |
-| Lazy Async Query | `useLazyAsyncQuery` | Removed → use `useAsyncQuery` with `{ lazy: true }` | Simplified lazy fetching |
-| Query / Mutation / Subscription | `@vue/apollo-composable` | `@vue3-apollo/core` | Same API |
-| Global Loading Tracking | ✅ | ✅ | via `useApolloTracker` |
-| Component-scoped Loading | ❌ | ✅ | pass `id` to track across scopes |
-| Apollo v4 Support | Manual | ✅ | Native |
+### 3.4) `useApolloClient` changes
 
+The old helper returned an object with `resolveClient` and `client`. The new helper is a **function** that returns the Apollo client instance directly.
+
+**Before:**
+```ts
+// Old package
+const { resolveClient, client } = useApolloClient()
+
+// default client
+await client.query({ query: GET_USERS })
+
+// named client
+const analytics = resolveClient('analytics')
+await analytics.query({ query: GET_DASHBOARD })
+```
+
+**After:**
+```ts
+// @vue3-apollo/core
+import { useApolloClient } from '@vue3-apollo/core'
+
+// default (first available)
+const client = useApolloClient()
+await client.query({ query: GET_USERS })
+
+// named client
+const analyticsClient = useApolloClient('analytics')
+await analyticsClient.query({ query: GET_DASHBOARD })
+```
+
+**Notes**
+- No `resolveClient` function, no `.client` property.
+- If **no clients are registered**, an error is thrown.
+- If the **requested id is missing**, an error is thrown with the list of available clients.
+- Register clients via `apolloPlugin` and include a `default` client.
+
+### 3.5) `useMutation onDone` changes
+
+In the old API, `onDone` received a `MutateResult` object wrapping the mutation data, whereas in the new API it directly provides the **typed mutation data (TData)**.
+
+**Before:**
+```ts
+onDone((result, { client }) => {
+  // result.data contains mutation result
+  console.log(result.data?.createUser.id)
+  // access Apollo client through context
+  client.cache.modify({ ... })
+})
+```
+
+**After:**
+```ts
+onDone((data, context) => {
+  // data is the mutation result directly
+  console.log(data.createUser.id)
+  // access Apollo client through context
+  context.client.cache.modify({ ... })
+})
+```
+
+**Key Differences:**
+- Old: `result` was of type `MutateResult<TData>` → contained `{ data, error, extensions }`.
+- New: first argument is `TData`, not wrapped inside `data`.
+- Second argument `context` still includes `{ client }`.
+
+## 4. Summary
+| Feature                         | Old                              | New                                                 | Notes                                                        |
+|---------------------------------|----------------------------------|-----------------------------------------------------|--------------------------------------------------------------|
+| Async Query (SSR)               | `useAsyncQuery` from old package | `useAsyncQuery` (object options)                    | Unified API for Nuxt 4                                       |
+| Lazy Async Query                | `useLazyAsyncQuery`              | Removed → use `useAsyncQuery` with `{ lazy: true }` | Simplified lazy fetching                                     |
+| Query / Mutation / Subscription | `@vue/apollo-composable`         | `@vue3-apollo/core`                                 | Same core API, except for `useMutation`'s `onDone` callback. |
+| Global Loading Tracking         | ✅                                | ✅                                                   | via `useApolloTracker`                                       |
+| Component-scoped Loading        | ❌                                | ✅                                                   | pass `id` to track across scopes                             |
+| Apollo v4 Support               | Manual                           | ✅                                                   | Native                                                       |
 
 ## 5. Example Migration
 
 **Before:**
 ```ts
 import { useQuery } from '@vue/apollo-composable'
+
 import MY_QUERY from './myQuery.gql'
 
-const { result, loading, error } = useQuery(MY_QUERY)
+const { error, loading, result } = useQuery(MY_QUERY)
 ```
 
 **After:**
 ```ts
 import { useQuery } from '@vue3-apollo/core'
+
 import MY_QUERY from './myQuery.gql'
 
-const { result, loading, error } = useQuery(MY_QUERY)
+const { error, loading, result } = useQuery(MY_QUERY)
 ```
 
 Optionally track loading across components:
 ```ts
 import { useQueriesLoading } from '@vue3-apollo/core'
+
 const isLoading = useQueriesLoading('dashboard')
 ```
 

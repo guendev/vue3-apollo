@@ -26,31 +26,32 @@ npm install @vue3-apollo/core @apollo/client graphql
 ### 1. Create an Apollo Client
 
 ```ts
-import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client/core'
+import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client/core'
 
 export const defaultClient = new ApolloClient({
-  cache: new InMemoryCache(),
-  link: new HttpLink({
+    cache: new InMemoryCache(),
+    link: new HttpLink({
     // Example public GraphQL API
-    uri: 'https://graphqlplaceholder.vercel.app/graphql',
-  }),
+        uri: 'https://graphqlplaceholder.vercel.app/graphql',
+    }),
 })
 ```
 
 ### 2. Register the Plugin
 
 ```ts
-import { createApp } from 'vue'
 import { apolloPlugin } from '@vue3-apollo/core'
-import { defaultClient, analyticsClient } from './apollo-clients'
+import { createApp } from 'vue'
+
+import { analyticsClient, defaultClient } from './apollo-clients'
 
 const app = createApp(App)
 
 app.use(apolloPlugin, {
-  clients: {
-    default: defaultClient,
-    analytics: analyticsClient,
-  },
+    clients: {
+        analytics: analyticsClient,
+        default: defaultClient,
+    },
 })
 ```
 
@@ -73,12 +74,16 @@ const GET_POSTS = gql`
   }
 `
 
-const { result, loading, error } = useQuery(GET_POSTS)
+const { error, loading, result } = useQuery(GET_POSTS)
 </script>
 
 <template>
-  <div v-if="loading">Loading...</div>
-  <div v-else-if="error">{{ error.message }}</div>
+  <div v-if="loading">
+    Loading...
+  </div>
+  <div v-else-if="error">
+    {{ error.message }}
+  </div>
   <ul v-else>
     <li v-for="post in result.posts" :key="post.id">
       <strong>{{ post.title }}</strong> — {{ post.body }}
@@ -108,7 +113,7 @@ You can register and switch between multiple clients:
 
 ```ts
 const { result: analyticsData } = useQuery(ANALYTICS_QUERY, null, {
-  clientId: 'analytics',
+    clientId: 'analytics',
 })
 ```
 
@@ -117,7 +122,7 @@ const { result: analyticsData } = useQuery(ANALYTICS_QUERY, null, {
 All composables are fully typed, providing autocompletion and inference for query variables and responses.
 
 ```ts
-const { result } = useQuery<{ posts: { id: string; title: string }[] }>(GET_POSTS)
+const { result } = useQuery<{ posts: { id: string, title: string }[] }>(GET_POSTS)
 ```
 
 ## 🧑‍💻 Contributing

@@ -26,8 +26,8 @@ import { useApolloTracking } from 'vue3-apollo'
 const loading = ref(false)
 
 useApolloTracking({
-  state: loading,
-  type: 'queries',
+    state: loading,
+    type: 'queries',
 })
 
 // later
@@ -103,26 +103,27 @@ import { ref } from 'vue'
 import { useApolloTracking } from 'vue3-apollo'
 
 export function useSaveItem() {
-  const saving = ref(false)
+    const saving = ref(false)
 
-  useApolloTracking({
-    state: saving,
-    type: 'mutations',
-  })
+    useApolloTracking({
+        state: saving,
+        type: 'mutations',
+    })
 
-  const run = async (input: any) => {
-    try {
-      saving.value = true
-      // await apolloClient.mutate(...)
-    } finally {
-      saving.value = false
+    const run = async (input: any) => {
+        try {
+            saving.value = true
+            // await apolloClient.mutate(...)
+        }
+        finally {
+            saving.value = false
+        }
     }
-  }
 
-  return {
-    saving,
-    run,
-  }
+    return {
+        run,
+        saving,
+    }
 }
 ```
 
