@@ -46,8 +46,21 @@ onError((e) => {
 - **`data`** – the latest payload received (undefined until first event).
 - **`loading`** – `true` while connecting / before first event.
 - **`error`** – connection/transport/GraphQL error, if any.
-- **`onData(fn)`** – subscribe to each incoming payload.
-- **`onError(fn)`** – subscribe to errors.
+- **`onData((data, context) => {})`** – subscribe to each incoming payload. The `context` includes the active Apollo client.
+  ```ts
+  onData((payload, context) => {
+    console.log('New message:', payload)
+    console.log('Client:', context.client)
+  })
+  ```
+
+- **`onError((error, context) => {})`** – subscribe to errors, including connection or GraphQL issues. The `context` contains the Apollo client instance.
+  ```ts
+  onError((e, context) => {
+    toast.error(e.message)
+    console.error('Subscription error from client:', context.client)
+  })
+  ```
 - **`start()`** – manually start or restart the subscription.
 - **`stop()`** – stop and unsubscribe.
 
