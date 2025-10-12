@@ -1,4 +1,4 @@
-# Migration Guide
+# Migration
 
 This plugin is designed to make migration from **@vue/apollo-composable** effortless.
 
@@ -58,11 +58,9 @@ const isLoading = useQueriesLoading('dashboard')
 You can pass an optional **`id`** parameter to share loading states across components.
 
 ### Available Helpers
-- `useQueryLoading(id?)`
-- `useMutationLoading(id?)`
-- `useSubscriptionLoading(id?)`
-- Global variants: `useGlobalQueryLoading()`, `useGlobalMutationLoading()`, `useGlobalSubscriptionLoading()`
-
+- `useQueriesLoading(id?)`
+- `useMutationsLoading(id?)`
+- `useSubscriptionsLoading(id?)`
 
 ## 3. Breaking Changes
 

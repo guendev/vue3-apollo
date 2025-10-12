@@ -1,4 +1,4 @@
-# use useAsyncQuery
+# useAsyncQuery
 
 Nuxt-friendly helper that runs an Apollo **query** inside Nuxt’s `useAsyncData`, giving you an `AsyncData` object (`data`, `pending`, `error`, `refresh`, …) with full SSR support.
 
