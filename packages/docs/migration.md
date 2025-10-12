@@ -1,4 +1,4 @@
-# Migration Guide
+# Migration
 
 This plugin is designed to make migration from **@vue/apollo-composable** effortless.
 
