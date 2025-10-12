@@ -1,5 +1,16 @@
 # @vue3-apollo/nuxt
 
+## 1.2.0
+
+### Minor Changes
+
+- 9f8bb24: feat(core): add `HookContext` to event hooks
+
+### Patch Changes
+
+- Updated dependencies [9f8bb24]
+  - @vue3-apollo/core@1.2.0
+
 ## 1.1.0
 
 ### Minor Changes
