@@ -39,7 +39,7 @@
     "dist"
   ],
   "scripts": {
-    "prepack": "nuxt-module-build build",
+    "prepack": "nuxt-module-build prepare && nuxt-module-build build",
     "dev": "npm run dev:prepare && nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
@@ -55,7 +55,8 @@
     "@apollo/client": "^4.0.0",
     "graphql": "^16.0.0",
     "graphql-ws": "^6.0.0",
-    "vue": "^3.5.0"
+    "vue": "^3.5.0",
+    "vue-tsc": "^3.1.1"
   },
   "peerDependenciesMeta": {
     "graphql-ws": {

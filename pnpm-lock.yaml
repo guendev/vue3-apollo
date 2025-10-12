@@ -88,6 +88,9 @@ importers:
       vue:
         specifier: ^3.5.0
         version: 3.5.22(typescript@5.9.3)
+      vue-tsc:
+        specifier: ^3.1.1
+        version: 3.1.1(typescript@5.9.3)
     devDependencies:
       '@apollo/client':
         specifier: ^4.0.7
