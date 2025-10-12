@@ -43,7 +43,7 @@
     "dev": "npm run dev:prepare && nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
-    "typecheck": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
+    "typecheck": "pnpm run prepack && vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
   },
   "dependencies": {
     "@nuxt/kit": "^4.1.3",
