@@ -21,8 +21,9 @@ const title = ref('')
 
 const { loading, mutate } = useMutation(UpdatePostDocument)
 
-onResult((data) => {
+onResult((data, { client }) => {
     console.warn('onResult', data)
+    console.warn('client', client)
 })
 </script>
 

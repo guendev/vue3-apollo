@@ -12,7 +12,7 @@ import type { MaybeRefOrGetter, Ref } from 'vue'
 import { createEventHook, syncRef, useDebounceFn, useThrottleFn } from '@vueuse/core'
 import { computed, getCurrentScope, isReadonly, isRef, onScopeDispose, onServerPrefetch, ref, shallowRef, toValue, watch } from 'vue'
 
-import type { UseBaseOption } from '../utils/type'
+import type { HookContext, UseBaseOption } from '../utils/type'
 
 import { useApolloTracking } from '../helpers/useApolloTracking'
 import { isDefined } from '../utils/isDefined'
@@ -155,8 +155,8 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     const networkStatus = ref<NetworkStatus>()
     const error = ref<ErrorLike>()
 
-    const onResult = createEventHook<TData>()
-    const onErrorEvent = createEventHook<ErrorLike>()
+    const onResult = createEventHook<[TData, HookContext]>()
+    const onErrorEvent = createEventHook<[ErrorLike, HookContext]>()
 
     // Setup loading tracking
     useApolloTracking({
@@ -214,7 +214,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
 
         error.value = value.error
         if (value.error) {
-            void onErrorEvent.trigger(value.error)
+            void onErrorEvent.trigger(value.error, { client })
         }
 
         // Only update the result when:
@@ -223,16 +223,14 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         if (isDefined(value.data) || !options?.keepPreviousResult) {
             result.value = value.data as TData
             if (isDefined(result.value)) {
-                // eslint-disable-next-line ts/ban-ts-comment
-                // @ts-expect-error
-                void onResult.trigger(value.data)
+                void onResult.trigger(value.data as TData, { client })
             }
         }
     }
 
     const onError = (e: ErrorLike) => {
         error.value = e
-        void onErrorEvent.trigger(e)
+        void onErrorEvent.trigger(e, { client })
     }
 
     const startObserver = () => {
@@ -418,8 +416,9 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
          *
          * @example
          * ```ts
-         * onErrorEvent((error) => {
+         * onError((error, context) => {
          *   toast.error(error.message)
+         *   console.log('Failed with client:', context.client)
          * })
          * ```
          */
@@ -431,8 +430,9 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
          *
          * @example
          * ```ts
-         * onResult((data) => {
+         * onResult((data, context) => {
          *   console.log('New data:', data)
+         *   console.log('Apollo client:', context.client)
          * })
          * ```
          */
