@@ -1,17 +1,11 @@
 {
   "name": "@vue3-apollo/core",
+  "type": "module",
   "version": "1.1.0",
+  "packageManager": "pnpm@10.18.2",
   "description": "Composable Apollo Client utilities for Vue 3.",
-  "keywords": [
-    "vue",
-    "vue3",
-    "apollo",
-    "graphql",
-    "composables",
-    "client"
-  ],
-  "license": "MIT",
   "author": "Guen <heloo@guen.dev>",
+  "license": "MIT",
   "homepage": "https://github.com/guendev/vue3-apollo#readme",
   "repository": {
     "type": "git",
@@ -20,10 +14,15 @@
   "bugs": {
     "url": "https://github.com/guendev/vue3-apollo/issues"
   },
-  "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "keywords": [
+    "vue",
+    "vue3",
+    "apollo",
+    "graphql",
+    "composables",
+    "client"
+  ],
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -33,6 +32,9 @@
     },
     "./package.json": "./package.json"
   },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
       "*": [
@@ -42,10 +44,12 @@
     }
   },
   "files": [
-    "dist",
-    "README.md"
+    "README.md",
+    "dist"
   ],
-  "sideEffects": false,
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "dev": "tsup --config tsup.config.ts --watch",
     "build": "tsup --config tsup.config.ts",
@@ -66,10 +70,6 @@
     "rimraf": "^6.0.1",
     "tsup": "^8.5.0",
     "typescript": "^5.9.3"
-  },
-  "packageManager": "pnpm@10.18.2",
-  "engines": {
-    "node": ">=18.0.0"
   },
   "publishConfig": {
     "access": "public",

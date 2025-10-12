@@ -29,22 +29,22 @@ Configure Apollo directly inside your `nuxt.config.ts`:
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ['@vue3-apollo/nuxt'],
-  apollo: {
-    clients: {
-      default: {
-        // HTTP link
-        httpEndpoint: 'https://graphqlplaceholder.vercel.app/graphql',
+    apollo: {
+        clients: {
+            default: {
+                // HTTP link
+                httpEndpoint: 'https://graphqlplaceholder.vercel.app/graphql',
 
-        // WebSocket link (optional; install `graphql-ws` in your project)
-        wsEndpoint: 'wss://graphqlplaceholder.vercel.app/graphql'
-      }
+                // WebSocket link (optional; install `graphql-ws` in your project)
+                wsEndpoint: 'wss://graphqlplaceholder.vercel.app/graphql'
+            }
+        },
+
+        // Common transport options
+        httpLinkOptions: { credentials: 'include' },
+        wsLinkOptions: { retryAttempts: 3 }
     },
-
-    // Common transport options
-    httpLinkOptions: { credentials: 'include' },
-    wsLinkOptions: { retryAttempts: 3 }
-  }
+    modules: ['@vue3-apollo/nuxt']
 })
 ```
 
@@ -52,14 +52,14 @@ Use anywhere in your app:
 
 ```ts
 // Query
-const { result, loading, error } = useQuery(GET_POSTS)
+const { error, loading, result } = useQuery(GET_POSTS)
 
 // Subscription
 const { result: livePost } = useSubscription(POST_ADDED)
 ```
 
-> **Note:**  
-> 1. To enable WebSocket subscriptions, install [`graphql-ws`](https://github.com/enisdenjo/graphql-ws).  
+> **Note:**
+> 1. To enable WebSocket subscriptions, install [`graphql-ws`](https://github.com/enisdenjo/graphql-ws).
 > 2. WebSocket connections only support the **`graphql-ws`** subprotocol.
 
 ### Install `graphql-ws`
@@ -82,17 +82,17 @@ Tokens are read from cookies (SSR-safe) by default.
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ['@vue3-apollo/nuxt'],
-  apollo: {
-    auth: {
-      tokenName: 'auth-token',     // default: apollo:{clientId}:token
-      authType: 'Bearer',          // set null to send raw token
-      authHeader: 'Authorization'  // custom header name
-    }
+    apollo: {
+        auth: {
+            authHeader: 'Authorization', // custom header name
+            authType: 'Bearer', // set null to send raw token
+            tokenName: 'auth-token' // default: apollo:{clientId}:token
+        }
 
     // or disable entirely:
     // auth: false
-  }
+    },
+    modules: ['@vue3-apollo/nuxt']
 })
 ```
 
@@ -103,13 +103,13 @@ Register multiple clients and switch between them dynamically:
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ['@vue3-apollo/nuxt'],
-  apollo: {
-    clients: {
-      default: { httpEndpoint: 'https://api.main/graphql' },
-      analytics: { httpEndpoint: 'https://api.analytics/graphql' }
-    }
-  }
+    apollo: {
+        clients: {
+            analytics: { httpEndpoint: 'https://api.analytics/graphql' },
+            default: { httpEndpoint: 'https://api.main/graphql' }
+        }
+    },
+    modules: ['@vue3-apollo/nuxt']
 })
 ```
 
@@ -125,7 +125,7 @@ const { result } = useQuery(GET_ANALYTICS, null, { clientId: 'analytics' })
 All core composables (`useQuery`, `useMutation`, `useSubscription`, etc.) are automatically available via `@vue3-apollo/core`.
 
 ```ts
-const { result, loading } = useQuery(GET_USER)
+const { loading, result } = useQuery(GET_USER)
 ```
 
 ## 🧑‍💻 Contributing

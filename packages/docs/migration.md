@@ -2,13 +2,11 @@
 
 This plugin is designed to make migration from **@vue/apollo-composable** effortless.
 
-
 ## Quick Overview
-1. Upgrade to **Apollo Client v4**  
-2. Update imports from `@vue/apollo-composable` → `@vue3-apollo/core`  
-3. Integrate new **loading tracking system** (optional but recommended)  
-4. Review **Breaking Changes** and update types or options accordingly  
-
+1. Upgrade to **Apollo Client v4**
+2. Update imports from `@vue/apollo-composable` → `@vue3-apollo/core`
+3. Integrate new **loading tracking system** (optional but recommended)
+4. Review **Breaking Changes** and update types or options accordingly
 
 ## 1. Migration Steps
 
@@ -37,11 +35,10 @@ import { useQuery } from '@vue/apollo-composable'
 
 **After:**
 ```ts
-import { useQuery, useMutation, useSubscription } from '@vue3-apollo/core'
+import { useMutation, useQuery, useSubscription } from '@vue3-apollo/core'
 ```
 
 All composables maintain the same API, so migration typically only involves updating import paths.
-
 
 ## 2. Enhanced Loading Tracking
 
@@ -74,10 +71,10 @@ useAsyncQuery(query, variables?, clientId?, context?, options?)
 **After (object):**
 ```ts
 useAsyncQuery({
-  query,
-  variables,
-  clientId, // optional
-  context,  // optional
+    clientId, // optional
+    context, // optional
+    query,
+    variables,
 })
 ```
 > This simplifies typing and aligns with Apollo `QueryOptions`.
@@ -88,20 +85,20 @@ Use `useAsyncQuery` with Nuxt `AsyncData` options instead of the dedicated "lazy
 **Before:**
 ```ts
 useLazyAsyncQuery({
-  query,
-  variables,
+    query,
+    variables,
 })
 ```
 **After (Nuxt AsyncData):**
 ```ts
 useAsyncQuery(
-  {
-    query,
-    variables,
-  },
-  {
-    lazy: true, // do not block navigation; fetch after route resolves
-  },
+    {
+        query,
+        variables,
+    },
+    {
+        lazy: true, // do not block navigation; fetch after route resolves
+    },
 )
 ```
 
@@ -111,17 +108,17 @@ The old `cache?: boolean` flag is replaced by **Apollo fetch policies**.
 **Before:**
 ```ts
 useAsyncQuery({
-  query,
-  variables,
-  cache: true,
+    cache: true,
+    query,
+    variables,
 })
 ```
 **After:**
 ```ts
 useAsyncQuery({
-  query,
-  variables,
-  fetchPolicy: 'cache-first',
+    fetchPolicy: 'cache-first',
+    query,
+    variables,
 })
 ```
 
@@ -135,28 +132,30 @@ useAsyncQuery({
 | Component-scoped Loading | ❌ | ✅ | pass `id` to track across scopes |
 | Apollo v4 Support | Manual | ✅ | Native |
 
-
 ## 5. Example Migration
 
 **Before:**
 ```ts
 import { useQuery } from '@vue/apollo-composable'
+
 import MY_QUERY from './myQuery.gql'
 
-const { result, loading, error } = useQuery(MY_QUERY)
+const { error, loading, result } = useQuery(MY_QUERY)
 ```
 
 **After:**
 ```ts
 import { useQuery } from '@vue3-apollo/core'
+
 import MY_QUERY from './myQuery.gql'
 
-const { result, loading, error } = useQuery(MY_QUERY)
+const { error, loading, result } = useQuery(MY_QUERY)
 ```
 
 Optionally track loading across components:
 ```ts
 import { useQueriesLoading } from '@vue3-apollo/core'
+
 const isLoading = useQueriesLoading('dashboard')
 ```
 

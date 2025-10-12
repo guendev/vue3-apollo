@@ -6,27 +6,28 @@ Composable for executing GraphQL **mutations**.
 
 ```ts
 import { useMutation } from 'vue3-apollo'
+
 import { CREATE_USER } from './gql'
 
 const {
-  mutate,
-  loading,
-  error,
-  data,
-  onDone,
+    data,
+    error,
+    loading,
+    mutate,
+    onDone,
 } = useMutation(
-  CREATE_USER,
+    CREATE_USER,
 )
 
 async function submit() {
-  await mutate({
-    name: 'John',
-    email: 'john@example.com',
-  })
+    await mutate({
+        email: 'john@example.com',
+        name: 'John',
+    })
 }
 
 onDone((payload) => {
-  console.log('Created:', payload)
+    console.log('Created:', payload)
 })
 ```
 
@@ -49,13 +50,13 @@ const {
 - **`mutate(variables?, mutateOptions?)`** → `Promise<Result | void>` – execute the mutation. Per‑call options override base options.
   ```ts
   await mutate(
-    { id: '1', name: 'Jane' },
-    {
-      refetchQueries: ['GetUserList'],
-      optimisticResponse: {
-        updateUser: { id: '1', name: 'Jane', __typename: 'User' },
-      },
-    }
+      { id: '1', name: 'Jane' },
+      {
+          optimisticResponse: {
+              updateUser: { __typename: 'User', id: '1', name: 'Jane' },
+          },
+          refetchQueries: ['GetUserList'],
+      }
   )
   ```
 - **`data`** – reactive result data (undefined until success).
@@ -65,18 +66,18 @@ const {
 - **`onDone((data, context) => {})`** – Fires when the mutation completes successfully. The `context` provides access to the Apollo client.
   ```ts
   onDone((data, context) => {
-    toast.success('User created!')
-    router.push(`/users/${data.createUser.id}`)
-    context.client.cache.evict({ fieldName: 'users' })
+      toast.success('User created!')
+      router.push(`/users/${data.createUser.id}`)
+      context.client.cache.evict({ fieldName: 'users' })
   })
   ```
 
 - **`onError((error, context) => {})`** – Fires when the mutation encounters an error (network or GraphQL). The `context` contains the active Apollo client.
   ```ts
   onError((error, context) => {
-    toast.error(error.message)
-    console.error('Mutation failed:', error)
-    context.client.clearStore()
+      toast.error(error.message)
+      console.error('Mutation failed:', error)
+      context.client.clearStore()
   })
   ```
 - **`reset()`** – clear `data`, `error`, `loading`, and `called` back to initial state.

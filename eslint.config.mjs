@@ -5,7 +5,8 @@ export default antfu(
         ignores: [
             'src/**/*.generated.*',
             '.nuxt',
-            '.junie/*'
+            '.junie/*',
+            '**/*/*.md'
         ],
         stylistic: {
             overrides: {

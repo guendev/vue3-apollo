@@ -1,5 +1,3 @@
-
-
 # useSubscription
 
 Reactive GraphQL **subscription** composable.
@@ -10,27 +8,28 @@ Reactive GraphQL **subscription** composable.
 
 ```ts
 import { useSubscription } from 'vue3-apollo'
+
 import { NEW_MESSAGES_SUB } from './gql'
 
 const {
-  data,
-  loading,
-  error,
-  onData,
-  onError,
+    data,
+    error,
+    loading,
+    onData,
+    onError,
 } = useSubscription(
-  NEW_MESSAGES_SUB,
-  () => ({
-    chatId: 'room-1',
-  }),
+    NEW_MESSAGES_SUB,
+    () => ({
+        chatId: 'room-1',
+    }),
 )
 
 onData((payload) => {
-  console.log('New message:', payload)
+    console.log('New message:', payload)
 })
 
 onError((e) => {
-  console.error('Subscription error:', e)
+    console.error('Subscription error:', e)
 })
 ```
 
@@ -49,16 +48,16 @@ onError((e) => {
 - **`onData((data, context) => {})`** – subscribe to each incoming payload. The `context` includes the active Apollo client.
   ```ts
   onData((payload, context) => {
-    console.log('New message:', payload)
-    console.log('Client:', context.client)
+      console.log('New message:', payload)
+      console.log('Client:', context.client)
   })
   ```
 
 - **`onError((error, context) => {})`** – subscribe to errors, including connection or GraphQL issues. The `context` contains the Apollo client instance.
   ```ts
   onError((e, context) => {
-    toast.error(e.message)
-    console.error('Subscription error from client:', context.client)
+      toast.error(e.message)
+      console.error('Subscription error from client:', context.client)
   })
   ```
 - **`start()`** – manually start or restart the subscription.

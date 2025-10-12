@@ -7,17 +7,18 @@ A reactive GraphQL query composable for **Vue 3** and **Apollo Client**.
 ```ts
 import { ref } from 'vue'
 import { useQuery } from 'vue3-apollo'
+
 import { SEARCH_QUERY } from './queries'
 
 const search = ref('')
 
-const { result, loading, error, refetch } = useQuery(
-  SEARCH_QUERY,
-  () => ({ q: search.value }),
-  {
-    debounce: 300,
-    keepPreviousResult: true,
-  }
+const { error, loading, refetch, result } = useQuery(
+    SEARCH_QUERY,
+    () => ({ q: search.value }),
+    {
+        debounce: 300,
+        keepPreviousResult: true,
+    }
 )
 ```
 
@@ -42,16 +43,16 @@ The query automatically updates whenever `search.value` changes, debounced by 30
 - **`onResult((data, context) => {})`** – Fires when new data is received. The `context` includes the active Apollo client instance.
   ```ts
   onResult((data, context) => {
-    console.log('New data:', data)
-    console.log('Client:', context.client)
+      console.log('New data:', data)
+      console.log('Client:', context.client)
   })
   ```
 
 - **`onError((error, context) => {})`** – Fires when a query error occurs. Use to handle or log errors. `context.client` provides the source client.
   ```ts
   onError((error, context) => {
-    toast.error(error.message)
-    console.error('Query failed via client:', context.client)
+      toast.error(error.message)
+      console.error('Query failed via client:', context.client)
   })
   ```
 

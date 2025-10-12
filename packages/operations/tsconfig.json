@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "ES2020",
     "baseUrl": ".",
+    "rootDir": "./src",
     "module": "NodeNext",
     "moduleResolution": "Bundler",
     "resolveJsonModule": true,
@@ -11,8 +12,7 @@
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-    "skipLibCheck": true,
-    "rootDir": "./src"
+    "skipLibCheck": true
   },
   "include": [
     "src/**/*",
