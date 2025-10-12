@@ -16,11 +16,12 @@ concurrency:
 
 jobs:
   deploy:
-    name: Deploy to Cloudflare Pages
+    name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      deployments: write
+      pages: write
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -40,9 +41,14 @@ jobs:
       - name: Build docs
         run: pnpm run build:docs
 
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy packages/docs/.vitepress/dist --project-name=vue3-apollo-docs
+          path: packages/docs/.vitepress/dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
