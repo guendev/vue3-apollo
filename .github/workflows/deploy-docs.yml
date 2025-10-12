@@ -6,8 +6,13 @@ on:
       - main
     paths:
       - 'packages/docs/**'
+      - 'packages/core/**'
       - '.github/workflows/deploy-docs.yml'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -29,8 +34,34 @@ jobs:
           node-version: 20
           cache: 'pnpm'
 
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        id: cache-deps
+        with:
+          path: |
+            node_modules
+            packages/*/node_modules
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        run: pnpm install --frozen-lockfile --prefer-offline
+
+      - name: Install dependencies (restore only)
+        if: steps.cache-deps.outputs.cache-hit == 'true'
+        run: pnpm install --frozen-lockfile --offline
+
+      - name: Cache VitePress build
+        uses: actions/cache@v4
+        with:
+          path: |
+            packages/docs/.vitepress/cache
+            packages/docs/.vitepress/dist
+          key: ${{ runner.os }}-docs-${{ hashFiles('packages/docs/**', 'packages/core/**') }}
+          restore-keys: |
+            ${{ runner.os }}-docs-
 
       - name: Build docs
         run: pnpm run build:docs
