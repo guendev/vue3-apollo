@@ -48,12 +48,15 @@ export async function createApolloClient({ clientId, config, nuxtApp }: CreateAp
     }
 
     // Create an auth link to inject authentication token into headers
-    const authLink = new SetContextLink(() => {
-        return {
-            headers: {
-                ...getAuthCredentials()
-            }
-        }
+    const authLink = new SetContextLink((prevContext) => {
+        return defu(
+            {
+                headers: {
+                    ...getAuthCredentials()
+                }
+            },
+            prevContext
+        )
     })
 
     // Create an HTTP link
