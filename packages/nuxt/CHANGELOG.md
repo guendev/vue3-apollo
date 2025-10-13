@@ -1,5 +1,11 @@
 # @vue3-apollo/nuxt
 
+## 1.2.1
+
+### Patch Changes
+
+- aa79eb9: fix(runtime): ensure `SetContextLink` merges headers with existing context
+
 ## 1.2.0
 
 ### Minor Changes
