@@ -1,5 +1,11 @@
 # @vue3-apollo/nuxt
 
+## 1.2.2
+
+### Patch Changes
+
+- ef342f6: fix(runtime): add `RetryLink` to Apollo client link chain
+
 ## 1.2.1
 
 ### Patch Changes
