@@ -1,5 +1,11 @@
 # @vue3-apollo/core
 
+## 1.2.1
+
+### Patch Changes
+
+- d9aeeaf: fix(core): trigger onResult and onError event hooks during SSR in useQuery
+
 ## 1.2.0
 
 ### Minor Changes
