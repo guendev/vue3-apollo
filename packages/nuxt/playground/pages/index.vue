@@ -59,11 +59,11 @@ onResult((data) => {
 
 // Composables
 const route = useRoute()
-const isGlobalLoading = useGlobalLoading()
+const isLoading = useQueriesLoading()
 const { finish, start } = useLoadingIndicator()
 
 // Watchers
-watch(isGlobalLoading, (loading) => {
+watch(isLoading, (loading) => {
     if (loading) {
         start()
     }
