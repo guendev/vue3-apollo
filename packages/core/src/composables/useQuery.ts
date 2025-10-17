@@ -155,7 +155,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     const networkStatus = ref<NetworkStatus>()
     const error = ref<ErrorLike>()
 
-    const onResult = createEventHook<[TData, HookContext]>()
+    const onResultEvent = createEventHook<[TData, HookContext]>()
     const onErrorEvent = createEventHook<[ErrorLike, HookContext]>()
 
     // Setup loading tracking
@@ -199,16 +199,11 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
                 loading.value = false
                 if (queryResult.error) {
                     error.value = queryResult.error
-                    void onErrorEvent.trigger(queryResult.error, { client })
-                }
-                else if (isDefined(result.value)) {
-                    void onResult.trigger(result.value, { client })
                 }
             }
             catch (e) {
                 error.value = e as ErrorLike
                 loading.value = false
-                void onErrorEvent.trigger(error.value, { client })
             }
         })
     }
@@ -228,7 +223,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         if (isDefined(value.data) || !options?.keepPreviousResult) {
             result.value = value.data as TData
             if (isDefined(result.value)) {
-                void onResult.trigger(value.data as TData, { client })
+                void onResultEvent.trigger(value.data as TData, { client })
             }
         }
     }
@@ -435,13 +430,13 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
          *
          * @example
          * ```ts
-         * onResult((data, context) => {
+         * onResultEvent((data, context) => {
          *   console.log('New data:', data)
          *   console.log('Apollo client:', context.client)
          * })
          * ```
          */
-        onResult: onResult.on,
+        onResult: onResultEvent.on,
 
         /**
          * Manually refetch the query with optional new variables.
