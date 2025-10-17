@@ -199,11 +199,16 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
                 loading.value = false
                 if (queryResult.error) {
                     error.value = queryResult.error
+                    void onErrorEvent.trigger(queryResult.error, { client })
+                }
+                else if (isDefined(result.value)) {
+                    void onResult.trigger(result.value, { client })
                 }
             }
             catch (e) {
                 error.value = e as ErrorLike
                 loading.value = false
+                void onErrorEvent.trigger(error.value, { client })
             }
         })
     }
