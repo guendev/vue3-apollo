@@ -5,6 +5,7 @@ import { ApolloClient, ApolloLink, HttpLink, InMemoryCache } from '@apollo/clien
 import { CombinedGraphQLErrors, CombinedProtocolErrors } from '@apollo/client/errors'
 import { SetContextLink } from '@apollo/client/link/context'
 import { ErrorLink } from '@apollo/client/link/error'
+import { RetryLink } from '@apollo/client/link/retry'
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions'
 import { getMainDefinition } from '@apollo/client/utilities'
 import { defu } from 'defu'
@@ -47,7 +48,7 @@ export async function createApolloClient({ clientId, config, nuxtApp }: CreateAp
         }
     }
 
-    // Create an auth link to inject authentication token into headers
+    // Create an auth combinedLink to inject authentication token into headers
     const authLink = new SetContextLink((prevContext) => {
         return defu(
             {
@@ -59,13 +60,13 @@ export async function createApolloClient({ clientId, config, nuxtApp }: CreateAp
         )
     })
 
-    // Create an HTTP link
+    // Create an HTTP combinedLink
     const httpLink = new HttpLink({
         ...config.httpLinkOptions,
         uri: config.httpEndpoint
     })
 
-    // Create an error link to handle and broadcast errors
+    // Create an error combinedLink to handle and broadcast errors
     const errorLink = new ErrorLink(({ error, forward, operation }) => {
         // Prepare typed payload for hook
         const payload: ApolloErrorHookPayload = {
@@ -103,8 +104,8 @@ export async function createApolloClient({ clientId, config, nuxtApp }: CreateAp
         }
     }
 
-    // Create a WebSocket link for subscriptions (client-side only)
-    let link = httpLink
+    // Create a WebSocket combinedLink for subscriptions (client-side only)
+    let combinedLink = httpLink
     if (import.meta.client && config.wsEndpoint) {
         try {
             // Dynamic import to avoid bundling graphql-ws on the server
@@ -126,7 +127,7 @@ export async function createApolloClient({ clientId, config, nuxtApp }: CreateAp
             // Use split to route operations:
             // - Subscriptions go through WebSocket
             // - Queries and mutations go through HTTP
-            link = ApolloLink.split(
+            combinedLink = ApolloLink.split(
                 ({ query }) => {
                     const definition = getMainDefinition(query)
                     return (
@@ -147,6 +148,8 @@ export async function createApolloClient({ clientId, config, nuxtApp }: CreateAp
         }
     }
 
+    const retryLink = new RetryLink()
+
     const defaultOptions: ApolloClient.DefaultOptions = defu({
         query: {
             fetchPolicy: import.meta.server ? 'network-only' : 'cache-first'
@@ -164,9 +167,9 @@ export async function createApolloClient({ clientId, config, nuxtApp }: CreateAp
             enabled: config.devtools ?? config.devtools,
             name: clientId
         },
-        // Combine the auth link, error link, and main link chain
+        // Combine the auth combinedLink, error combinedLink, and main combinedLink chain
         // Order matters: auth -> error -> http/ws
-        link: ApolloLink.from([authLink, errorLink, link]),
+        link: ApolloLink.from([authLink, errorLink, retryLink, combinedLink]),
         // Prevent refetching immediately after SSR hydration
         ssrForceFetchDelay: 100,
         // Enable server-side rendering support
