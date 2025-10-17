@@ -1,5 +1,13 @@
 # @vue3-apollo/nuxt
 
+## 1.2.3
+
+### Patch Changes
+
+- 646c6fb: fix(core): rename `onResult` to `onResultEvent` in `useQuery` composable
+- Updated dependencies [646c6fb]
+  - @vue3-apollo/core@1.2.2
+
 ## 1.2.2
 
 ### Patch Changes
