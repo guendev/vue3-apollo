@@ -112,7 +112,6 @@ export type UseFragmentResult<TData>
  * @returns Object containing fragment state and control methods
  *
  * @example
- * Basic usage:
  * ```ts
  * const { data, complete } = useFragment({
  *   fragment: gql`fragment UserFields on User { id name email }`,
@@ -123,8 +122,8 @@ export type UseFragmentResult<TData>
  * console.log(data.value?.name)
  * ```
  *
+ * // Type-safe access with result (recommended):
  * @example
- * Type-safe access with result (recommended):
  * ```ts
  * const { result } = useFragment({
  *   fragment: USER_FRAGMENT,
@@ -363,14 +362,17 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
          * Create a helper for complete data access:
          * ```ts
          * // composables/useCompleteFragment.ts
-         * export function useCompleteFragment(options) {
-         *   const fragment = useFragment(options)
-         *   const fullData = computed(() =>
-         *     fragment.result.value?.complete
-         *       ? fragment.result.value.data
-         *       : undefined
-         *   )
-         *   return { ...fragment, fullData }
+         * import type { OperationVariables } from '@apollo/client'
+         * import type { UseFragmentOptions } from '@vue3-apollo/core'
+         *
+         * export function useCompleteFragment<TData = unknown, TVariables extends OperationVariables = OperationVariables>(options: UseFragmentOptions<TData, TVariables>) {
+         *     const fragment = useFragment(options)
+         *     const fullData = computed(() =>
+         *         fragment.result.value?.complete
+         *             ? fragment.result.value.data
+         *             : undefined
+         *     )
+         *     return { ...fragment, fullData }
          * }
          *
          * // Usage
