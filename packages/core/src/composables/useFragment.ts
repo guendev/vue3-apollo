@@ -127,10 +127,10 @@ export type UseFragmentResult<TData, TCompleted extends boolean = boolean> = {
  * - Fragment reads are cached by Apollo, so multiple reads are efficient
  *
  * @example
- * Basic usage:
+ * Basic usage with type narrowing (recommended):
  * ```ts
  * const userId = ref('123')
- * const { result, complete, data } = useFragment({
+ * const { result } = useFragment({
  *   fragment: gql`
  *     fragment UserFields on User {
  *       id
@@ -140,6 +140,30 @@ export type UseFragmentResult<TData, TCompleted extends boolean = boolean> = {
  *   `,
  *   from: computed(() => ({ __typename: 'User', id: userId.value })),
  *   fragmentName: 'UserFields'
+ * })
+ *
+ * // TypeScript type narrowing works correctly
+ * watchEffect(() => {
+ *   if (result.value?.complete) {
+ *     // data is non-optional, missing is never
+ *     console.log(result.value.data.name) // ✅ Type-safe
+ *   }
+ * })
+ * ```
+ *
+ * @example
+ * Convenience usage (less type-safe but more ergonomic):
+ * ```ts
+ * const { data, complete } = useFragment({
+ *   fragment: USER_FRAGMENT,
+ *   from: { __typename: 'User', id: '123' }
+ * })
+ *
+ * // Still need optional chaining
+ * watchEffect(() => {
+ *   if (complete.value) {
+ *     console.log(data.value?.name) // ⚠️ Still optional
+ *   }
  * })
  * ```
  *
@@ -413,12 +437,24 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
     return {
         /**
          * Whether the fragment data is complete (all fields were found in cache).
+         *
+         * **Note: ** For better type narrowing, use `result.value?.complete` instead.
+         * @see result
          */
         complete: computed(() => result.value?.complete ?? false),
 
         /**
          * The fragment result data.
          * Can be undefined if no data has been loaded yet or if `from` is null.
+         *
+         * **Note: ** For better type safety, use `result.value` with type narrowing:
+         * ```ts
+         * if (result.value?.complete) {
+         *   // result.value.data is non-optional here
+         *   console.log(result.value.data.name)
+         * }
+         * ```
+         * @see result
          */
         data: computed(() => result.value?.data),
 
@@ -429,6 +465,9 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
 
         /**
          * A tree of all MissingFieldError messages reported during fragment reading.
+         *
+         * **Note: ** For better type narrowing, use `result.value?.missing` instead.
+         * @see result
          */
         missing: computed(() => result.value?.missing),
 
@@ -458,6 +497,34 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
 
         /**
          * The full fragment result including data, complete status, and missing info.
+         *
+         * **Recommended: ** Use this for better TypeScript type narrowing.
+         *
+         * @example
+         * Type-safe access with narrowing:
+         * ```ts
+         * const { result } = useFragment<User>(...)
+         *
+         * // TypeScript knows data is complete and non-optional
+         * if (result.value?.complete) {
+         *   console.log(result.value.data.name) // ✅ No optional chaining needed
+         *   // result.value.missing is never
+         * } else {
+         *   console.log(result.value?.data?.name) // ⚠️ Partial data
+         *   console.log(result.value?.missing) // ✅ Available
+         * }
+         * ```
+         *
+         * @example
+         * Convenience access (less type-safe):
+         * ```ts
+         * const { data, complete } = useFragment<User>(...)
+         *
+         * // Still need optional chaining even when complete is true
+         * if (complete.value) {
+         *   console.log(data.value?.name) // ⚠️ Still optional
+         * }
+         * ```
          */
         result,
 

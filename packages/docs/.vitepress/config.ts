@@ -64,6 +64,10 @@ export default defineConfig({
                         text: 'useApolloClient'
                     },
                     {
+                        link: '/composables/useFragment',
+                        text: 'useFragment'
+                    },
+                    {
                         link: '/composables/useMutation',
                         text: 'useMutation'
                     },
