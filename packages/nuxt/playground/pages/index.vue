@@ -2,7 +2,7 @@
 import type { PostsQueryVariables } from '@vue3-apollo/operations'
 
 import { gql } from '@apollo/client'
-import { PostsDocument, UpdatePostDocument } from '@vue3-apollo/operations'
+import { PostDetailFragmentDoc, PostsDocument, UpdatePostDocument } from '@vue3-apollo/operations'
 import { reactive, ref } from 'vue'
 
 // Constants
@@ -20,6 +20,8 @@ const rawQuery = gql`
 // Refs
 const enabled = ref(true)
 const title = ref('')
+const fragmentPostId = ref(1)
+const fragmentEnabled = ref(true)
 
 // Reactive variables
 const vars = reactive<PostsQueryVariables>({
@@ -49,12 +51,45 @@ const { error: rawQueryError, result: rawQueryResult } = useQuery(rawQuery, rawQ
     keepPreviousResult: true
 })
 
+// Fragments
+const {
+    complete: fragmentComplete,
+    data: fragmentData,
+    error: fragmentError,
+    missing: fragmentMissing,
+    onResult: onFragmentResult,
+    result: fragmentResult
+} = useFragment({
+    enabled: fragmentEnabled,
+    fragment: PostDetailFragmentDoc,
+    from: computed(() => ({
+        __typename: 'Post',
+        id: fragmentPostId.value
+    }))
+})
+
 // Mutations
 const { loading, mutate } = useMutation(UpdatePostDocument)
 
 // Event handlers
 onResult((data) => {
     console.warn('onResult', data)
+})
+
+onFragmentResult((result) => {
+    console.warn('onFragmentResult', result)
+})
+
+// Watch fragment result for type narrowing demo
+watchEffect(() => {
+    if (fragmentResult.value?.complete) {
+        // TypeScript knows data is non-optional here
+        console.warn('Fragment complete:', fragmentResult.value.data)
+    }
+    else if (fragmentResult.value?.data) {
+        // Partial data
+        console.warn('Fragment partial:', fragmentResult.value.data)
+    }
 })
 
 // Composables
@@ -184,6 +219,80 @@ watch(isLoading, (loading) => {
           <pre class="w-full overflow-auto text-sm leading-relaxed bg-slate-950/60 border border-white/10 rounded-lg p-3">
 {{ (rawQueryResult as any)?.users }}
           </pre>
+        </div>
+
+        <!-- Fragment Testing Section -->
+        <div class="border-t border-white/10 pt-4 space-y-3">
+          <div class="flex items-center gap-3 mb-3">
+            <h3 class="text-sm font-medium text-gray-300">
+              Fragment Testing (useFragment)
+            </h3>
+            <button
+              type="button"
+              class="inline-flex cursor-pointer items-center gap-2 px-2 py-1 rounded text-xs bg-slate-800 hover:bg-slate-700 active:bg-slate-800 text-gray-200 border border-white/10 transition-colors"
+              @click="fragmentEnabled = !fragmentEnabled"
+            >
+              {{ fragmentEnabled ? 'Disable' : 'Enable' }}
+            </button>
+            <div class="flex items-center gap-2">
+              <label class="text-xs text-gray-400">Post ID:</label>
+              <input
+                v-model.number="fragmentPostId"
+                type="number"
+                min="1"
+                class="w-20 px-2 py-1 text-xs rounded bg-slate-800/70 text-gray-100 border border-slate-700 focus:(outline-none ring-1 ring-indigo-500)"
+              >
+            </div>
+            <div class="ml-auto flex items-center gap-2">
+              <span class="text-xs text-gray-400">Complete:</span>
+              <span :class="fragmentComplete ? 'text-emerald-400' : 'text-amber-400'" class="text-xs font-medium">
+                {{ fragmentComplete ? '✓ Yes' : '⚠ Partial' }}
+              </span>
+            </div>
+          </div>
+
+          <div v-if="fragmentError" class="text-sm text-rose-400 bg-rose-900/20 border border-rose-700/40 rounded-lg p-3">
+            {{ fragmentError }}
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <div class="text-xs text-gray-400 mb-2">
+                Fragment Data (from cache):
+              </div>
+              <pre class="w-full overflow-auto text-sm leading-relaxed bg-slate-950/60 border border-white/10 rounded-lg p-3">
+{{ fragmentData }}
+              </pre>
+            </div>
+
+            <div>
+              <div class="text-xs text-gray-400 mb-2">
+                Full Result (type-safe):
+              </div>
+              <pre class="w-full overflow-auto text-sm leading-relaxed bg-slate-950/60 border border-white/10 rounded-lg p-3">
+{{ fragmentResult }}
+              </pre>
+            </div>
+          </div>
+
+          <div v-if="fragmentMissing" class="text-xs">
+            <div class="text-amber-400 mb-2">
+              Missing Fields:
+            </div>
+            <pre class="w-full overflow-auto text-xs leading-relaxed bg-amber-950/20 border border-amber-700/40 rounded-lg p-3">
+{{ fragmentMissing }}
+            </pre>
+          </div>
+
+          <div class="text-xs text-gray-500 bg-slate-800/30 border border-white/5 rounded-lg p-3">
+            <strong>💡 Tips:</strong>
+            <ul class="mt-2 space-y-1 list-disc list-inside">
+              <li>Fragment reads data synchronously from Apollo Cache</li>
+              <li>Update post title above to see fragment auto-update</li>
+              <li>Change Post ID to read different entities</li>
+              <li>Use <code class="px-1 py-0.5 bg-slate-700 rounded">result.value?.complete</code> for TypeScript type narrowing</li>
+            </ul>
+          </div>
         </div>
       </section>
 
