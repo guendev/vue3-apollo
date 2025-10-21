@@ -1,5 +1,16 @@
 # @vue3-apollo/nuxt
 
+## 1.3.0
+
+### Minor Changes
+
+- 1dd8e04: feat: introduce useFragment composable
+
+### Patch Changes
+
+- Updated dependencies [1dd8e04]
+  - @vue3-apollo/core@1.3.0
+
 ## 1.2.4
 
 ### Patch Changes
