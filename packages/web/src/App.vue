@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { PostsQueryVariables } from '@vue3-apollo/operations'
 
-import { useMutation, useQuery } from '@vue3-apollo/core'
-import { PostsDocument, UpdatePostDocument } from '@vue3-apollo/operations'
+import { useFragment, useMutation, useQuery } from '@vue3-apollo/core'
+import { PostDetailFragmentDoc, PostsDocument, UpdatePostDocument } from '@vue3-apollo/operations'
 import { reactive, ref } from 'vue'
 
 const enabled = ref(true)
@@ -12,18 +12,23 @@ const vars = reactive<PostsQueryVariables>({
     userId: 1
 })
 
-const { error, onResult, result } = useQuery(PostsDocument, vars, {
+const { error, result } = useQuery(PostsDocument, vars, {
     enabled,
-    keepPreviousResult: true
+    fetchPolicy: 'cache-first',
+    keepPreviousResult: true,
+    returnPartialData: true
 })
 
 const title = ref('')
 
 const { loading, mutate } = useMutation(UpdatePostDocument)
 
-onResult((data, { client }) => {
-    console.warn('onResult', data)
-    console.warn('client', client)
+const { data } = useFragment({
+    fragment: PostDetailFragmentDoc,
+    from: {
+        __typename: 'Post',
+        id: 1
+    }
 })
 </script>
 
@@ -90,10 +95,17 @@ onResult((data, { client }) => {
           </div>
 
           <div class="text-sm text-gray-300">
-            Kết quả:
+            Masked Posts:
           </div>
           <pre class="w-full overflow-auto text-sm leading-relaxed bg-slate-950/60 border border-white/10 rounded-lg p-3">
-{{ result?.posts }}
+ {{ result?.posts }}
+          </pre>
+
+          <div class="text-sm text-gray-300">
+            Fragments:
+          </div>
+          <pre class="w-full overflow-auto text-sm leading-relaxed bg-slate-950/60 border border-white/10 rounded-lg p-3">
+ {{ data }}
           </pre>
         </div>
       </section>

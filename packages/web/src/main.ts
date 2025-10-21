@@ -11,6 +11,15 @@ app.use(apolloPlugin, {
     clients: {
         default: new ApolloClient({
             cache: new InMemoryCache(),
+            dataMasking: true,
+            defaultOptions: {
+                query: {
+                    fetchPolicy: 'cache-first'
+                },
+                watchQuery: {
+                    fetchPolicy: 'cache-first'
+                }
+            },
             link: new HttpLink({ uri: 'https://graphqlplaceholder.vercel.app/graphql' })
         })
     }

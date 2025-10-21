@@ -5,6 +5,10 @@ const config: CodegenConfig = {
     generates: {
         'src/codegen/': {
             config: {
+                customDirectives: {
+                    apolloUnmask: true
+                },
+                inlineFragmentTypes: 'mask',
                 useTypeImports: true
             },
             plugins: [],

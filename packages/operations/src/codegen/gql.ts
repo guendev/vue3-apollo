@@ -14,12 +14,14 @@ import type { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
+    "fragment PostDetail on Post {\n  id\n  title\n  body\n}": typeof types.PostDetailFragmentDoc,
     "mutation UpdatePost($postId: Int!, $post: UpdatePostInput!) {\n  updatePost(postId: $postId, post: $post) {\n    id\n    title\n  }\n}": typeof types.UpdatePostDocument,
-    "query UserById($userByIdId: Int!) {\n  userById(id: $userByIdId) {\n    id\n    name\n    email\n  }\n}\n\nquery Posts($userId: Int, $first: Int) {\n  posts(userId: $userId, first: $first) {\n    id\n    title\n  }\n}": typeof types.UserByIdDocument,
+    "query UserById($userByIdId: Int!) {\n  userById(id: $userByIdId) {\n    id\n    name\n    email\n  }\n}\n\nquery Posts($userId: Int, $first: Int) {\n  posts(userId: $userId, first: $first) {\n    id\n    ...PostDetail\n  }\n}": typeof types.UserByIdDocument,
 };
 const documents: Documents = {
+    "fragment PostDetail on Post {\n  id\n  title\n  body\n}": types.PostDetailFragmentDoc,
     "mutation UpdatePost($postId: Int!, $post: UpdatePostInput!) {\n  updatePost(postId: $postId, post: $post) {\n    id\n    title\n  }\n}": types.UpdatePostDocument,
-    "query UserById($userByIdId: Int!) {\n  userById(id: $userByIdId) {\n    id\n    name\n    email\n  }\n}\n\nquery Posts($userId: Int, $first: Int) {\n  posts(userId: $userId, first: $first) {\n    id\n    title\n  }\n}": types.UserByIdDocument,
+    "query UserById($userByIdId: Int!) {\n  userById(id: $userByIdId) {\n    id\n    name\n    email\n  }\n}\n\nquery Posts($userId: Int, $first: Int) {\n  posts(userId: $userId, first: $first) {\n    id\n    ...PostDetail\n  }\n}": types.UserByIdDocument,
 };
 
 /**
@@ -39,11 +41,15 @@ export function graphql(source: string): unknown;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function graphql(source: "fragment PostDetail on Post {\n  id\n  title\n  body\n}"): (typeof documents)["fragment PostDetail on Post {\n  id\n  title\n  body\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function graphql(source: "mutation UpdatePost($postId: Int!, $post: UpdatePostInput!) {\n  updatePost(postId: $postId, post: $post) {\n    id\n    title\n  }\n}"): (typeof documents)["mutation UpdatePost($postId: Int!, $post: UpdatePostInput!) {\n  updatePost(postId: $postId, post: $post) {\n    id\n    title\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "query UserById($userByIdId: Int!) {\n  userById(id: $userByIdId) {\n    id\n    name\n    email\n  }\n}\n\nquery Posts($userId: Int, $first: Int) {\n  posts(userId: $userId, first: $first) {\n    id\n    title\n  }\n}"): (typeof documents)["query UserById($userByIdId: Int!) {\n  userById(id: $userByIdId) {\n    id\n    name\n    email\n  }\n}\n\nquery Posts($userId: Int, $first: Int) {\n  posts(userId: $userId, first: $first) {\n    id\n    title\n  }\n}"];
+export function graphql(source: "query UserById($userByIdId: Int!) {\n  userById(id: $userByIdId) {\n    id\n    name\n    email\n  }\n}\n\nquery Posts($userId: Int, $first: Int) {\n  posts(userId: $userId, first: $first) {\n    id\n    ...PostDetail\n  }\n}"): (typeof documents)["query UserById($userByIdId: Int!) {\n  userById(id: $userByIdId) {\n    id\n    name\n    email\n  }\n}\n\nquery Posts($userId: Int, $first: Int) {\n  posts(userId: $userId, first: $first) {\n    id\n    ...PostDetail\n  }\n}"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};
