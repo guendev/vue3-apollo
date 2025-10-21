@@ -361,6 +361,7 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
                 },
                 next: (value) => {
                     result.value = value as UseFragmentResult<TData>
+                    error.value = undefined
 
                     if (isDefined(value.data)) {
                         void onResultEvent.trigger(value as UseFragmentResult<TData>, { client })
