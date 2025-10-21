@@ -1,5 +1,11 @@
 # @vue3-apollo/docs
 
+## 1.2.0
+
+### Minor Changes
+
+- 1dd8e04: feat: introduce useFragment composable
+
 ## 1.1.0
 
 ### Minor Changes
