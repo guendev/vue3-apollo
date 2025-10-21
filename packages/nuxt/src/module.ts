@@ -37,6 +37,7 @@ export default defineNuxtModule<ApolloModuleOptions>({
                     imports: [
                         // composables
                         'useApolloClient',
+                        'useFragment',
                         'useMutation',
                         'useQuery',
                         'useSubscription',
