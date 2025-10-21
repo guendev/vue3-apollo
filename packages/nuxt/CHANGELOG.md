@@ -1,5 +1,13 @@
 # @vue3-apollo/nuxt
 
+## 1.3.1
+
+### Patch Changes
+
+- d53a206: fix(core): correct UseFragmentResult type definition
+- Updated dependencies [d53a206]
+  - @vue3-apollo/core@1.3.1
+
 ## 1.3.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @vue3-apollo/core
 
+## 1.3.1
+
+### Patch Changes
+
+- d53a206: fix(core): correct UseFragmentResult type definition
+
 ## 1.3.0
 
 ### Minor Changes
