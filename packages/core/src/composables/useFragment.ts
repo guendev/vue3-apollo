@@ -31,24 +31,25 @@ import { useApolloClient } from './useApolloClient'
  */
 export type UseFragmentOptions<TData = unknown, TVariables extends OperationVariables = OperationVariables> = {
     /**
-     * An object containing a `__typename` and primary key fields (such as `id`)
-     * identifying the entity object from which the fragment will be retrieved,
-     * or a `{ __ref: "..." }` reference, or a `string` ID (uncommon).
+     * Entity identifier to read the fragment from.
+     * Can be an object with __typename and id, a cache reference, or a string ID.
+     *
+     * @example
+     * ```ts
+     * from: { __typename: 'User', id: '123' }
+     * from: computed(() => ({ __typename: 'User', id: userId.value }))
+     * from: 'User:123'
+     * ```
      */
     from: MaybeRefOrGetter<FragmentType<NoInfer<TData>> | Reference | StoreObject | string>
 
     /**
-     * A GraphQL document created using the `gql` template string tag from
-     * `graphql-tag` with one or more fragments which will be used to determine
-     * the shape of data to read. If you provide more than one fragment in this
-     * document then you must also specify `fragmentName` to select a single.
+     * GraphQL fragment document.
      */
     fragment: DocumentNode | TypedDocumentNode<TData, TVariables>
 
     /**
-     * The name of the fragment in your GraphQL document to be used. If you do
-     * not provide a `fragmentName` and there is only one fragment in your
-     * `fragment` document, then that fragment will be used.
+     * Fragment name (required if document has multiple fragments).
      */
     fragmentName?: string
 
@@ -61,12 +62,7 @@ export type UseFragmentOptions<TData = unknown, TVariables extends OperationVari
      *
      * @example
      * ```ts
-     * const shouldWatch = ref(false)
-     * useFragment({
-     *   fragment: USER_FRAGMENT,
-     *   from: { __typename: 'User', id: '123' },
-     *   enabled: shouldWatch
-     * })
+     * enabled: computed(() => isVisible.value)
      * ```
      */
     enabled?: MaybeRefOrGetter<boolean>
@@ -81,155 +77,45 @@ export type UseFragmentOptions<TData = unknown, TVariables extends OperationVari
     prefetch?: boolean
 
     /**
-     * Any variables that the GraphQL fragment may depend on.
+     * Fragment variables.
      */
     variables?: MaybeRefOrGetter<NoInfer<TVariables>>
 
     /**
      * Whether to read from optimistic or non-optimistic cache data.
      *
-     * @defaultValue true
+     * @default true
      */
     optimistic?: boolean
 } & UseBaseOption
 
-/**
- * Result type for useFragment composable
- */
-export type UseFragmentResult<TData, TCompleted extends boolean = boolean> = {
-    complete: TCompleted
-    missing?: TCompleted extends true ? never : MissingTree
-} & GetDataState<MaybeMasked<TData>, TCompleted extends true ? 'complete' : 'partial'>
+/** Fragment result with completion status and data */
+export type UseFragmentResult<TData>
+    = | ({
+        complete: false
+        missing?: MissingTree
+    } & GetDataState<MaybeMasked<TData>, 'partial'>)
+    | ({
+        complete: true
+        missing?: never
+    } & GetDataState<MaybeMasked<TData>, 'complete'>)
 
 /**
  * Composable for reading GraphQL fragments from Apollo Cache with Vue reactivity.
- * Provides a lightweight live binding into the Apollo Client Cache and automatically
- * updates when the fragment data changes.
+ * Provides a lightweight live binding and automatically updates when fragment data changes.
  *
  * @template TData - Type of the fragment result data
  * @template TVariables - Type of the fragment variables
  *
- * @param options - Fragment options including document, from identifier, and other settings
+ * @param options - Fragment options including document, from identifier, and settings
  *
  * @returns Object containing fragment state and control methods
  *
- * @remarks
- * **Important Notes:**
- * - This composable reads data synchronously from the cache (no network requests)
- * - Uses internal Apollo Client APIs (`getFragmentDoc`, `transform`, `maskFragment`)
- * - Automatically restarts when `from` or `variables` change
- * - Must be called within a Vue component setup or effect scope
- *
- * **Performance Tips:**
- * - Use `computed` for reactive `from` and `variables` instead of `ref` + watchers
- * - Set `enabled: false` when fragment is not needed to avoid unnecessary subscriptions
- * - Use `shallowRef` when storing fragment data in parent component
- * - Fragment reads are cached by Apollo, so multiple reads are efficient
- *
  * @example
- * Basic usage with type narrowing (recommended):
- * ```ts
- * const userId = ref('123')
- * const { result } = useFragment({
- *   fragment: gql`
- *     fragment UserFields on User {
- *       id
- *       name
- *       email
- *     }
- *   `,
- *   from: computed(() => ({ __typename: 'User', id: userId.value })),
- *   fragmentName: 'UserFields'
- * })
- *
- * // TypeScript type narrowing works correctly
- * watchEffect(() => {
- *   if (result.value?.complete) {
- *     // data is non-optional, missing is never
- *     console.log(result.value.data.name) // ✅ Type-safe
- *   }
- * })
- * ```
- *
- * @example
- * Convenience usage (less type-safe but more ergonomic):
  * ```ts
  * const { data, complete } = useFragment({
- *   fragment: USER_FRAGMENT,
+ *   fragment: gql`fragment UserFields on User { id name email }`,
  *   from: { __typename: 'User', id: '123' }
- * })
- *
- * // Still need optional chaining
- * watchEffect(() => {
- *   if (complete.value) {
- *     console.log(data.value?.name) // ⚠️ Still optional
- *   }
- * })
- * ```
- *
- * @example
- * Handling null/missing data:
- * ```ts
- * const userId = ref<string | null>(null)
- * const { data, complete, missing } = useFragment({
- *   fragment: USER_FRAGMENT,
- *   from: computed(() =>
- *     userId.value ? { __typename: 'User', id: userId.value } : null
- *   )
- * })
- *
- * // Check if data is available
- * watchEffect(() => {
- *   if (data.value) {
- *     console.log('User data:', data.value)
- *   } else if (!complete.value && missing.value) {
- *     console.warn('Incomplete data:', missing.value)
- *   }
- * })
- * ```
- *
- * @example
- * Error handling:
- * ```ts
- * const { data, error, onError } = useFragment({
- *   fragment: USER_FRAGMENT,
- *   from: { __typename: 'User', id: '123' }
- * })
- *
- * onError((err, context) => {
- *   console.error('Fragment error:', err.message)
- *   // Handle error (show toast, log to service, etc.)
- * })
- * ```
- *
- * @example
- * Conditional watching with enabled:
- * ```ts
- * const isVisible = ref(false)
- * const { data, start, stop } = useFragment({
- *   fragment: USER_FRAGMENT,
- *   from: { __typename: 'User', id: '123' },
- *   enabled: isVisible
- * })
- *
- * // Or manually control:
- * // enabled: false
- * // Then call start() when needed
- * ```
- *
- * @example
- * With variables:
- * ```ts
- * const locale = ref('en')
- * const { data } = useFragment({
- *   fragment: gql`
- *     fragment UserWithLocale on User {
- *       id
- *       name(locale: $locale)
- *     }
- *   `,
- *   from: { __typename: 'User', id: '123' },
- *   variables: computed(() => ({ locale: locale.value }))
  * })
  * ```
  */
@@ -436,25 +322,14 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
 
     return {
         /**
-         * Whether the fragment data is complete (all fields were found in cache).
-         *
-         * **Note: ** For better type narrowing, use `result.value?.complete` instead.
-         * @see result
+         * Whether all fragment fields were found in cache.
          */
         complete: computed(() => result.value?.complete ?? false),
 
         /**
          * The fragment result data.
          * Can be undefined if no data has been loaded yet or if `from` is null.
-         *
-         * **Note: ** For better type safety, use `result.value` with type narrowing:
-         * ```ts
-         * if (result.value?.complete) {
-         *   // result.value.data is non-optional here
-         *   console.log(result.value.data.name)
-         * }
-         * ```
-         * @see result
+         * For better type safety, use `result` with type narrowing.
          */
         data: computed(() => result.value?.data),
 
@@ -465,9 +340,6 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
 
         /**
          * A tree of all MissingFieldError messages reported during fragment reading.
-         *
-         * **Note: ** For better type narrowing, use `result.value?.missing` instead.
-         * @see result
          */
         missing: computed(() => result.value?.missing),
 
@@ -485,6 +357,7 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
 
         /**
          * Event hook that fires when new fragment results are received.
+         * Only fires when actual data is present (not undefined).
          *
          * @example
          * ```ts
@@ -497,32 +370,12 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
 
         /**
          * The full fragment result including data, complete status, and missing info.
-         *
-         * **Recommended: ** Use this for better TypeScript type narrowing.
+         * Use this for better TypeScript type narrowing.
          *
          * @example
-         * Type-safe access with narrowing:
          * ```ts
-         * const { result } = useFragment<User>(...)
-         *
-         * // TypeScript knows data is complete and non-optional
          * if (result.value?.complete) {
-         *   console.log(result.value.data.name) // ✅ No optional chaining needed
-         *   // result.value.missing is never
-         * } else {
-         *   console.log(result.value?.data?.name) // ⚠️ Partial data
-         *   console.log(result.value?.missing) // ✅ Available
-         * }
-         * ```
-         *
-         * @example
-         * Convenience access (less type-safe):
-         * ```ts
-         * const { data, complete } = useFragment<User>(...)
-         *
-         * // Still need optional chaining even when complete is true
-         * if (complete.value) {
-         *   console.log(data.value?.name) // ⚠️ Still optional
+         *   console.log(result.value.data.name) // No optional chaining needed
          * }
          * ```
          */
@@ -530,6 +383,7 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
 
         /**
          * Manually start watching the fragment.
+         * Useful after stopping the fragment or when using enabled: false initially.
          *
          * @example
          * ```ts
@@ -546,6 +400,7 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
 
         /**
          * Stop watching the fragment and unsubscribe from updates.
+         * Useful for pausing fragments or cleaning up manually.
          *
          * @example
          * ```ts
