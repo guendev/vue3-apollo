@@ -2,7 +2,17 @@ export default defineNuxtConfig({
     apollo: {
         clients: {
             default: {
+                defaultOptions: {
+                    query: {
+                        errorPolicy: 'none'
+                    }
+                },
                 httpEndpoint: 'https://graphqlplaceholder.vercel.app/graphql'
+            }
+        },
+        defaultOptions: {
+            query: {
+                errorPolicy: 'all'
             }
         }
     },

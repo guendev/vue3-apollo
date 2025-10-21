@@ -14,6 +14,8 @@ import { useCookie } from 'nuxt/app'
 import type { ApolloClientConfig } from '../../type'
 import type { ApolloErrorHookPayload } from '../types'
 
+import { pick } from '../utils/pick'
+
 const APOLLO_STATE_KEY_PREFIX = 'apollo:'
 
 interface CreateApolloClientParams {
@@ -150,21 +152,28 @@ export async function createApolloClient({ clientId, config, nuxtApp }: CreateAp
 
     const retryLink = new RetryLink()
 
-    const defaultOptions: ApolloClient.DefaultOptions = defu({
-        query: {
-            fetchPolicy: import.meta.server ? 'network-only' : 'cache-first'
+    const mergedConfig: Omit<ApolloClient.Options, 'cache' | 'devtools' | 'link' | 'ssrForceFetchDelay' | 'ssrMode'> = defu(
+        {
+            defaultOptions: import.meta.server
+                ? {
+                    query: {
+                        fetchPolicy: 'network-only'
+                    },
+                    watchQuery: {
+                        fetchPolicy: 'network-only'
+                    }
+                }
+                : {}
         },
-        watchQuery: {
-            fetchPolicy: import.meta.server ? 'network-only' : 'cache-first'
-        }
-    }, config.defaultOptions)
+        pick(config, ['assumeImmutableResults', 'dataMasking', 'defaultOptions', 'localState', 'queryDeduplication'])
+    )
 
     // Create an Apollo Client instance
     const client = new ApolloClient({
+        ...mergedConfig,
         cache,
-        defaultOptions,
         devtools: {
-            enabled: config.devtools ?? config.devtools,
+            enabled: config.devtools ?? import.meta.dev,
             name: clientId
         },
         // Combine the auth combinedLink, error combinedLink, and main combinedLink chain

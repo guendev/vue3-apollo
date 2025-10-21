@@ -19,7 +19,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     for (const [clientId, config] of Object.entries(apolloConfig.clients)) {
         apolloClients[clientId] = await createApolloClient({
             clientId,
-            config: defu(config, omit(apolloConfig, ['clients'])),
+            config: defu(config, omit(apolloConfig, ['clients', 'autoImports'])),
             nuxtApp
         })
     }
