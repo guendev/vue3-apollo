@@ -117,6 +117,24 @@ export type UseFragmentResult<TData>
  *   fragment: gql`fragment UserFields on User { id name email }`,
  *   from: { __typename: 'User', id: '123' }
  * })
+ *
+ * // Use optional chaining for partial data
+ * console.log(data.value?.name)
+ * ```
+ *
+ * // Type-safe access with result (recommended):
+ * @example
+ * ```ts
+ * const { result } = useFragment({
+ *   fragment: USER_FRAGMENT,
+ *   from: { __typename: 'User', id: '123' }
+ * })
+ *
+ * if (result.value?.complete) {
+ *   // No optional chaining needed
+ *   console.log(result.value.data.name)
+ *   console.log(result.value.data.email)
+ * }
  * ```
  */
 export function useFragment<TData = unknown, TVariables extends OperationVariables = OperationVariables>(
@@ -329,7 +347,40 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
         /**
          * The fragment result data.
          * Can be undefined if no data has been loaded yet or if `from` is null.
-         * For better type safety, use `result` with type narrowing.
+         * May contain partial data when not all fields are available in cache.
+         *
+         * For type-safe access without optional chaining, use `result` with type narrowing.
+         *
+         * @example
+         * Basic usage with optional chaining:
+         * ```ts
+         * const { data } = useFragment(options)
+         * console.log(data.value?.name)
+         * ```
+         *
+         * @example
+         * Create a helper for complete data access:
+         * ```ts
+         * // composables/useCompleteFragment.ts
+         * import type { OperationVariables } from '@apollo/client'
+         * import type { UseFragmentOptions } from '@vue3-apollo/core'
+         *
+         * export function useCompleteFragment<TData = unknown, TVariables extends OperationVariables = OperationVariables>(options: UseFragmentOptions<TData, TVariables>) {
+         *     const fragment = useFragment(options)
+         *     const fullData = computed(() =>
+         *         fragment.result.value?.complete
+         *             ? fragment.result.value.data
+         *             : undefined
+         *     )
+         *     return { ...fragment, fullData }
+         * }
+         *
+         * // Usage
+         * const { fullData } = useCompleteFragment(options)
+         * if (fullData.value) {
+         *   console.log(fullData.value.name) // No optional chaining needed
+         * }
+         * ```
          */
         data: computed(() => result.value?.data),
 
@@ -370,12 +421,33 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
 
         /**
          * The full fragment result including data, complete status, and missing info.
-         * Use this for better TypeScript type narrowing.
+         *
+         * This is the recommended way to access fragment data with type safety.
+         * TypeScript can narrow the type based on the `complete` flag, eliminating
+         * the need for optional chaining.
          *
          * @example
+         * Type-safe access with complete check:
          * ```ts
+         * const { result } = useFragment(options)
+         *
          * if (result.value?.complete) {
+         *   // TypeScript knows all fields are present
          *   console.log(result.value.data.name) // No optional chaining needed
+         *   console.log(result.value.data.email)
+         * } else if (result.value?.data) {
+         *   // Partial data - use optional chaining
+         *   console.log(result.value.data.name ?? 'Loading...')
+         * }
+         * ```
+         *
+         * @example
+         * Handle missing fields:
+         * ```ts
+         * const { result, missing } = useFragment(options)
+         *
+         * if (!result.value?.complete && missing.value) {
+         *   console.log('Missing fields:', missing.value)
          * }
          * ```
          */
