@@ -1,5 +1,13 @@
 # @vue3-apollo/nuxt
 
+## 1.2.4
+
+### Patch Changes
+
+- d709e0d: feat: add support for more ApolloClient configuration options
+- Updated dependencies [d709e0d]
+  - @vue3-apollo/core@1.2.3
+
 ## 1.2.3
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @vue3-apollo/core
 
+## 1.2.3
+
+### Patch Changes
+
+- d709e0d: feat: add support for more ApolloClient configuration options
+
 ## 1.2.2
 
 ### Patch Changes
