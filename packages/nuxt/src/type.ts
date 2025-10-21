@@ -55,12 +55,6 @@ export interface ApolloModuleOptions extends ApolloSharedConfig {
      * @default true
      */
     autoImports?: boolean
-
-    /**
-     * Enable devtools integration
-     * @default true
-     */
-    devtools?: boolean
 }
 
 /**
@@ -103,7 +97,7 @@ export interface ApolloSharedAuthConfig {
 /**
  * Shared configuration options for Apollo Client and Module
  */
-export interface ApolloSharedConfig {
+export interface ApolloSharedConfig extends Pick<ApolloClient.Options, 'assumeImmutableResults' | 'dataMasking' | 'defaultOptions' | 'localState' | 'queryDeduplication'> {
     /**
      * Tùy chọn bổ sung cho HTTP link.
      * Cho phép tùy chỉnh headers, credentials, fetch options, v.v.
@@ -118,9 +112,9 @@ export interface ApolloSharedConfig {
     httpLinkOptions?: Omit<HttpLink.Options, 'uri'>
 
     /**
-     * Tùy chọn bổ sung cho WebSocket link.
-     * Cho phép tùy chỉnh connection params, retry logic, keepAlive, v.v.
-     * Chỉ có hiệu lực khi `wsEndpoint` được cấu hình.
+     * Additional options for WebSocket link.
+     * Allows customizing connection params, retry logic, keepAlive, etc.
+     * Only effective when `wsEndpoint` is configured.
      *
      * @example
      * ```ts
@@ -137,28 +131,6 @@ export interface ApolloSharedConfig {
      * @default true
      */
     devtools?: boolean
-
-    /**
-     * Default options for Apollo Client operations.
-     * Allows configuration of fetch policies, error handling, polling intervals, etc.
-     *
-     * @example
-     * ```ts
-     * {
-     *   watchQuery: {
-     *     fetchPolicy: 'cache-and-network'
-     *   },
-     *   query: {
-     *     fetchPolicy: 'network-only',
-     *     errorPolicy: 'all'
-     *   },
-     *   mutate: {
-     *     errorPolicy: 'all'
-     *   }
-     * }
-     * ```
-     */
-    defaultOptions?: ApolloClient.DefaultOptions
 
     /**
      * Configuration options for Apollo Client's InMemoryCache.

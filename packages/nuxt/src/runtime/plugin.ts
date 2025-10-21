@@ -8,18 +8,18 @@ import { createApolloClient } from './utils/createApolloClient'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
     const runTimeconfig = nuxtApp.$config
-    const apolloConfig = runTimeconfig.public.apollo
+    const globalConfig = runTimeconfig.public.apollo
 
-    if (!apolloConfig?.clients) {
+    if (!globalConfig?.clients) {
         throw new Error('[vue3-apollo] No Apollo clients configured')
     }
 
     const apolloClients: Record<string, ApolloClient> = {}
 
-    for (const [clientId, config] of Object.entries(apolloConfig.clients)) {
+    for (const [clientId, config] of Object.entries(globalConfig.clients)) {
         apolloClients[clientId] = await createApolloClient({
             clientId,
-            config: defu(config, omit(apolloConfig, ['clients'])),
+            config: defu(config, omit(globalConfig, ['clients', 'autoImports'])),
             nuxtApp
         })
     }
