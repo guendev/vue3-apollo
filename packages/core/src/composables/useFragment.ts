@@ -41,7 +41,7 @@ export type UseFragmentOptions<TData = unknown, TVariables extends OperationVari
      * from: 'User:123'
      * ```
      */
-    from: MaybeRefOrGetter<FragmentType<NoInfer<TData>> | Reference | StoreObject | string>
+    from?: MaybeRefOrGetter<FragmentType<NoInfer<TData>> | null | Reference | StoreObject | string | undefined>
 
     /**
      * GraphQL fragment document.
@@ -162,6 +162,10 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
     const cacheId = computed(() => {
         const fromValue = reactiveFrom.value
         if (typeof fromValue === 'string') {
+            return fromValue
+        }
+
+        if (!fromValue) {
             return fromValue
         }
 
@@ -361,24 +365,20 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
          * @example
          * Create a helper for complete data access:
          * ```ts
-         * // composables/useCompleteFragment.ts
+         * // composables/useStrictFragment.ts
          * import type { OperationVariables } from '@apollo/client'
          * import type { UseFragmentOptions } from '@vue3-apollo/core'
          *
-         * export function useCompleteFragment<TData = unknown, TVariables extends OperationVariables = OperationVariables>(options: UseFragmentOptions<TData, TVariables>) {
+         * export function useStrictFragment<TData = unknown, TVariables extends OperationVariables = OperationVariables>(options: UseFragmentOptions<TData, TVariables>) {
          *     const fragment = useFragment(options)
-         *     const fullData = computed(() =>
-         *         fragment.result.value?.complete
-         *             ? fragment.result.value.data
-         *             : undefined
-         *     )
-         *     return { ...fragment, fullData }
+         *     const data = computed(() => fragment.result.value.data as TData)
+         *     return { ...fragment, data }
          * }
          *
          * // Usage
-         * const { fullData } = useCompleteFragment(options)
-         * if (fullData.value) {
-         *   console.log(fullData.value.name) // No optional chaining needed
+         * const { data } = useStrictFragment(options)
+         * if (data.value) {
+         *   console.log(data.value.name) // No optional chaining needed
          * }
          * ```
          */
