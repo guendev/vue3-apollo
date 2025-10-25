@@ -1,5 +1,11 @@
 # @vue3-apollo/core
 
+## 1.3.2
+
+### Patch Changes
+
+- df6ab74: fix(core): update `useFragment` to handle nullish `from` values and refine strict fragment usage example
+
 ## 1.3.1
 
 ### Patch Changes
