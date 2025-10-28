@@ -119,7 +119,7 @@ export type UseQueryOptions<TData = unknown, TVariables extends OperationVariabl
  * @template TData - Type of the query result data
  * @template TVariables - Type of the query variables
  *
- * @param document - GraphQL query document or typed document node
+ * @param document - GraphQL query document or typed document node (can be reactive ref or getter)
  * @param variables - Query variables (can be reactive ref or getter)
  * @param options - Query options including Apollo options and custom features
  *
@@ -139,7 +139,7 @@ export type UseQueryOptions<TData = unknown, TVariables extends OperationVariabl
  * ```
  */
 export function useQuery<TData = unknown, TVariables extends OperationVariables = OperationVariables>(
-    document: DocumentNode | TypedDocumentNode<TData, TVariables>,
+    document: MaybeRefOrGetter<DocumentNode | TypedDocumentNode<TData, TVariables>>,
     variables?: MaybeRefOrGetter<TVariables>,
     options?: UseQueryOptions<TData, TVariables>
 ) {
@@ -171,6 +171,8 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         })
     }
 
+    const reactiveDocument = computed(() => toValue(document))
+
     const getQueryOptions = () => {
         if (!options) {
             return {}
@@ -189,7 +191,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
             try {
                 const queryResult = await client.query<TData, TVariables>({
                     ...getQueryOptions(),
-                    query: document,
+                    query: reactiveDocument.value,
                     variables: toValue(reactiveVariables)
                 })
 
@@ -271,7 +273,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         if (!isServer()) {
             try {
                 const cachedData = client.readQuery<TData, TVariables>({
-                    query: document,
+                    query: reactiveDocument.value,
                     variables: toValue(reactiveVariables)
                 })
 
@@ -288,7 +290,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
 
         query.value = client.watchQuery<TData, TVariables>({
             notifyOnNetworkStatusChange: options?.notifyOnNetworkStatusChange ?? options?.keepPreviousResult,
-            query: document,
+            query: reactiveDocument.value,
             variables: toValue(reactiveVariables),
             ...getQueryOptions()
         })
@@ -325,6 +327,16 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
 
         watch(reactiveVariables, (newVariables) => {
             optimizedUpdateVariables(newVariables)
+        }, {
+            deep: true,
+            flush: 'post'
+        })
+
+        watch(reactiveDocument, () => {
+            if (enabled.value) {
+                stop()
+                start()
+            }
         }, {
             deep: true,
             flush: 'post'
