@@ -139,14 +139,13 @@ type Todo {
     id: Int!
     title: String
     completed: Boolean
-    user: User
 }
           </pre>
 
         <textarea
           v-model="rawTodoQuery"
           class="w-full px-3 py-2 rounded-lg bg-slate-800/70 text-gray-100 placeholder:text-gray-500 border border-slate-700 focus:(outline-none ring-2 ring-indigo-500)"
-          rows="10"
+          rows="8"
           placeholder="Enter GraphQL query here"
         />
         <div class="border-t border-white/10 pt-4 space-y-3">
