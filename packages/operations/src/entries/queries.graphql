@@ -12,3 +12,9 @@ query Posts($userId: Int, $first: Int) {
         ...PostDetail
     }
 }
+
+query Todos($userId: Int, $first: Int) {
+    todos(userId: $userId, first: $first) {
+        id
+    }
+}
