@@ -26,3 +26,4 @@ dist-ssr
 .out
 .output
 packages/docs/.vitepress/cache/
+packages/operations/src/codegen/
