@@ -337,9 +337,6 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
                 stop()
                 start()
             }
-        }, {
-            deep: true,
-            flush: 'post'
         })
     }
 
