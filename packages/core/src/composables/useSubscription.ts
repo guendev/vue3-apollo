@@ -7,10 +7,10 @@ import type {
     TypedDocumentNode
 } from '@apollo/client/core'
 import type { DocumentNode } from 'graphql'
-import type { MaybeRefOrGetter, Ref } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 
-import { createEventHook, syncRef } from '@vueuse/core'
-import { computed, getCurrentScope, isReadonly, isRef, onScopeDispose, ref, shallowRef, toRef, toValue, watch } from 'vue'
+import { createEventHook } from '@vueuse/core'
+import { computed, getCurrentScope, onScopeDispose, ref, shallowRef, toRef, toValue, watch } from 'vue'
 
 import type { HookContext, UseBaseOption } from '../utils/type'
 
@@ -63,13 +63,7 @@ export function useSubscription<
     const subscriptionData = createEventHook<[TData, HookContext]>()
     const subscriptionError = createEventHook<[ErrorLike, HookContext]>()
 
-    const reactiveVariables = ref(toValue(variables))
-    if (isRef(variables)) {
-        syncRef(variables as Ref, reactiveVariables, {
-            direction: isReadonly(variables) ? 'ltr' : 'both'
-        })
-    }
-
+    const reactiveVariables = computed(() => toValue(variables) ?? {} as TVariables)
     const reactiveDocument = computed(() => toValue(document))
 
     useApolloTracking({
@@ -130,7 +124,7 @@ export function useSubscription<
 
         subscription.value = client.subscribe<TData, TVariables>({
             query: reactiveDocument.value,
-            variables: toValue(reactiveVariables),
+            variables: reactiveVariables.value,
             ...options
         })
 

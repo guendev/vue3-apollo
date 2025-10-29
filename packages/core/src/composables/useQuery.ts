@@ -7,10 +7,10 @@ import type {
     TypedDocumentNode
 } from '@apollo/client/core'
 import type { DocumentNode } from 'graphql'
-import type { MaybeRefOrGetter, Ref } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 
-import { createEventHook, syncRef, useDebounceFn, useThrottleFn } from '@vueuse/core'
-import { computed, getCurrentScope, isReadonly, isRef, onScopeDispose, onServerPrefetch, ref, shallowRef, toValue, watch } from 'vue'
+import { createEventHook, useDebounceFn, useThrottleFn } from '@vueuse/core'
+import { computed, getCurrentScope, onScopeDispose, onServerPrefetch, ref, shallowRef, toValue, watch } from 'vue'
 
 import type { HookContext, UseBaseOption } from '../utils/type'
 
@@ -164,13 +164,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         type: 'queries'
     })
 
-    const reactiveVariables = ref(toValue(variables))
-    if (isRef(variables)) {
-        syncRef(variables as Ref, reactiveVariables, {
-            direction: isReadonly(variables) ? 'ltr' : 'both'
-        })
-    }
-
+    const reactiveVariables = computed(() => toValue(variables) ?? {} as TVariables)
     const reactiveDocument = computed(() => toValue(document))
 
     const getQueryOptions = () => {
@@ -192,7 +186,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
                 const queryResult = await client.query<TData, TVariables>({
                     ...getQueryOptions(),
                     query: reactiveDocument.value,
-                    variables: toValue(reactiveVariables)
+                    variables: reactiveVariables.value
                 })
 
                 // Set initial data from server
@@ -274,7 +268,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
             try {
                 const cachedData = client.readQuery<TData, TVariables>({
                     query: reactiveDocument.value,
-                    variables: toValue(reactiveVariables)
+                    variables: reactiveVariables.value
                 })
 
                 // If we have cached data from SSR, set the result and loading state immediately
@@ -289,10 +283,10 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         }
 
         query.value = client.watchQuery<TData, TVariables>({
+            ...getQueryOptions(),
             notifyOnNetworkStatusChange: options?.notifyOnNetworkStatusChange ?? options?.keepPreviousResult,
             query: reactiveDocument.value,
-            variables: toValue(reactiveVariables),
-            ...getQueryOptions()
+            variables: reactiveVariables.value
         })
 
         startObserver()
@@ -325,8 +319,8 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
                 ? useThrottleFn(updateVariables, options.throttle)
                 : updateVariables
 
-        watch(reactiveVariables, (newVariables) => {
-            optimizedUpdateVariables(newVariables)
+        watch(reactiveVariables, (updatedVariables) => {
+            optimizedUpdateVariables(updatedVariables)
         }, {
             deep: true,
             flush: 'post'
