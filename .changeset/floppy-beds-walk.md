@@ -5,3 +5,4 @@
 ---
 
 chore(deps): update dependencies
+- Update `@vueuse/core` to v14.
