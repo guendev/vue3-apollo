@@ -46,12 +46,12 @@ export type UseFragmentOptions<TData = unknown, TVariables extends OperationVari
     /**
      * GraphQL fragment document.
      */
-    fragment: DocumentNode | TypedDocumentNode<TData, TVariables>
+    fragment: MaybeRefOrGetter<DocumentNode | TypedDocumentNode<TData, TVariables>>
 
     /**
      * Fragment name (required if document has multiple fragments).
      */
-    fragmentName?: string
+    fragmentName?: MaybeRefOrGetter<string>
 
     /**
      * Whether the fragment should be watched.
@@ -157,6 +157,8 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
 
     // Handle reactive variables
     const reactiveVariables = computed(() => toValue(options.variables))
+    const reactiveFragment = computed(() => toValue(options.fragment))
+    const reactiveFragmentName = computed(() => toValue(options.fragmentName))
 
     // Calculate cache id
     const cacheId = computed(() => {
@@ -188,7 +190,8 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
 
     const diff = (): UseFragmentResult<TData> => {
         const id = cacheId.value
-        const { fragment, fragmentName } = options
+        const fragment = reactiveFragment.value
+        const fragmentName = reactiveFragmentName.value
 
         if (!id) {
             return diffToResult({
@@ -247,13 +250,6 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
 
     const subscription = shallowRef<ReturnType<ReturnType<ApolloClient['watchFragment']>['subscribe']>>()
 
-    const stop = () => {
-        if (subscription.value) {
-            subscription.value.unsubscribe()
-            subscription.value = undefined
-        }
-    }
-
     const start = () => {
         if (!enabled.value) {
             return
@@ -279,8 +275,8 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
         // Watch for changes
         try {
             const observable = client.watchFragment({
-                fragment: options.fragment,
-                fragmentName: options.fragmentName,
+                fragment: reactiveFragment.value,
+                fragmentName: reactiveFragmentName.value,
                 from: id,
                 optimistic,
                 variables: reactiveVariables.value
@@ -307,6 +303,20 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
         }
     }
 
+    const stop = () => {
+        if (subscription.value) {
+            subscription.value.unsubscribe()
+            subscription.value = undefined
+        }
+    }
+
+    const restart = () => {
+        if (enabled.value) {
+            stop()
+            start()
+        }
+    }
+
     // Only start on the client-side, server data is handled via onServerPrefetch
     if (!isServer()) {
         start()
@@ -322,15 +332,16 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
 
         // Watch for changes in from, variables, or fragment options
         watch(
-            [cacheId, reactiveVariables],
+            [reactiveFragmentName, cacheId, reactiveVariables],
             () => {
-                if (enabled.value) {
-                    stop()
-                    start()
-                }
+                restart()
             },
-            { deep: true }
+            { deep: true, flush: 'post' }
         )
+
+        watch(reactiveFragment, () => {
+            restart()
+        })
     }
 
     if (getCurrentScope()) {
