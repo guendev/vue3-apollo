@@ -10,7 +10,7 @@ import type { DocumentNode } from 'graphql'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
 import { createEventHook, syncRef } from '@vueuse/core'
-import { getCurrentScope, isReadonly, isRef, onScopeDispose, ref, shallowRef, toRef, toValue, watch } from 'vue'
+import { computed, getCurrentScope, isReadonly, isRef, onScopeDispose, ref, shallowRef, toRef, toValue, watch } from 'vue'
 
 import type { HookContext, UseBaseOption } from '../utils/type'
 
@@ -45,7 +45,7 @@ export function useSubscription<
     TData = unknown,
     TVariables extends OperationVariables = OperationVariables
 >(
-    document: DocumentNode | TypedDocumentNode<TData, TVariables>,
+    document: MaybeRefOrGetter<DocumentNode | TypedDocumentNode<TData, TVariables>>,
     variables?: MaybeRefOrGetter<TVariables>,
     options?: UseSubscriptionOptions<TData, TVariables>
 ) {
@@ -69,6 +69,8 @@ export function useSubscription<
             direction: isReadonly(variables) ? 'ltr' : 'both'
         })
     }
+
+    const reactiveDocument = computed(() => toValue(document))
 
     useApolloTracking({
         state: loading,
@@ -127,12 +129,19 @@ export function useSubscription<
         }
 
         subscription.value = client.subscribe<TData, TVariables>({
-            query: document,
+            query: reactiveDocument.value,
             variables: toValue(reactiveVariables),
             ...options
         })
 
         startObserver()
+    }
+
+    const restart = () => {
+        if (enabled.value) {
+            stop()
+            start()
+        }
     }
 
     // Subscriptions only work on the client-side (require WebSocket)
@@ -149,15 +158,12 @@ export function useSubscription<
             }
         })
 
-        watch(reactiveVariables, () => {
-            if (enabled.value) {
-                stop()
-                start()
-            }
-        }, {
+        watch(reactiveVariables, restart, {
             deep: true,
             flush: 'post'
         })
+
+        watch(reactiveDocument, restart)
 
         if (getCurrentScope()) {
             onScopeDispose(() => {
