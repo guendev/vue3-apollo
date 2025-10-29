@@ -1,5 +1,21 @@
 # @vue3-apollo/core
 
+## 1.4.0
+
+### Minor Changes
+
+- bb91dd5: chore(deps): update dependencies
+  - Update `@vueuse/core` to v14.
+
+### Patch Changes
+
+- 2bf90d0: fix(core): improve reactive variable handling in `useQuery` and `useSubscription`
+  - Replaced `syncRef` with `computed` for `reactiveVariables`.
+  - Simplified variable updates to improve reactivity and reduce overhead.
+- 2ac58e8: fix(core): support reactive GraphQL documents in `useFragment`
+- 89ce295: fix(core): support reactive GraphQL documents in useQuery #27
+- e6dc841: fix(core): support reactive GraphQL documents in `useSubscription`
+
 ## 1.3.2
 
 ### Patch Changes
