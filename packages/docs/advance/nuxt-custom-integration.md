@@ -44,6 +44,7 @@ Create a plugin at `app/plugins/apollo.ts` to adjust the client at runtime:
 ```ts
 export default defineNuxtPlugin(() => {
     const { client } = useApolloClient()
+    const runtimeConfig = useRuntimeConfig()
     const access = useCookie('accessToken')
 
     const httpLink = new HttpLink({
