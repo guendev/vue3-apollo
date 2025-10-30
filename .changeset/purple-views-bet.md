@@ -1,6 +1,6 @@
 ---
-"@vue3-apollo/core": minor
-"@vue3-apollo/nuxt": minor
+"@vue3-apollo/core": patch
+"@vue3-apollo/nuxt": patch
 ---
 
 feat(core): add useApolloClients composable
