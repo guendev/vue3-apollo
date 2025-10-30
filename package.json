@@ -14,7 +14,7 @@
     "dev:docs": "pnpm --filter @vue3-apollo/docs run dev",
     "dev:nuxt": "pnpm --filter @vue3-apollo/nuxt run dev",
     "dev:web": "pnpm --filter @vue3-apollo/web run dev",
-    "lint": "eslint .",
+    "lint": "eslint  .",
     "lint:fix": "eslint . --fix",
     "release": "pnpm build && changeset publish",
     "typecheck": "pnpm run typecheck:core && pnpm run typecheck:nuxt && pnpm run typecheck:web",
