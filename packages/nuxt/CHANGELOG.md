@@ -1,5 +1,13 @@
 # @vue3-apollo/nuxt
 
+## 1.4.1
+
+### Patch Changes
+
+- 1a3d84b: feat(core): add useApolloClients composable
+- Updated dependencies [1a3d84b]
+  - @vue3-apollo/core@1.4.1
+
 ## 1.4.0
 
 ### Minor Changes
