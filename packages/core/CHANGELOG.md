@@ -1,5 +1,11 @@
 # @vue3-apollo/core
 
+## 1.4.1
+
+### Patch Changes
+
+- 1a3d84b: feat(core): add useApolloClients composable
+
 ## 1.4.0
 
 ### Minor Changes
