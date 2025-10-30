@@ -36,6 +36,7 @@ export default defineNuxtModule<ApolloModuleOptions>({
                     from: '@vue3-apollo/core',
                     imports: [
                         // composables
+                        'useApolloClients',
                         'useApolloClient',
                         'useFragment',
                         'useMutation',
