@@ -79,6 +79,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Build packages
+        run: pnpm run build
+
       - name: Type check
         run: pnpm run typecheck
-        continue-on-error: true

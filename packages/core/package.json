@@ -2,7 +2,6 @@
   "name": "@vue3-apollo/core",
   "type": "module",
   "version": "1.4.0",
-  "packageManager": "pnpm@10.20.0",
   "description": "Composable Apollo Client utilities for Vue 3.",
   "author": "Guen <heloo@guen.dev>",
   "license": "MIT",

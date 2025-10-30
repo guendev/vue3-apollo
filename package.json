@@ -17,9 +17,8 @@
     "lint": "eslint  .",
     "lint:fix": "eslint . --fix",
     "release": "pnpm build && changeset publish",
-    "typecheck": "pnpm run typecheck:core && pnpm run typecheck:nuxt && pnpm run typecheck:web",
+    "typecheck": "pnpm run typecheck:core && pnpm run typecheck:web",
     "typecheck:core": "pnpm --filter @vue3-apollo/core run typecheck",
-    "typecheck:nuxt": "pnpm --filter @vue3-apollo/nuxt run typecheck",
     "typecheck:web": "pnpm --filter @vue3-apollo/web run typecheck",
     "update:dependencies": "ncu --deep -u",
     "version": "changeset version && pnpm install --lockfile-only"

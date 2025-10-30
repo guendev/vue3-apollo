@@ -2,7 +2,6 @@
   "name": "@vue3-apollo/nuxt",
   "type": "module",
   "version": "1.4.0",
-  "packageManager": "pnpm@10.20.0",
   "description": "Nuxt module for Apollo Client integration with Vue 3",
   "author": "Guen <heloo@guen.dev>",
   "license": "MIT",
@@ -47,8 +46,7 @@
     "prepack": "nuxt-module-build prepare && nuxt-module-build build",
     "dev": "npm run dev:prepare && nuxi dev playground",
     "dev:build": "nuxi build playground",
-    "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
-    "typecheck": "pnpm run prepack && vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
+    "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground"
   },
   "peerDependencies": {
     "@apollo/client": "^4.0.0",

@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - 'packages/docs/**'
-      - 'packages/core/**'
       - .github/workflows/deploy-docs.yml
   workflow_dispatch:
 
