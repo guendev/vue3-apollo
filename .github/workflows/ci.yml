@@ -81,4 +81,3 @@ jobs:
 
       - name: Type check
         run: pnpm run typecheck
-        continue-on-error: true

@@ -55,7 +55,8 @@
     "build": "tsup --config tsup.config.ts",
     "clean": "rimraf dist",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "pnpm run build"
+    "prepublishOnly": "pnpm run build",
+    "postinstall": "pnpm run build"
   },
   "peerDependencies": {
     "@apollo/client": "^4.0.0",
