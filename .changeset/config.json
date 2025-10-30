@@ -7,7 +7,7 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["@vue3-apollo/web", "@vue3-apollo/operations", "@vue3-apollo/playground"],
+  "ignore": ["@vue3-apollo/web", "@vue3-apollo/operations", "@vue3-apollo/playground", "@vue3-apollo/docs"],
   "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
     "onlyUpdatePeerDependentsWhenOutOfRange": true
   }
