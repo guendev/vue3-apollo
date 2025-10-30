@@ -14,6 +14,7 @@ const result = await client.query({
     query: GET_USERS,
 })
 ```
+> Use `useApolloClients()` to get all clients.
 
 ## API
 
