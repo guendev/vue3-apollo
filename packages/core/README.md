@@ -94,13 +94,14 @@ const { error, loading, result } = useQuery(GET_POSTS)
 
 ## 🧠 Composables Overview
 
-| Composable        | Description                                    |
-|-------------------|------------------------------------------------|
-| `useQuery`        | Reactive GraphQL query                         |
-| `useMutation`     | Execute GraphQL mutations                      |
-| `useSubscription` | Subscribe to GraphQL streams                   |
-| `useFragment`     | Retrieve and manage normalized cache fragments |
-| `useApolloClient` | Access current Apollo client                   |
+| Composable         | Description                                    |
+|--------------------|------------------------------------------------|
+| `useQuery`         | Reactive GraphQL query                         |
+| `useMutation`      | Execute GraphQL mutations                      |
+| `useSubscription`  | Subscribe to GraphQL streams                   |
+| `useFragment`      | Retrieve and manage normalized cache fragments |
+| `useApolloClient`  | Access current Apollo client                   |
+| `useApolloClients` | Access Apollo clients                          |
 
 See the [full API reference](https://vue3-apollo.guen.dev/core/composables/use-query) for details.
 
