@@ -43,6 +43,9 @@ export default defineNuxtConfig({
 })
 ```
 
+> 💡 **Tip:** This setup works for most use cases.  
+> For advanced customization (e.g., runtime Apollo links, auth flow, or cache policies), see [Nuxt Custom Integration](/advance/nuxt-custom-integration).
+
 Use anywhere in your app:
 
 ```ts

@@ -85,6 +85,10 @@ export default defineConfig({
             {
                 items: [
                     {
+                        link: '/advance/nuxt-custom-integration',
+                        text: 'Nuxt Integration'
+                    },
+                    {
                         link: '/advance/tracking',
                         text: 'Tracking'
                     }

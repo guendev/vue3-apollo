@@ -1,4 +1,6 @@
 export * from './composables/useApolloClient'
+export * from './composables/useApolloClients'
+
 export * from './composables/useFragment'
 export * from './composables/useMutation'
 export * from './composables/useQuery'
