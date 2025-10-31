@@ -26,6 +26,9 @@ export default defineConfig({
                 text: 'Nuxt'
             }
         ],
+        search: {
+            provider: 'local'
+        },
         sidebar: [
             {
                 items: [
