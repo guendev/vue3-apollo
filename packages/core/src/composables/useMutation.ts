@@ -7,7 +7,6 @@ import { nextTick, ref, shallowRef } from 'vue'
 import type { HookContext, UseBaseOption } from '../utils/type'
 
 import { useApolloTracking } from '../helpers/useApolloTracking'
-import { isDefined } from '../utils/isDefined'
 import { useApolloClient } from './useApolloClient'
 
 /**
@@ -115,16 +114,14 @@ export function useMutation<
                 ...mutateOptions
             })
 
-            data.value = result.data
-
-            if (isDefined(result.data)) {
-                await nextTick()
-                void onDone.trigger(result.data, { client })
-            }
-
             if (result.error) {
                 error.value = result.error
                 void onError.trigger(result.error, { client })
+            }
+            else {
+                data.value = result.data
+                await nextTick()
+                void onDone.trigger(result.data as TData, { client })
             }
 
             return result
