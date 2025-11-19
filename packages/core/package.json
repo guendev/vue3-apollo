@@ -66,8 +66,8 @@
   },
   "devDependencies": {
     "@vue/tsconfig": "^0.8.1",
-    "rimraf": "^6.0.1",
-    "tsup": "^8.5.0",
+    "rimraf": "^6.1.0",
+    "tsup": "^8.5.1",
     "typescript": "^5.9.3"
   },
   "publishConfig": {

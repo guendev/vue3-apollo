@@ -10,20 +10,20 @@
     "typecheck": "vue-tsc -b --noEmit"
   },
   "dependencies": {
-    "@apollo/client": "^4.0.8",
+    "@apollo/client": "^4.0.9",
     "@vue3-apollo/core": "workspace:*",
     "@vue3-apollo/operations": "workspace:*",
-    "graphql": "^16.11.0",
-    "vue": "^3.5.22"
+    "graphql": "^16.12.0",
+    "vue": "^3.5.24"
   },
   "devDependencies": {
-    "@types/node": "^24.9.2",
-    "@unocss/preset-wind4": "^66.5.4",
-    "@vitejs/plugin-vue": "^6.0.1",
+    "@types/node": "^24.10.1",
+    "@unocss/preset-wind4": "^66.5.7",
+    "@vitejs/plugin-vue": "^6.0.2",
     "@vue/tsconfig": "^0.8.1",
     "typescript": "~5.9.3",
-    "unocss": "^66.5.4",
-    "vite": "^7.1.12",
-    "vue-tsc": "^3.1.2"
+    "unocss": "^66.5.7",
+    "vite": "^7.2.2",
+    "vue-tsc": "^3.1.4"
   }
 }
