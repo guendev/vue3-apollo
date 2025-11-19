@@ -1,5 +1,15 @@
 # @vue3-apollo/nuxt
 
+## 1.4.2
+
+### Patch Changes
+
+- a0ad8ba: chore(deps): update dependencies
+- 74d5d01: fix: ensure `onDone` is triggered properly on mutation success
+- Updated dependencies [a0ad8ba]
+- Updated dependencies [74d5d01]
+  - @vue3-apollo/core@1.4.2
+
 ## 1.4.1
 
 ### Patch Changes
