@@ -11,8 +11,9 @@ import type {
     TypedDocumentNode
 } from '@apollo/client/core'
 import type { DeepPartial } from '@apollo/client/utilities'
+import type { EventHookOn } from '@vueuse/core'
 import type { DocumentNode } from 'graphql'
-import type { MaybeRefOrGetter } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
 import { createEventHook } from '@vueuse/core'
 import { computed, getCurrentScope, onScopeDispose, onServerPrefetch, ref, shallowRef, toValue, watch } from 'vue'
@@ -24,33 +25,20 @@ import { isServer } from '../utils/isServer'
 import { useApolloClient } from './useApolloClient'
 
 /**
- * Options for useFragment composable
- *
- * @template TData - Type of the fragment result data
- * @template TVariables - Type of the fragment variables
+ * Options for the new `useFragment(document, options?)` overload.
+ * Does NOT include `fragment` because the document is provided as the first parameter.
  */
-export type UseFragmentOptions<TData = unknown, TVariables extends OperationVariables = OperationVariables> = {
+export type UseFragmentOptions<
+    TData = unknown,
+    TVariables extends OperationVariables = OperationVariables
+> = {
     /**
      * Entity identifier to read the fragment from.
      * Can be an object with __typename and id, a cache reference, or a string ID.
-     *
-     * @example
-     * ```ts
-     * from: { __typename: 'User', id: '123' }
-     * from: computed(() => ({ __typename: 'User', id: userId.value }))
-     * from: 'User:123'
-     * ```
      */
     from?: MaybeRefOrGetter<FragmentType<NoInfer<TData>> | null | Reference | StoreObject | string | undefined>
 
-    /**
-     * GraphQL fragment document.
-     */
-    fragment: MaybeRefOrGetter<DocumentNode | TypedDocumentNode<TData, TVariables>>
-
-    /**
-     * Fragment name (required if document has multiple fragments).
-     */
+    /** Fragment name (required if document has multiple fragments). */
     fragmentName?: MaybeRefOrGetter<string>
 
     /**
@@ -59,31 +47,20 @@ export type UseFragmentOptions<TData = unknown, TVariables extends OperationVari
      * When false, the fragment will be stopped and no updates will be received.
      *
      * @default true
-     *
-     * @example
-     * ```ts
-     * enabled: computed(() => isVisible.value)
-     * ```
      */
     enabled?: MaybeRefOrGetter<boolean>
 
     /**
      * Whether to prefetch the fragment on the server during SSR.
-     * When true, the fragment will be read on the server and the result
-     * will be available immediately on the client.
-     *
      * @default true
      */
     prefetch?: boolean
 
-    /**
-     * Fragment variables.
-     */
+    /** Fragment variables. */
     variables?: MaybeRefOrGetter<NoInfer<TVariables>>
 
     /**
      * Whether to read from optimistic or non-optimistic cache data.
-     *
      * @default true
      */
     optimistic?: boolean
@@ -101,12 +78,63 @@ export type UseFragmentResult<TData>
     } & GetDataState<MaybeMasked<TData>, 'complete'>)
 
 /**
+ * Return type of `useFragment` composable
+ */
+export interface UseFragmentReturn<TData = unknown> {
+    /** Whether all fragment fields were found in cache. */
+    complete: ComputedRef<boolean>
+
+    /** The fragment result data (masked or partial), or undefined if not available. */
+    data: ComputedRef<DeepPartial<TData> | MaybeMasked<TData> | undefined>
+
+    /** GraphQL error if reading the fragment failed. */
+    error: Ref<ErrorLike | undefined>
+
+    /** A tree of all MissingFieldError messages reported during fragment reading. */
+    missing: ComputedRef<MissingTree | undefined>
+
+    /** Event hook for fragment errors. */
+    onError: EventHookOn<[ErrorLike, HookContext]>
+
+    /** Event hook for new fragment results. */
+    onResult: EventHookOn<[UseFragmentResult<TData>, HookContext]>
+
+    /** The full fragment result including data, complete status, and missing info. */
+    result: ShallowRef<undefined | UseFragmentResult<TData>>
+
+    /** Start watching the fragment. */
+    start: () => void
+
+    /** Stop watching the fragment. */
+    stop: () => void
+}
+
+/**
+ * Legacy options for `useFragment` composable (single options object form)
+ *
+ * @template TData - Type of the fragment result data
+ * @template TVariables - Type of the fragment variables
+ */
+/**
+ * @deprecated Legacy options object form (single options argument).
+ * Prefer the new API: `useFragment(document, options?)` with `UseFragmentOptions`.
+ */
+export type UseLegacyFragmentOptions<
+    TData = unknown,
+    TVariables extends OperationVariables = OperationVariables
+> = {
+    /** GraphQL fragment document. */
+    fragment: MaybeRefOrGetter<DocumentNode | TypedDocumentNode<TData, TVariables>>
+} & UseFragmentOptions<TData, TVariables>
+
+/**
  * Composable for reading GraphQL fragments from Apollo Cache with Vue reactivity.
  * Provides a lightweight live binding and automatically updates when fragment data changes.
  *
  * @template TData - Type of the fragment result data
  * @template TVariables - Type of the fragment variables
  *
+ * @param document
  * @param options - Fragment options including document, from identifier, and settings
  *
  * @returns Object containing fragment state and control methods
@@ -138,13 +166,34 @@ export type UseFragmentResult<TData>
  * ```
  */
 export function useFragment<TData = unknown, TVariables extends OperationVariables = OperationVariables>(
-    options: UseFragmentOptions<TData, TVariables>
-) {
-    const client = useApolloClient(options.clientId)
+    document: DocumentNode | TypedDocumentNode<TData, TVariables>,
+    options?: UseFragmentOptions<TData, TVariables>
+): UseFragmentReturn<TData>
+/**
+ * @deprecated Legacy overload. Prefer `useFragment(document, options?)`.
+ */
+export function useFragment<TData = unknown, TVariables extends OperationVariables = OperationVariables>(
+    options: UseLegacyFragmentOptions<TData, TVariables>
+): UseFragmentReturn<TData>
+// Implementation
+export function useFragment<TData = unknown, TVariables extends OperationVariables = OperationVariables>(
+    documentOrOptions:
+        | DocumentNode
+        | TypedDocumentNode<TData, TVariables>
+        | UseLegacyFragmentOptions<TData, TVariables>,
+    maybeOptions?: UseFragmentOptions<TData, TVariables>
+): UseFragmentReturn<TData> {
+    const isLegacy = typeof documentOrOptions === 'object' && documentOrOptions !== null && 'fragment' in (documentOrOptions as object)
+
+    type NormalizedOptions = UseFragmentOptions<TData, TVariables>
+
+    const options = (isLegacy ? documentOrOptions : maybeOptions) as NormalizedOptions
+
+    const client = useApolloClient(options?.clientId)
     const cache = computed(() => client.cache)
 
-    const enabled = computed(() => toValue(options.enabled ?? true))
-    const optimistic = options.optimistic ?? true
+    const enabled = computed(() => toValue(options?.enabled ?? true))
+    const optimistic = options?.optimistic ?? true
 
     const result = shallowRef<UseFragmentResult<TData>>()
     const error = ref<ErrorLike>()
@@ -153,12 +202,16 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
     const onErrorEvent = createEventHook<[ErrorLike, HookContext]>()
 
     // Handle reactive from
-    const reactiveFrom = computed(() => toValue(options.from))
+    const reactiveFrom = computed(() => toValue(options?.from))
 
     // Handle reactive variables
-    const reactiveVariables = computed(() => toValue(options.variables))
-    const reactiveFragment = computed(() => toValue(options.fragment))
-    const reactiveFragmentName = computed(() => toValue(options.fragmentName))
+    const reactiveVariables = computed(() => toValue(options?.variables))
+    const reactiveFragment = computed(() =>
+        isLegacy
+            ? toValue((documentOrOptions as UseLegacyFragmentOptions<TData, TVariables>).fragment)
+            : (documentOrOptions as DocumentNode | TypedDocumentNode<TData, TVariables>)
+    )
+    const reactiveFragmentName = computed(() => toValue(options?.fragmentName))
 
     // Calculate cache id
     const cacheId = computed(() => {
@@ -230,7 +283,7 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
     }
 
     // SSR Support: Prefetch fragment on server during SSR
-    const prefetch = options.prefetch ?? true
+    const prefetch = options?.prefetch ?? true
     if (prefetch && enabled.value && isServer()) {
         onServerPrefetch(() => {
             try {
