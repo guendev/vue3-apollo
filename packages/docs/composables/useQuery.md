@@ -6,9 +6,15 @@ A reactive GraphQL query composable for **Vue 3** and **Apollo Client**.
 
 ```ts
 import { ref } from 'vue'
-import { useQuery } from 'vue3-apollo'
+import { useQuery } from '@vue3-apollo/core'
+import { gql } from 'graphql-tag'
 
-import { SEARCH_QUERY } from './queries'
+// 1) Define your query
+const SEARCH_QUERY = gql`
+  query Search($q: String!) {
+    search(q: $q) { id title }
+  }
+`
 
 const search = ref('')
 
@@ -23,6 +29,19 @@ const { error, loading, refetch, result } = useQuery(
 ```
 
 The query automatically updates whenever `search.value` changes, debounced by 300ms.
+
+### A very basic example without variables
+
+```ts
+import { useQuery } from '@vue3-apollo/core'
+import { gql } from 'graphql-tag'
+
+const GET_USERS = gql`
+  query GetUsers { users { id name email } }
+`
+
+const { result, loading, error } = useQuery(GET_USERS)
+```
 
 ## How it works
 
@@ -62,3 +81,28 @@ The query automatically updates whenever `search.value` changes, debounced by 30
 - **`keepPreviousResult`** – Retain old data while fetching new results to avoid UI flicker.
 - **`prefetch`** – Run on server during SSR for instant data on hydration (default: true).
 - **`fetchPolicy`, `pollInterval`, etc.** – You can also pass standard Apollo options.
+
+## TypeScript typing
+
+If you use TypeScript, you can type your queries in two common ways:
+
+1) With `TypedDocumentNode` (manual types)
+
+```ts
+import type { TypedDocumentNode } from '@apollo/client/core'
+import { useQuery } from '@vue3-apollo/core'
+import { gql } from 'graphql-tag'
+
+type UsersQuery = { users: { id: string; name: string }[] }
+
+const GET_USERS_TDN: TypedDocumentNode<UsersQuery> = gql`
+  query GetUsers { users { id name } }
+`
+
+const { result } = useQuery(GET_USERS_TDN)
+// result.value is UsersQuery | undefined
+```
+
+2) With GraphQL Code Generator (recommended for larger projects)
+
+Use the Codegen to generate `TypedDocumentNode`s and types from your schema/operations. See Advanced → TypeScript & Codegen for a step-by-step guide.
