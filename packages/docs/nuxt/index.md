@@ -14,10 +14,6 @@ npm i @vue3-apollo/nuxt @apollo/client graphql
 pnpm add @vue3-apollo/nuxt @apollo/client graphql
 ```
 
-```bash [bun]
-bun add @vue3-apollo/nuxt @apollo/client graphql
-```
-
 :::
 
 ## Quick Start
@@ -68,10 +64,6 @@ npm i graphql-ws
 
 ```bash [pnpm]
 pnpm add graphql-ws
-```
-
-```bash [bun]
-bun add graphql-ws
 ```
 
 :::

@@ -7,9 +7,9 @@ Reactive GraphQL **subscription** composable.
 ## Quick start
 
 ```ts
-import { useSubscription } from 'vue3-apollo'
+import { useSubscription } from '@vue3-apollo/core'
 
-import { NEW_MESSAGES_SUB } from './gql'
+import { NEW_MESSAGES_SUB } from './gql' // your subscription document
 
 const {
     data,

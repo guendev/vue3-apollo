@@ -9,26 +9,30 @@ import { ref } from 'vue'
 import { useQuery } from '@vue3-apollo/core'
 import { gql } from 'graphql-tag'
 
-// 1) Define your query
-const SEARCH_QUERY = gql`
-  query Search($q: String!) {
-    search(q: $q) { id title }
+const GET_USERS = gql`
+  query GetUsers($first: Int) {
+    users(first: $first) {
+      id
+      name
+      email
+    }
   }
 `
 
-const search = ref('')
+const first = ref(5)
 
 const { error, loading, refetch, result } = useQuery(
-    SEARCH_QUERY,
-    () => ({ q: search.value }),
-    {
-        debounce: 300,
-        keepPreviousResult: true,
-    }
+  GET_USERS,
+  () => ({ 
+    first: first.value 
+  }),
+  {
+      keepPreviousResult: true
+  }
 )
 ```
 
-The query automatically updates whenever `search.value` changes, debounced by 300ms.
+The query automatically updates when `first.value` changes.
 
 ### A very basic example without variables
 
@@ -36,11 +40,16 @@ The query automatically updates whenever `search.value` changes, debounced by 30
 import { useQuery } from '@vue3-apollo/core'
 import { gql } from 'graphql-tag'
 
-const GET_USERS = gql`
-  query GetUsers { users { id name email } }
+const GET_POSTS = gql`
+  query GetPosts { 
+    posts {
+      id
+      title
+    }
+  }
 `
 
-const { result, loading, error } = useQuery(GET_USERS)
+const { result, loading, error } = useQuery(GET_POSTS)
 ```
 
 ## How it works
@@ -81,28 +90,3 @@ const { result, loading, error } = useQuery(GET_USERS)
 - **`keepPreviousResult`** – Retain old data while fetching new results to avoid UI flicker.
 - **`prefetch`** – Run on server during SSR for instant data on hydration (default: true).
 - **`fetchPolicy`, `pollInterval`, etc.** – You can also pass standard Apollo options.
-
-## TypeScript typing
-
-If you use TypeScript, you can type your queries in two common ways:
-
-1) With `TypedDocumentNode` (manual types)
-
-```ts
-import type { TypedDocumentNode } from '@apollo/client/core'
-import { useQuery } from '@vue3-apollo/core'
-import { gql } from 'graphql-tag'
-
-type UsersQuery = { users: { id: string; name: string }[] }
-
-const GET_USERS_TDN: TypedDocumentNode<UsersQuery> = gql`
-  query GetUsers { users { id name } }
-`
-
-const { result } = useQuery(GET_USERS_TDN)
-// result.value is UsersQuery | undefined
-```
-
-2) With GraphQL Code Generator (recommended for larger projects)
-
-Use the Codegen to generate `TypedDocumentNode`s and types from your schema/operations. See Advanced → TypeScript & Codegen for a step-by-step guide.

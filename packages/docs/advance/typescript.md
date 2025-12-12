@@ -2,12 +2,7 @@
 
 This page shows how to achieve strong typing for GraphQL when using Vue3 Apollo.
 
-Goals:
-
-- Understand two common approaches: declaring `TypedDocumentNode` manually and using GraphQL Code Generator.
-- See an end-to-end example: define a query, generate types, and use them in `useQuery`/`client.query` with type safety.
-
-## 1) Manual typing with TypedDocumentNode
+## Manual typing with TypedDocumentNode
 
 Best for small projects or quick demos.
 
@@ -16,13 +11,21 @@ import type { TypedDocumentNode } from '@apollo/client/core'
 import { useQuery } from '@vue3-apollo/core'
 import { gql } from 'graphql-tag'
 
-// Declare the shape of returned data
-type UsersQuery = { users: { id: string; name: string; email: string }[] }
+type UsersQuery = {
+    users: { 
+        id: string; 
+        name: string; 
+        email: string 
+    }[] 
+}
 
-// Attach types to DocumentNode (TypedDocumentNode<TData, TVariables?>)
 const GET_USERS: TypedDocumentNode<UsersQuery> = gql`
   query GetUsers {
-    users { id name email }
+    users { 
+      id
+      name
+      email
+    }
   }
 `
 
@@ -33,21 +36,37 @@ const { result } = useQuery(GET_USERS)
 
 Pros: simple, no extra tools. Cons: you must maintain types by hand and they can get out of sync when the schema changes.
 
-## 2) Using GraphQL Code Generator (Recommended)
+## Using GraphQL Code Generator (Recommended)
 
 Great for production projects. Codegen generates types and `TypedDocumentNode`s from your schema and `.graphql`/`gql` documents.
 
 ### Install
 
-```bash
+::: code-group
+
+```bash [npm]
+npm i -D @graphql-codegen/cli @graphql-codegen/client-preset graphql
+```
+
+```bash [pnpm]
 pnpm add -D @graphql-codegen/cli @graphql-codegen/client-preset graphql
 ```
 
+:::
+
 If you use Apollo Client and `graphql-tag`, make sure the runtime deps are installed:
 
-```bash
-pnpm add @apollo/client graphql graphql-tag
+::: code-group
+
+```bash [npm]
+npm i -D @apollo/client graphql graphql-tag
 ```
+
+```bash [pnpm]
+pnpm add -D @apollo/client graphql graphql-tag
+```
+
+:::
 
 ### Minimal configuration
 
@@ -108,7 +127,11 @@ import { gql } from 'graphql-tag'
 
 export const GET_USERS = gql`
   query GetUsers {
-    users { id name email }
+    users { 
+      id 
+      name 
+      email 
+    }
   }
 `
 ```
@@ -140,7 +163,11 @@ import { graphql } from '@/graphql/__generated__'
 
 export const GET_USERS = graphql(`
   query GetUsers {
-    users { id name email }
+    users {
+     id
+     name 
+     email
+    }
   }
 `)
 
@@ -158,7 +185,9 @@ const { result, loading, error } = useQuery(GET_USERS)
 
 // Imperative
 const client = useApolloClient()
-const { data } = await client.query({ query: GET_USERS })
+const { data } = await client.query({ 
+    query: GET_USERS 
+})
 // data is fully typed
 ```
 

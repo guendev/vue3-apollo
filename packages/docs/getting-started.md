@@ -16,10 +16,6 @@ npm install @vue3-apollo/core @apollo/client graphql
 pnpm add @vue3-apollo/core @apollo/client graphql
 ```
 
-```bash [bun]
-bun add @vue3-apollo/core @apollo/client graphql
-```
-
 :::
 
 ## Creating an Apollo Client
@@ -27,9 +23,10 @@ bun add @vue3-apollo/core @apollo/client graphql
 To start, create one or more Apollo Client instances with your desired GraphQL endpoints.
 
 ```ts
+// src/apollo-clients.ts
 import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client/core'
 
-const client = new ApolloClient({
+export const defaultClient = new ApolloClient({
     cache: new InMemoryCache(),
     link: new HttpLink({
         // Example public GraphQL API
@@ -49,40 +46,18 @@ import { createApp } from 'vue'
 // We recommend creating a dedicated file to export your Apollo clients
 // e.g. src/apollo-clients.ts
 // See example below in the next section
-import { analyticsClient, defaultClient } from './apollo-clients'
+import { defaultClient } from './apollo-clients'
 
 const app = createApp(App)
 
 app.use(apolloPlugin, {
     clients: {
-        analytics: analyticsClient,
         default: defaultClient
     }
 })
 ```
 
 The plugin injects all Apollo clients into your app context, allowing you to access them from composables or any Vue component.
-
-## The apollo-clients file
-
-Create a file (for example `src/apollo-clients.ts`) where you initialize and export one or multiple Apollo Client instances. This makes the import in your `main.ts` straightforward and keeps things organized when you add more clients later.
-
-```ts
-// src/apollo-clients.ts
-import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client/core'
-
-export const defaultClient = new ApolloClient({
-  cache: new InMemoryCache(),
-  link: new HttpLink({ uri: 'https://graphqlplaceholder.vercel.app/graphql' })
-})
-
-export const analyticsClient = new ApolloClient({
-  cache: new InMemoryCache(),
-  link: new HttpLink({ uri: 'https://example-analytics-graphql.com/graphql' })
-})
-```
-
-Then you can import them in `main.ts` and pass to the plugin as shown above.
 
 ## Your first query
 
