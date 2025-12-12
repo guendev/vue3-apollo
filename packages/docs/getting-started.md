@@ -43,9 +43,7 @@ Vue3 Apollo provides a simple plugin for registering one or multiple Apollo clie
 import { apolloPlugin } from '@vue3-apollo/core'
 import { createApp } from 'vue'
 
-// We recommend creating a dedicated file to export your Apollo clients
 // e.g. src/apollo-clients.ts
-// See example below in the next section
 import { defaultClient } from './apollo-clients'
 
 const app = createApp(App)
@@ -64,10 +62,8 @@ The plugin injects all Apollo clients into your app context, allowing you to acc
 To actually run a query, you first define it using `gql` and then use `useQuery` (reactive) or `client.query` (imperative).
 
 ```ts
-// src/graphql/queries.ts
 import { gql } from 'graphql-tag'
 
-// Basic example that returns a list of users
 export const GET_USERS = gql`
   query GetUsers {
     users {
