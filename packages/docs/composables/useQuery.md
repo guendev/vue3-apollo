@@ -90,3 +90,61 @@ const { result, loading, error } = useQuery(GET_POSTS)
 - **`keepPreviousResult`** – Retain old data while fetching new results to avoid UI flicker.
 - **`prefetch`** – Run on server during SSR for instant data on hydration (default: true).
 - **`fetchPolicy`, `pollInterval`, etc.** – You can also pass standard Apollo options.
+
+## Pagination with `fetchMore`
+
+The `fetchMore` function enables pagination, infinite scroll, and "load more" functionality by fetching additional data and merging it with existing results.
+
+```ts
+import { useQuery } from '@vue3-apollo/core'
+import { gql } from 'graphql-tag'
+
+const GET_POSTS = gql`
+  query GetPosts($offset: Int!, $limit: Int!) {
+    posts(offset: $offset, limit: $limit) {
+      id
+      title
+      content
+    }
+  }
+`
+
+const { result, loading, fetchMore } = useQuery(GET_POSTS, {
+  offset: 0,
+  limit: 20
+})
+
+async function loadMorePosts() {
+  await fetchMore({
+    variables: {
+      offset: result.value.posts.length
+    },
+    updateQuery: (previousResult, { fetchMoreResult }) => {
+      if (!fetchMoreResult) return previousResult
+      return {
+        posts: [...previousResult.posts, ...fetchMoreResult.posts]
+      }
+    }
+  })
+}
+```
+
+## SSR Support with Nuxt
+
+`useQuery` supports **server-side rendering (SSR)** through the `prefetch` option, which is **enabled by default**. When `prefetch: true`, the query runs on the server via Vue's `onServerPrefetch`, and the result is automatically hydrated on the client without an additional network request.
+
+```ts
+// In a Nuxt component
+const { result, loading } = useQuery(GET_POSTS, { 
+  offset: 0, 
+  limit: 10 
+}, {
+  prefetch: true // Default, runs on server during SSR
+})
+```
+
+This makes `useQuery` suitable for both client-side and server-side rendering scenarios in Nuxt applications, **especially when you need features like `fetchMore` for pagination**.
+
+::: tip
+If you don't need `fetchMore` or other observable-specific features, consider using [`useAsyncQuery`](../nuxt/composables/useAsyncQuery) which follows Nuxt's `useAsyncData` pattern more closely.
+:::

@@ -42,8 +42,58 @@ Returns: `AsyncData<T, ErrorLike | NuxtError | undefined>`
 - If Apollo returns `result.error`, it is thrown; Nuxt catches it and sets the `error` field.
 - Use `try/catch` with `await refresh()` for manual retries.
 
+## When to use `useQuery` instead
+
+`useAsyncQuery` follows Nuxt's `useAsyncData` pattern and is optimized for SSR-friendly data fetching. However, it does **not** expose Apollo's observable-specific APIs like `fetchMore`.
+
+**Use `useQuery` if you need:**
+- **Pagination with `fetchMore`** – Load more data and merge it with existing results
+- **Real-time updates** – Subscribe to query updates via Apollo's ObservableQuery
+- **Fine-grained control** – Access to `start()`, `stop()`, and other observable methods
+
+`useQuery` also supports SSR through the `prefetch` option (enabled by default), which runs the query on the server via `onServerPrefetch`. See the [`useQuery` documentation](../../composables/useQuery) for more details.
+
+## Example: Pagination with `useQuery`
+
+```vue
+<script setup lang="ts">
+import { useQuery } from '@vue3-apollo/core'
+import { gql } from 'graphql-tag'
+
+const GET_POSTS = gql`
+  query GetPosts($offset: Int, $limit: Int) { 
+    posts(offset: $offset, limit: $limit) {
+      id
+      title
+    }
+  }
+`
+
+const { result, loading, fetchMore } = useQuery(GET_POSTS, {
+  offset: 0,
+  limit: 10
+}, {
+  prefetch: true // SSR support enabled by default
+})
+
+async function loadMore() {
+  await fetchMore({
+    variables: {
+      offset: result.value.posts.length
+    },
+    updateQuery: (previousResult, { fetchMoreResult }) => {
+      if (!fetchMoreResult) return previousResult
+      return {
+        posts: [...previousResult.posts, ...fetchMoreResult.posts]
+      }
+    }
+  })
+}
+</script>
+```
+
 ---
 
 See also
-- [`useQuery`](../../composables/useQuery) — reactive queries in Vue components.
+- [`useQuery`](../../composables/useQuery) — reactive queries with `fetchMore`, SSR support, and real-time updates.
 - Nuxt [`useAsyncData`](https://nuxt.com/docs/api/composables/use-async-data) — underlying fetching API used by this helper.
