@@ -1,8 +1,9 @@
 import type { ApolloCache, ApolloClient, ErrorLike, OperationVariables, TypedDocumentNode } from '@apollo/client/core'
 import type { DocumentNode } from 'graphql'
+import type { MaybeRefOrGetter } from 'vue'
 
 import { createEventHook } from '@vueuse/core'
-import { nextTick, ref, shallowRef } from 'vue'
+import { nextTick, ref, shallowRef, toValue } from 'vue'
 
 import type { HookContext, UseBaseOption } from '../utils/type'
 
@@ -80,7 +81,7 @@ export function useMutation<
     TVariables extends OperationVariables = OperationVariables,
     TCache extends ApolloCache = ApolloCache
 >(
-    document: DocumentNode | TypedDocumentNode<TData, TVariables>,
+    document: MaybeRefOrGetter<DocumentNode | TypedDocumentNode<TData, TVariables>>,
     options?: UseMutationOptions<TData, TVariables, TCache>
 ) {
     const client = useApolloClient(options?.clientId)
@@ -114,7 +115,7 @@ export function useMutation<
 
         try {
             const result = await client.mutate<TData, TVariables, TCache>({
-                mutation: document,
+                mutation: toValue(document),
                 variables: variables as TVariables ?? undefined,
                 ...options,
                 ...mutateOptions
