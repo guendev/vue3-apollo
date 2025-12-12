@@ -26,7 +26,15 @@ const { error, result } = useQuery(PostsDocument, vars, {
 
 const title = ref('')
 
-const { loading, mutate } = useMutation(UpdatePostDocument)
+const { loading, mutate, onDone: onUpdatedPost, onOptimistic } = useMutation(UpdatePostDocument)
+
+onUpdatedPost((data) => {
+    console.warn('onUpdatedPost', data)
+})
+
+onOptimistic((data) => {
+    console.warn('onOptimistic', data)
+})
 
 const { data } = useFragment({
     fragment: PostDetailFragmentDoc,
@@ -49,6 +57,25 @@ const todoQuery = computed(() => gql(rawTodoQuery.value))
 const { result: todosResult } = useQuery<TodosQuery, TodosQueryVariables>(todoQuery, vars, {
     keepPreviousResult: true
 })
+
+function handleUpdate() {
+    mutate({
+        post: {
+            title: title.value
+        },
+        postId: 1
+    }, {
+        optimisticResponse: (vars) => {
+            return {
+                updatePost: {
+                    __typename: 'Post',
+                    id: vars.postId,
+                    title: vars.post.title
+                }
+            }
+        }
+    })
+}
 </script>
 
 <template>
@@ -104,7 +131,7 @@ const { result: todosResult } = useQuery<TodosQuery, TodosQueryVariables>(todoQu
               >
               <button
                 class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white whitespace-nowrap transition-colors"
-                @click="mutate({ postId: 1, post: { title } })"
+                @click="handleUpdate"
               >
                 {{ loading ? 'Loading...' : 'Update' }}
               </button>
