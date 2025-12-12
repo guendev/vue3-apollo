@@ -62,11 +62,11 @@
     "vue": "^3.5.0"
   },
   "dependencies": {
-    "@vueuse/core": "^14.0.0"
+    "@vueuse/core": "^14.1.0"
   },
   "devDependencies": {
     "@vue/tsconfig": "^0.8.1",
-    "rimraf": "^6.1.0",
+    "rimraf": "^6.1.2",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3"
   },
