@@ -12,7 +12,52 @@ import { omit, useApolloClient } from '@vue3-apollo/core'
 import { print } from 'graphql'
 import { useAsyncData } from 'nuxt/app'
 import { hash } from 'ohash'
-import { unref } from 'vue'
+import { toValue, unref } from 'vue'
+
+/**
+ * Extended AsyncData type with fetchMore support for pagination
+ *
+ * @template TData - The data type returned from the GraphQL query
+ * @template TError - The error type
+ * @template TVariables - The type of variables passed to the query
+ */
+export type AsyncDataWithFetchMore<TData, TError, TVariables extends OperationVariables = OperationVariables> = {
+    /**
+     * Fetch more data and merge it with existing results.
+     * Useful for pagination, infinite scroll, or load more functionality.
+     *
+     * @param options - Options for fetching more data
+     * @param options.variables - New variables for the query (e.g., next page offset)
+     * @param options.updateQuery - Function to merge previous result with new data
+     *
+     * @example
+     * ```typescript
+     * const { data, fetchMore } = await useAsyncQuery({
+     *   query: ITEMS_QUERY,
+     *   variables: { offset: 0, limit: 10 }
+     * })
+     *
+     * const loadMore = async () => {
+     *   await fetchMore({
+     *     variables: {
+     *       offset: data.value.items.length
+     *     },
+     *     updateQuery: (previousResult, { fetchMoreResult }) => {
+     *       if (!fetchMoreResult) return previousResult
+     *       return {
+     *         ...previousResult,
+     *         items: [...previousResult.items, ...fetchMoreResult.items]
+     *       }
+     *     }
+     *   })
+     * }
+     * ```
+     */
+    fetchMore: (options: {
+        updateQuery: (previousResult: TData, options: { fetchMoreResult: TData | undefined }) => TData
+        variables?: Partial<TVariables>
+    }) => Promise<void>
+} & AsyncData<TData, TError>
 
 /**
  * Configuration options for useAsyncQuery composable
@@ -45,6 +90,7 @@ type Optional<T> = T | undefined
  * - Server-side rendering (SSR) support
  * - Automatic caching with unique keys
  * - Loading states and error handling
+ * - Pagination support with fetchMore
  * - Type-safe with TypeScript
  *
  * @template DataT - The data type returned from the GraphQL query
@@ -55,11 +101,11 @@ type Optional<T> = T | undefined
  * @param {UseAsyncQueryOptions<DataT, TVariables>} options - Query configuration options including GraphQL query, variables, and Apollo Client options
  * @param {AsyncDataOptions<DataT, DataT, PickKeys, DefaultT>} [config] - Configuration options for Nuxt's useAsyncData
  *
- * @returns {AsyncData<DefaultT | PickFrom<DataT, PickKeys>, ErrorLike | NuxtError | undefined>} Object containing reactive data, pending state, error, and utility functions
+ * @returns {AsyncDataWithFetchMore<DefaultT | PickFrom<DataT, PickKeys>, ErrorLike | NuxtError | undefined, TVariables>} Object containing reactive data, pending state, error, fetchMore, and utility functions
  *
  * @example
  * ```typescript
- * const { data, pending, error } = await useAsyncQuery({
+ * const { data, pending, error, fetchMore } = await useAsyncQuery({
  *   query: gql`
  *     query GetUser($id: ID!) {
  *       user(id: $id) {
@@ -81,7 +127,7 @@ export function useAsyncQuery<
 >(
     options: UseAsyncQueryOptions<DataT, TVariables>,
     config?: AsyncDataOptions<DataT, DataT, PickKeys, DefaultT>
-): AsyncData<DefaultT | PickFrom<DataT, PickKeys>, ErrorLike | NuxtError | undefined>
+): AsyncDataWithFetchMore<DefaultT | PickFrom<DataT, PickKeys>, ErrorLike | NuxtError | undefined, TVariables>
 
 export function useAsyncQuery<
     DataT = unknown,
@@ -91,7 +137,7 @@ export function useAsyncQuery<
 >(
     options: UseAsyncQueryOptions<DataT, TVariables>,
     config?: AsyncDataOptions<DataT, DataT, PickKeys, DefaultT>
-): AsyncData<DefaultT | PickFrom<DataT, PickKeys>, ErrorLike | NuxtError | undefined>
+): AsyncDataWithFetchMore<DefaultT | PickFrom<DataT, PickKeys>, ErrorLike | NuxtError | undefined, TVariables>
 
 export function useAsyncQuery<
     DataT = unknown,
@@ -111,7 +157,7 @@ export function useAsyncQuery<
         variables: unref(options.variables)
     })
 
-    return useAsyncData<DataT, ErrorLike, DataT, PickKeys, DefaultT>(
+    const asyncData = useAsyncData<DataT, ErrorLike, DataT, PickKeys, DefaultT>(
         key,
         async () => {
             const queryResult = await client.query({
@@ -127,4 +173,54 @@ export function useAsyncQuery<
         },
         config
     )
+
+    /**
+     * Fetch more data and merge it with existing results
+     */
+    const fetchMore = async (fetchOptions: {
+        updateQuery: (previousResult: DataT, options: { fetchMoreResult: DataT | undefined }) => DataT
+        variables?: Partial<TVariables>
+    }) => {
+        // Merge new variables with existing ones
+        const mergedVariables = {
+            ...toValue(options.variables),
+            ...fetchOptions.variables
+        } as TVariables
+
+        try {
+            // Fetch more data using Apollo client
+            const queryResult = await client.query({
+                ...omit(options, ['clientId', 'key']),
+                // Always fetch from network for fetchMore
+                fetchPolicy: 'network-only',
+                variables: mergedVariables
+            })
+
+            if (queryResult.error) {
+                throw queryResult.error
+            }
+
+            // Get the previous result from asyncData
+            const previousResult = asyncData.data.value as DataT
+
+            if (previousResult) {
+                // Merge the results using the updateQuery function
+                const updatedData = fetchOptions.updateQuery(previousResult, {
+                    fetchMoreResult: queryResult.data as DataT
+                })
+
+                // Update the asyncData with merged results
+                asyncData.data.value = updatedData as any
+            }
+        }
+        catch (error) {
+            asyncData.error.value = error as ErrorLike | NuxtError
+            throw error
+        }
+    }
+
+    return {
+        ...asyncData,
+        fetchMore
+    }
 }

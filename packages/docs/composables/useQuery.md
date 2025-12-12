@@ -143,8 +143,8 @@ const { result, loading } = useQuery(GET_POSTS, {
 })
 ```
 
-This makes `useQuery` suitable for both client-side and server-side rendering scenarios in Nuxt applications, **especially when you need features like `fetchMore` for pagination**.
+This makes `useQuery` suitable for both client-side and server-side rendering scenarios in Nuxt applications.
 
 ::: tip
-If you don't need `fetchMore` or other observable-specific features, consider using [`useAsyncQuery`](../nuxt/composables/useAsyncQuery) which follows Nuxt's `useAsyncData` pattern more closely.
+Both `useQuery` and [`useAsyncQuery`](../nuxt/composables/useAsyncQuery) now support `fetchMore` for pagination. Use `useAsyncQuery` if you prefer Nuxt's `useAsyncData` pattern with SSR support, or `useQuery` if you need real-time observable updates and reactive variables.
 :::

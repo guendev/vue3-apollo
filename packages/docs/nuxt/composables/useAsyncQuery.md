@@ -1,6 +1,6 @@
 # useAsyncQuery
 
-Nuxt-friendly helper that runs an Apollo **query** inside Nuxt’s `useAsyncData`, returning an `AsyncData` object (`data`, `pending`, `error`, `refresh`, …) with full SSR support.
+Nuxt-friendly helper that runs an Apollo **query** inside Nuxt's `useAsyncData`, returning an `AsyncData` object (`data`, `pending`, `error`, `refresh`, `fetchMore`, …) with full SSR support and pagination capabilities.
 
 It accepts Apollo `QueryOptions`, an optional `key`, and an optional `clientId` for multi-client setups.
 
@@ -20,7 +20,7 @@ const GET_POSTS = gql`
   }
 `
 
-const { data, pending, error, refresh } = await useAsyncQuery({
+const { data, pending, error, refresh, fetchMore } = await useAsyncQuery({
   query: GET_POSTS,
   variables: { first: 10 },
 })
@@ -36,28 +36,18 @@ const asyncData = useAsyncQuery(options, config?)
 - `options` – `UseAsyncQueryOptions<TData, TVariables>`
 - `config?` – Nuxt `AsyncDataOptions` (e.g., `lazy`, `server`, `immediate`, `transform`, `pick`, `default`, …)
 
-Returns: `AsyncData<T, ErrorLike | NuxtError | undefined>`
+Returns: `AsyncDataWithFetchMore<T, ErrorLike | NuxtError | undefined, TVariables>`
 
-## Error handling
-- If Apollo returns `result.error`, it is thrown; Nuxt catches it and sets the `error` field.
-- Use `try/catch` with `await refresh()` for manual retries.
+The return object includes all standard `AsyncData` properties plus:
+- **`fetchMore`** – Function to load more data and merge with existing results (for pagination)
 
-## When to use `useQuery` instead
+## Pagination with `fetchMore`
 
-`useAsyncQuery` follows Nuxt's `useAsyncData` pattern and is optimized for SSR-friendly data fetching. However, it does **not** expose Apollo's observable-specific APIs like `fetchMore`.
-
-**Use `useQuery` if you need:**
-- **Pagination with `fetchMore`** – Load more data and merge it with existing results
-- **Real-time updates** – Subscribe to query updates via Apollo's ObservableQuery
-- **Fine-grained control** – Access to `start()`, `stop()`, and other observable methods
-
-`useQuery` also supports SSR through the `prefetch` option (enabled by default), which runs the query on the server via `onServerPrefetch`. See the [`useQuery` documentation](../../composables/useQuery) for more details.
-
-## Example: Pagination with `useQuery`
+`useAsyncQuery` now supports pagination through the `fetchMore` function, which allows you to load additional data and merge it with your existing results.
 
 ```vue
 <script setup lang="ts">
-import { useQuery } from '@vue3-apollo/core'
+import { useAsyncQuery } from '@vue3-apollo/nuxt'
 import { gql } from 'graphql-tag'
 
 const GET_POSTS = gql`
@@ -65,21 +55,20 @@ const GET_POSTS = gql`
     posts(offset: $offset, limit: $limit) {
       id
       title
+      content
     }
   }
 `
 
-const { result, loading, fetchMore } = useQuery(GET_POSTS, {
-  offset: 0,
-  limit: 10
-}, {
-  prefetch: true // SSR support enabled by default
+const { data, pending, fetchMore } = await useAsyncQuery({
+  query: GET_POSTS,
+  variables: { offset: 0, limit: 10 }
 })
 
 async function loadMore() {
   await fetchMore({
     variables: {
-      offset: result.value.posts.length
+      offset: data.value.posts.length
     },
     updateQuery: (previousResult, { fetchMoreResult }) => {
       if (!fetchMoreResult) return previousResult
@@ -90,10 +79,36 @@ async function loadMore() {
   })
 }
 </script>
+
+<template>
+  <div>
+    <div v-for="post in data?.posts" :key="post.id">
+      {{ post.title }}
+    </div>
+    <button @click="loadMore" :disabled="pending">
+      Load More
+    </button>
+  </div>
+</template>
 ```
+
+## Error handling
+- If Apollo returns `result.error`, it is thrown; Nuxt catches it and sets the `error` field.
+- Use `try/catch` with `await refresh()` for manual retries.
+- Errors in `fetchMore` are also caught and set in the `error` field.
+
+## When to use `useQuery` instead
+
+While `useAsyncQuery` now supports `fetchMore` for pagination, you may still prefer `useQuery` if you need:
+
+- **Real-time updates** – Subscribe to query updates via Apollo's ObservableQuery
+- **Fine-grained control** – Access to `start()`, `stop()`, and other observable methods
+- **Reactive variables** – Automatic re-fetching when variables change
+
+`useQuery` also supports SSR through the `prefetch` option (enabled by default). See the [`useQuery` documentation](../../composables/useQuery) for more details.
 
 ---
 
 See also
-- [`useQuery`](../../composables/useQuery) — reactive queries with `fetchMore`, SSR support, and real-time updates.
+- [`useQuery`](../../composables/useQuery) — reactive queries with real-time updates and advanced control.
 - Nuxt [`useAsyncData`](https://nuxt.com/docs/api/composables/use-async-data) — underlying fetching API used by this helper.
