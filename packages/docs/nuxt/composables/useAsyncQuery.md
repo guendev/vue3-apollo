@@ -61,7 +61,7 @@ import { useQuery } from '@vue3-apollo/core'
 import { gql } from 'graphql-tag'
 
 const GET_POSTS = gql`
-  query GetPosts($offset: Int, $limit: Int) { 
+  query GetPosts($offset: Int!, $limit: Int!) { 
     posts(offset: $offset, limit: $limit) {
       id
       title
