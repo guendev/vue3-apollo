@@ -1,5 +1,11 @@
 # @vue3-apollo/core
 
+## 1.5.3
+
+### Patch Changes
+
+- e08ac78: refactor(useMutation): remove `onOptimistic` hook and related documentation
+
 ## 1.5.2
 
 ### Patch Changes
