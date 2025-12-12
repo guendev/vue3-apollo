@@ -429,13 +429,23 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
          * Create a helper for complete data access:
          * ```ts
          * // composables/useStrictFragment.ts
-         * import type { OperationVariables } from '@apollo/client'
+         * import type { OperationVariables, TypedDocumentNode } from '@apollo/client'
          * import type { UseFragmentOptions } from '@vue3-apollo/core'
+         * import type { DocumentNode } from 'graphql'
          *
-         * export function useStrictFragment<TData = unknown, TVariables extends OperationVariables = OperationVariables>(options: UseFragmentOptions<TData, TVariables>) {
-         *     const fragment = useFragment(options)
-         *     const data = computed(() => fragment.result.value.data as TData)
-         *     return { ...fragment, data }
+         * export function useStrictFragment<
+         *   TData = unknown,
+         *   TVariables extends OperationVariables = OperationVariables
+         * >(
+         *     document: MaybeRefOrGetter<DocumentNode | TypedDocumentNode<TData, TVariables>>,
+         *     options: UseFragmentOptions<TData, TVariables>
+         * ) {
+         *     const { data, result, ...rest } = useFragment(document, options)
+         *
+         *     return {
+         *         ...rest,
+         *         data: computed(() => result.value?.data as TData)
+         *     }
          * }
          *
          * // Usage
