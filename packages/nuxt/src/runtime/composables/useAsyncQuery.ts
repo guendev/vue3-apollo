@@ -201,16 +201,19 @@ export function useAsyncQuery<
             }
 
             // Get the previous result from asyncData
-            const previousResult = asyncData.data.value as DataT
+            // AsyncData's data can be of various types based on PickKeys and DefaultT
+            const previousResult = asyncData.data.value
 
-            if (previousResult) {
+            // Only merge if we have both previous and new results
+            if (previousResult !== null && previousResult !== undefined && queryResult.data) {
                 // Merge the results using the updateQuery function
-                const updatedData = fetchOptions.updateQuery(previousResult, {
+                const updatedData = fetchOptions.updateQuery(previousResult as DataT, {
                     fetchMoreResult: queryResult.data as DataT
                 })
 
                 // Update the asyncData with merged results
-                asyncData.data.value = updatedData as any
+                // We need to cast here because the AsyncData type uses complex PickFrom/DefaultT generics
+                asyncData.data.value = updatedData as typeof asyncData.data.value
             }
         }
         catch (error) {
