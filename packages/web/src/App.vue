@@ -36,8 +36,7 @@ onOptimistic((data) => {
     console.warn('onOptimistic', data)
 })
 
-const { data } = useFragment({
-    fragment: PostDetailFragmentDoc,
+const { data } = useFragment(PostDetailFragmentDoc, {
     from: {
         __typename: 'Post',
         id: 1

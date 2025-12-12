@@ -32,7 +32,7 @@ This composable automatically tracks and updates when the underlying cache data 
 ### Returns
 - **`result`** – Full fragment result including `data`, `complete`, and `missing` information. Ideal for TypeScript narrowing.
   ```ts
-  const { result } = useFragment<User>(...)
+  const { result } = useFragment<User>(USER_FRAGMENT, { from: 'User:1' })
 
   if (result.value?.complete) {
     console.log(result.value.data.name) // ✅ Fully typed
@@ -60,16 +60,31 @@ This composable automatically tracks and updates when the underlying cache data 
   })
   ```
 
-### Options
+### Options (new API)
 - **`from`** – *string | object | Ref | getter* (**required**). The source entity to read from cache. Accepts:
   - A cache ID string (e.g., `'User:1'`).
   - An entity object with `__typename` and an identifier.
   - A reactive ref or computed getter returning one of the above.
 - **`variables`** – *Record<string, any> | Ref | getter*. Fragment variables (for fragments with `@arguments`).
+- **`fragmentName`** – *string | Ref | getter*. Required only if the provided document contains multiple fragments.
 - **`enabled`** – *boolean | Ref | getter* (default: `true`). Enables or disables fragment watching.
 - **`optimistic`** – *boolean* (default: `true`). Include optimistic layer when reading from cache.
 - **`prefetch`** – *boolean* (default: `true`). For SSR: prefetch fragment data during server rendering to avoid hydration flicker.
 - **`clientId`** – *string*. Apollo client identifier if multiple clients are registered.
+
+#### Overloads
+- New (recommended): `useFragment(document, options?)`
+- Legacy (deprecated, still supported): `useFragment({ fragment, ...options })`
+
+#### Legacy usage (deprecated)
+```ts
+// Prefer the new API above. This legacy form remains for backward compatibility.
+const { result } = useFragment({
+  fragment: USER_FRAGMENT,
+  from: { __typename: 'User', id: '123' },
+  fragmentName: 'UserFragment'
+})
+```
 
 ## Notes
 - Watching is based on **reference equality** of `from` and `variables`. Changing references will re-subscribe.
@@ -77,3 +92,7 @@ This composable automatically tracks and updates when the underlying cache data 
 - `data` is exposed as **`DeepPartial<TData>`** since fragments can be partial.
 - Recommended: Use `result` for best TypeScript type narrowing.
 - For SSR, keep `prefetch: true` for smoother hydration.
+
+## Types
+- `UseFragmentOptions<TData, TVariables>`: Options type for the new API (no `fragment` field).
+- `UseLegacyFragmentOptions<TData, TVariables>`: Extends `UseFragmentOptions` and adds `fragment`. Deprecated — prefer the new API.
