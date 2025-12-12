@@ -5,12 +5,25 @@ A reactive composable for **reading and watching GraphQL fragments** from the Ap
 ## Quick start
 
 ```ts
-import { useFragment } from 'vue3-apollo'
-import { USER_FRAGMENT } from './fragments'
+import { useFragment } from '@vue3-apollo/core'
+import { gql } from 'graphql-tag'
+
+export const USER_FRAGMENT = gql`
+  fragment UserFragment on User {
+    id
+    name
+    email
+    company { 
+      name 
+    }
+  }
+`
 
 const { result, data, complete, error, onResult } = useFragment(USER_FRAGMENT, {
   from: 'User:1',
-  variables: { withPosts: true },
+  variables: { 
+      withPosts: true
+  }
 })
 
 onResult(({ data, complete }) => {
@@ -81,7 +94,10 @@ This composable automatically tracks and updates when the underlying cache data 
 // Prefer the new API above. This legacy form remains for backward compatibility.
 const { result } = useFragment({
   fragment: USER_FRAGMENT,
-  from: { __typename: 'User', id: '123' },
+  from: { 
+      __typename: 'User', 
+      id: '123'
+  },
   fragmentName: 'UserFragment'
 })
 ```

@@ -5,34 +5,44 @@ Composable for executing GraphQL **mutations**.
 ## Quick start
 
 ```ts
-import { useMutation } from 'vue3-apollo'
+import { useMutation } from '@vue3-apollo/core'
+import { gql } from 'graphql-tag'
 
-import { CREATE_USER } from './gql'
+const CREATE_POST = gql`
+  mutation CreatePost($post: CreatePostInput!) {
+    createPost(post: $post) { 
+      id 
+      title 
+      body
+    }
+  }
+`
 
 const {
-    data,
-    error,
-    loading,
-    mutate,
-    onDone,
-    onOptimistic,
-} = useMutation(
-    CREATE_USER,
-)
+  data,
+  error,
+  loading,
+  mutate,
+  onDone,
+  onOptimistic,
+} = useMutation(CREATE_POST)
 
 async function submit() {
-    await mutate({
-        email: 'john@example.com',
-        name: 'John',
-    })
+  await mutate({
+    post: { 
+        title: 'Hello',
+        body: 'World',
+        userId: 1 
+    }
+  })
 }
 
 onDone((payload) => {
-    console.log('Created:', payload)
+  console.log('Created post:', payload)
 })
 
 onOptimistic((payload) => {
-    console.log('Optimistic:', payload)
+  console.log('Optimistic create:', payload)
 })
 ```
 
@@ -55,15 +65,13 @@ const {
 ### Returns
 - **`mutate(variables?, mutateOptions?)`** → `Promise<Result | void>` – execute the mutation. Per‑call options override base options.
   ```ts
-  await mutate(
-      { id: '1', name: 'Jane' },
-      {
-          optimisticResponse: {
-              updateUser: { __typename: 'User', id: '1', name: 'Jane' },
-          },
-          refetchQueries: ['GetUserList'],
+  await mutate({ 
+      post: { 
+        title: 'New title',
+        body: '...',
+        userId: 1
       }
-  )
+    })
   ```
 - **`data`** – reactive result data (undefined until success).
 - **`loading`** – `true` while the mutation is running.
@@ -88,9 +96,13 @@ const {
   ```
 - **`onOptimistic((optimisticData, context) => {})`** – Fires when an `optimisticResponse` is provided for the mutation (either via base `options` or per‑call `mutateOptions`). Use this to react immediately to optimistic UI updates before the real network response arrives. The `context` contains the active Apollo client.
   ```ts
-  const { mutate, onOptimistic } = useMutation(CREATE_USER, {
+  const { mutate, onOptimistic } = useMutation(CREATE_POST, {
     optimisticResponse: (vars) => ({
-      createUser: { __typename: 'User', id: 'temp-id', name: vars?.name }
+      createPost: {
+        __typename: 'Post',
+        id: -1,
+        ...vars
+      }
     })
   })
 
@@ -113,37 +125,6 @@ Pass as the second argument to `useMutation`.
 - **Apollo mutate options** (except `mutation` & `variables`, which are provided): `refetchQueries`, `awaitRefetchQueries`, `optimisticResponse`, `update`, `context`, etc.
   - When `optimisticResponse` is provided, the `onOptimistic` hook will fire with the optimistic data.
  - **`clientId`** (from `UseBaseOption`) – target a specific Apollo client if you registered multiple.
-
-## Optimistic UI example
-
-Use `optimisticResponse` to update the UI instantly, and pair `onOptimistic` with `onDone` to handle both phases:
-
-```ts
-import { useMutation } from 'vue3-apollo'
-import { CREATE_POST } from './gql'
-
-const { mutate, onOptimistic, onDone } = useMutation(CREATE_POST, {
-  optimisticResponse: (vars) => ({
-    createPost: {
-      __typename: 'Post',
-      id: 'tmp-' + Math.random().toString(36).slice(2),
-      title: vars?.title,
-    }
-  })
-})
-
-onOptimistic((data) => {
-  // Immediately reflect the new post with a temporary id
-  console.log('Optimistic post:', data)
-})
-
-onDone((data) => {
-  // Replace temporary UI state with the real server response
-  console.log('Server confirmed:', data)
-})
-
-await mutate({ title: 'Hello world' })
-```
 
 ## Why both `onOptimistic` and `onDone`?
 

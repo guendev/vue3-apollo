@@ -92,6 +92,10 @@ export default defineConfig({
                         text: 'Nuxt Integration'
                     },
                     {
+                        link: '/advance/typescript',
+                        text: 'TypeScript & Codegen'
+                    },
+                    {
                         link: '/advance/tracking',
                         text: 'Tracking'
                     }

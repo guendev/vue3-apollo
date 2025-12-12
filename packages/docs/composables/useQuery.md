@@ -6,23 +6,51 @@ A reactive GraphQL query composable for **Vue 3** and **Apollo Client**.
 
 ```ts
 import { ref } from 'vue'
-import { useQuery } from 'vue3-apollo'
+import { useQuery } from '@vue3-apollo/core'
+import { gql } from 'graphql-tag'
 
-import { SEARCH_QUERY } from './queries'
+const GET_USERS = gql`
+  query GetUsers($first: Int) {
+    users(first: $first) {
+      id
+      name
+      email
+    }
+  }
+`
 
-const search = ref('')
+const first = ref(5)
 
 const { error, loading, refetch, result } = useQuery(
-    SEARCH_QUERY,
-    () => ({ q: search.value }),
-    {
-        debounce: 300,
-        keepPreviousResult: true,
-    }
+  GET_USERS,
+  () => ({ 
+    first: first.value 
+  }),
+  {
+      keepPreviousResult: true
+  }
 )
 ```
 
-The query automatically updates whenever `search.value` changes, debounced by 300ms.
+The query automatically updates when `first.value` changes.
+
+### A very basic example without variables
+
+```ts
+import { useQuery } from '@vue3-apollo/core'
+import { gql } from 'graphql-tag'
+
+const GET_POSTS = gql`
+  query GetPosts { 
+    posts {
+      id
+      title
+    }
+  }
+`
+
+const { result, loading, error } = useQuery(GET_POSTS)
+```
 
 ## How it works
 

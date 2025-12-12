@@ -21,7 +21,7 @@ All hooks share the same goal: provide **consistent, reactive visibility** into 
 ### Track a loading ref automatically
 ```ts
 import { ref } from 'vue'
-import { useApolloTracking } from 'vue3-apollo'
+import { useApolloTracking } from '@vue3-apollo/core'
 
 const loading = ref(false)
 
@@ -38,7 +38,7 @@ loading.value = false
 
 ### Check if current component is busy (representative for all owner-scoped hooks)
 ```ts
-import { useQueriesLoading } from 'vue3-apollo'
+import { useQueriesLoading } from '@vue3-apollo/core'
 
 const isBusy = useQueriesLoading() // also: useMutationsLoading(), useSubscriptionsLoading()
 ```
@@ -84,7 +84,7 @@ const isAnyQueryLoading = computed(() => (activeGlobal.value.queries ?? 0) > 0)
 ### 2) Component-level guard (owner-scoped, representative for all three)
 ```vue
 <script setup lang="ts">
-import { useQueriesLoading } from 'vue3-apollo'
+import { useQueriesLoading } from '@vue3-apollo/core'
 
 // Tracks current component by default; pass an id to share state across pieces
 const isLoading = useQueriesLoading()
