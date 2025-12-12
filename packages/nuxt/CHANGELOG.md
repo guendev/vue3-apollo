@@ -1,5 +1,31 @@
 # @vue3-apollo/nuxt
 
+## 1.5.0
+
+### Minor Changes
+
+- 410834c: feat(useMutation): add `onOptimistic` event hook for handling optimistic UI updates
+- bbe4070: feat(core): refactor `useFragment` API and split option types
+
+  - New overload: `useFragment(document, options?)` (recommended)
+  - Introduce `UseFragmentOptions<TData, TVariables>` (no `fragment`)
+  - Add `UseLegacyFragmentOptions<TData, TVariables>` extending the new options with `fragment` — deprecated
+  - Keep legacy overload `useFragment({ fragment, ... })` for backward compatibility
+  - Update docs to reflect the new API
+
+  Migration
+
+  - Prefer `useFragment(document, options?)`
+  - Adopt `UseFragmentOptions`; legacy type/overload will be removed in a future major
+
+### Patch Changes
+
+- 8527617: chore(deps): update dependencies to latest versions across packages
+- Updated dependencies [8527617]
+- Updated dependencies [410834c]
+- Updated dependencies [bbe4070]
+  - @vue3-apollo/core@1.5.0
+
 ## 1.4.2
 
 ### Patch Changes
