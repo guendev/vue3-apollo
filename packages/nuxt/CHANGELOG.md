@@ -1,5 +1,17 @@
 # @vue3-apollo/nuxt
 
+## 1.5.1
+
+### Patch Changes
+
+- 85eebf4: feat(core): accept reactive GraphQL documents in useMutation and useFragment
+
+  - useMutation: Add support reactive document
+  - useFragment: Add support reactive document
+
+- Updated dependencies [85eebf4]
+  - @vue3-apollo/core@1.5.1
+
 ## 1.5.0
 
 ### Minor Changes
