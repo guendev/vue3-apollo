@@ -166,7 +166,7 @@ export type UseLegacyFragmentOptions<
  * ```
  */
 export function useFragment<TData = unknown, TVariables extends OperationVariables = OperationVariables>(
-    document: DocumentNode | TypedDocumentNode<TData, TVariables>,
+    document: MaybeRefOrGetter<DocumentNode | TypedDocumentNode<TData, TVariables>>,
     options?: UseFragmentOptions<TData, TVariables>
 ): UseFragmentReturn<TData>
 /**
@@ -175,11 +175,10 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
 export function useFragment<TData = unknown, TVariables extends OperationVariables = OperationVariables>(
     options: UseLegacyFragmentOptions<TData, TVariables>
 ): UseFragmentReturn<TData>
-// Implementation
+
 export function useFragment<TData = unknown, TVariables extends OperationVariables = OperationVariables>(
     documentOrOptions:
-        | DocumentNode
-        | TypedDocumentNode<TData, TVariables>
+        | MaybeRefOrGetter<DocumentNode | TypedDocumentNode<TData, TVariables>>
         | UseLegacyFragmentOptions<TData, TVariables>,
     maybeOptions?: UseFragmentOptions<TData, TVariables>
 ): UseFragmentReturn<TData> {
@@ -209,7 +208,7 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
     const reactiveFragment = computed(() =>
         isLegacy
             ? toValue((documentOrOptions as UseLegacyFragmentOptions<TData, TVariables>).fragment)
-            : (documentOrOptions as DocumentNode | TypedDocumentNode<TData, TVariables>)
+            : toValue(documentOrOptions as MaybeRefOrGetter<DocumentNode | TypedDocumentNode<TData, TVariables>>)
     )
     const reactiveFragmentName = computed(() => toValue(options?.fragmentName))
 
