@@ -93,12 +93,6 @@ export function useMutation<
 
     const onDone = createEventHook<[TData, HookContext]>()
     const onError = createEventHook<[ErrorLike, HookContext]>()
-    /**
-     * Event hook that fires when an optimistic response is provided for the mutation.
-     * This is useful to react immediately to UI updates that occur before the
-     * actual network response is received.
-     */
-    const onOptimistic = createEventHook<[TData, HookContext]>()
 
     useApolloTracking({
         state: loading,
@@ -114,16 +108,6 @@ export function useMutation<
         called.value = true
 
         try {
-            // If an optimistic response was provided, notify listeners.
-            // This event is intended to reflect the immediate optimistic update phase.
-            const optimisticSource = mutateOptions?.optimisticResponse ?? options?.optimisticResponse
-            if (optimisticSource) {
-                const optimisticData = typeof optimisticSource === 'function'
-                    ? (optimisticSource as (vars?: TVariables) => TData)(variables)
-                    : optimisticSource
-                void onOptimistic.trigger(optimisticData as TData, { client })
-            }
-
             const result = await client.mutate<TData, TVariables, TCache>({
                 mutation: toValue(document),
                 variables: variables as TVariables ?? undefined,
@@ -242,20 +226,6 @@ export function useMutation<
          * ```
          */
         onError: onError.on,
-
-        /**
-         * Event hook that fires when an optimistic response is provided for the mutation.
-         * Useful to react to immediate UI updates before the real response arrives.
-         *
-         * @example
-         * ```ts
-         * onOptimistic((optimisticData) => {
-         *   // e.g. set a temporary flag or log optimistic changes
-         *   console.log('Optimistic update:', optimisticData)
-         * })
-         * ```
-         */
-        onOptimistic: onOptimistic.on,
 
         /**
          * Reset the mutation state to initial values.

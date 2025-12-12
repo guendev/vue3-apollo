@@ -26,14 +26,10 @@ const { error, result } = useQuery(PostsDocument, vars, {
 
 const title = ref('')
 
-const { loading, mutate, onDone: onUpdatedPost, onOptimistic } = useMutation(UpdatePostDocument)
+const { loading, mutate, onDone: onUpdatedPost } = useMutation(UpdatePostDocument)
 
 onUpdatedPost((data) => {
     console.warn('onUpdatedPost', data)
-})
-
-onOptimistic((data) => {
-    console.warn('onOptimistic', data)
 })
 
 const { data } = useFragment(computed(() => PostDetailFragmentDoc), {
