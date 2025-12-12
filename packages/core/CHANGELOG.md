@@ -1,5 +1,11 @@
 # @vue3-apollo/core
 
+## 1.5.2
+
+### Patch Changes
+
+- d2cfe82: refactor(useMutation): reorder mutation logic to ensure optimistic updates occur before mutation execution
+
 ## 1.5.1
 
 ### Patch Changes
