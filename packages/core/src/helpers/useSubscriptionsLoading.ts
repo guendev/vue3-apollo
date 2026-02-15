@@ -1,6 +1,6 @@
 import { computed, getCurrentInstance } from 'vue'
 
-import { useApolloTracker } from './useApolloTracker'
+import { useApolloTrackingStore } from './useApolloTracker'
 
 /**
  * Track the loading state for Apollo subscriptions in a specific component or scope
@@ -18,7 +18,7 @@ import { useApolloTracker } from './useApolloTracker'
  * ```
  */
 export function useSubscriptionsLoading(id?: number | string) {
-    const { activeByOwner } = useApolloTracker()
+    const { activeByOwner } = useApolloTrackingStore()
 
     const loadingId = id ?? getCurrentInstance()?.uid
 

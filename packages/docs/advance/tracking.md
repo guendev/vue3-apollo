@@ -2,7 +2,7 @@
 
 This page documents the **loading tracker hooks** for Apollo operations:
 
-- **`useApolloTracker`** — global state: counters per owner and aggregated globally.
+- **`useApolloTrackingStore`** — global state: counters per owner and aggregated globally.
 - **`useApolloTracking`** — bind a `Ref<boolean>` to the tracker automatically.
 - **Owner-scoped helpers** (same usage pattern):
   - `useMutationsLoading(id?)`
@@ -47,7 +47,7 @@ const isBusy = useQueriesLoading() // also: useMutationsLoading(), useSubscripti
 
 | Hook | Purpose | Signature |
 |---|---|---|
-| `useApolloTracker` | Global counters + per-owner map; manual `track()` | `const { activeGlobal, activeByOwner, track } = useApolloTracker()` |
+| `useApolloTrackingStore` | Global counters + per-owner map; manual `track()` | `const { activeGlobal, activeByOwner, track } = useApolloTrackingStore()` |
 | `useApolloTracking` | Auto-forward a `Ref<boolean>` into counters | `useApolloTracking({ state, type })` |
 | `useMutationsLoading` | Is any mutation active for owner? | `useMutationsLoading(id?) => ComputedRef<boolean>` |
 | `useQueriesLoading` | Is any query active for owner? | `useQueriesLoading(id?) => ComputedRef<boolean>` |
@@ -56,6 +56,9 @@ const isBusy = useQueriesLoading() // also: useMutationsLoading(), useSubscripti
 ### Types
 - **Operation types**: `'queries' | 'mutations' | 'subscriptions'`
 - **Owner id**: `number | string` (component `uid`, feature key, etc.)
+
+### Backward compatibility
+- `useApolloTracker` is still available as a deprecated alias of `useApolloTrackingStore`.
 
 ## Core concepts
 - **Global vs owner counters**: `activeGlobal` aggregates across the app; `activeByOwner` tracks per `id`.
@@ -68,9 +71,9 @@ const isBusy = useQueriesLoading() // also: useMutationsLoading(), useSubscripti
 ### 1) Global indicator (using tracker directly)
 ```ts
 import { computed } from 'vue'
-import { useApolloTracker } from 'vue3-apollo'
+import { useApolloTrackingStore } from 'vue3-apollo'
 
-const { activeGlobal } = useApolloTracker()
+const { activeGlobal } = useApolloTrackingStore()
 
 const isAnyQueryLoading = computed(() => (activeGlobal.value.queries ?? 0) > 0)
 ```

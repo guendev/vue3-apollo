@@ -44,6 +44,7 @@ export default defineNuxtModule<ApolloModuleOptions>({
                         'useSubscription',
 
                         // helpers
+                        'useApolloTrackingStore',
                         'useApolloTracker',
                         'useApolloTracking',
                         'useMutationsLoading',

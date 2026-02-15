@@ -20,7 +20,7 @@ interface TrackParams {
     type: ApolloOperationType
 }
 
-export const useApolloTracker = createGlobalState(
+export const useApolloTrackingStore = createGlobalState(
     () => {
         // { id -> counters per type }
         const activeByOwner = shallowRef<Record<number | string, PerType>>({})
@@ -31,8 +31,8 @@ export const useApolloTracker = createGlobalState(
         /**
          * Track the loading state of Apollo operations
          * @example
-         * const { track } = useApolloTracker()
-         * track({ id: getCurrentInstance()?.uid, state: true, type: 'query' })
+         * const { track } = useApolloTrackingStore()
+         * track({ id: getCurrentInstance()?.uid, state: true, type: 'queries' })
          */
         const track = ({ id, state, type }: TrackParams) => {
             const delta = state ? 1 : -1
@@ -64,3 +64,8 @@ export const useApolloTracker = createGlobalState(
         }
     }
 )
+
+/**
+ * @deprecated Use `useApolloTrackingStore` instead.
+ */
+export const useApolloTracker = useApolloTrackingStore
