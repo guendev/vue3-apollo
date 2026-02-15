@@ -32,7 +32,7 @@ export const useApolloTrackingStore = createGlobalState(
          * Track the loading state of Apollo operations
          * @example
          * const { track } = useApolloTrackingStore()
-         * track({ id: getCurrentInstance()?.uid, state: true, type: 'query' })
+         * track({ id: getCurrentInstance()?.uid, state: true, type: 'queries' })
          */
         const track = ({ id, state, type }: TrackParams) => {
             const delta = state ? 1 : -1
