@@ -12,8 +12,8 @@
     "docs:preview": "vitepress preview"
   },
   "dependencies": {
-    "vitepress-plugin-group-icons": "^1.6.5",
-    "vue": "^3.5.25"
+    "vitepress-plugin-group-icons": "^1.7.1",
+    "vue": "^3.5.28"
   },
   "devDependencies": {
     "typescript": "^5.9.3",

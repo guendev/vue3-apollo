@@ -31,23 +31,12 @@ export default antfu(
             'eslint-comments/no-unlimited-disable': 'off',
             'perfectionist/sort-array-includes': 'error',
             'perfectionist/sort-classes': 'error',
-            'perfectionist/sort-heritage-clauses': [
-                'error',
-                {
-                    customGroups: {
-                        withIdInterface: '^WithId'
-                    },
-                    groups: [
-                        'withIdInterface',
-                        'unknown'
-                    ]
-                }
-            ],
+            'perfectionist/sort-heritage-clauses': 'error',
             'perfectionist/sort-imports': [
                 'error',
                 {
                     internalPattern: ['^\...+'],
-                    newlinesBetween: 'always'
+                    newlinesBetween: 1
                 }
             ],
             'perfectionist/sort-interfaces': [
