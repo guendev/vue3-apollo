@@ -60,20 +60,20 @@
     }
   },
   "dependencies": {
-    "@nuxt/kit": "^4.2.2",
+    "@nuxt/kit": "^4.3.1",
     "@vue3-apollo/core": "workspace:^",
     "defu": "^6.1.4",
     "ohash": "^2.0.11"
   },
   "devDependencies": {
-    "@apollo/client": "^4.0.10",
+    "@apollo/client": "^4.1.4",
     "@nuxt/module-builder": "^1.0.2",
-    "@nuxt/schema": "^4.2.2",
+    "@nuxt/schema": "^4.3.1",
     "@types/node": "latest",
     "graphql": "^16.12.0",
-    "graphql-ws": "^6.0.6",
-    "nuxt": "^4.2.2",
-    "vue-tsc": "^3.1.8"
+    "graphql-ws": "^6.0.7",
+    "nuxt": "^4.3.1",
+    "vue-tsc": "^3.2.4"
   },
   "publishConfig": {
     "access": "public",

@@ -175,7 +175,6 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
 export function useFragment<TData = unknown, TVariables extends OperationVariables = OperationVariables>(
     options: UseLegacyFragmentOptions<TData, TVariables>
 ): UseFragmentReturn<TData>
-
 export function useFragment<TData = unknown, TVariables extends OperationVariables = OperationVariables>(
     documentOrOptions:
         | MaybeRefOrGetter<DocumentNode | TypedDocumentNode<TData, TVariables>>
