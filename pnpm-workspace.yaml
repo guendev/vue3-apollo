@@ -1,6 +1,6 @@
 catalogMode: prefer
 shellEmulator: true
-trustPolicy: off
+trustPolicy: no-downgrade
 
 packages:
   - 'packages/*'
