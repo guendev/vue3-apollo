@@ -2,7 +2,7 @@ import type { ComputedRef } from 'vue'
 
 import { computed, getCurrentInstance } from 'vue'
 
-import { useApolloTracker } from './useApolloTracker'
+import { useApolloTrackingStore } from './useApolloTracker'
 
 /**
  * Track the loading state for Apollo queries in a specific component or scope
@@ -20,7 +20,7 @@ import { useApolloTracker } from './useApolloTracker'
  * ```
  */
 export function useQueriesLoading(id?: number | string): ComputedRef<boolean> {
-    const { activeByOwner } = useApolloTracker()
+    const { activeByOwner } = useApolloTrackingStore()
 
     const loadingId = id ?? getCurrentInstance()?.uid
 
