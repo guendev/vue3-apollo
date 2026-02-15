@@ -1,4 +1,6 @@
 import { defineConfig } from 'vitepress'
+// eslint-disable-next-line ts/ban-ts-comment
+// @ts-expect-error
 import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-icons'
 
 // https://vitepress.dev/reference/site-config

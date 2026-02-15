@@ -82,7 +82,6 @@ export function useAsyncQuery<
     options: UseAsyncQueryOptions<DataT, TVariables>,
     config?: AsyncDataOptions<DataT, DataT, PickKeys, DefaultT>
 ): AsyncData<DefaultT | PickFrom<DataT, PickKeys>, ErrorLike | NuxtError | undefined>
-
 export function useAsyncQuery<
     DataT = unknown,
     TVariables extends OperationVariables = OperationVariables,
@@ -92,7 +91,6 @@ export function useAsyncQuery<
     options: UseAsyncQueryOptions<DataT, TVariables>,
     config?: AsyncDataOptions<DataT, DataT, PickKeys, DefaultT>
 ): AsyncData<DefaultT | PickFrom<DataT, PickKeys>, ErrorLike | NuxtError | undefined>
-
 export function useAsyncQuery<
     DataT = unknown,
     TVariables extends OperationVariables = OperationVariables,
