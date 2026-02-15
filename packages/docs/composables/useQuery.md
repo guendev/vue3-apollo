@@ -86,6 +86,7 @@ const { result, loading, error } = useQuery(GET_POSTS)
 
 ### Options
 - **`enabled`** – Enable or disable automatic execution. Useful for conditional queries.
+  - When `enabled` is `false`, the query is fully blocked (`start()`, `refetch()`, and `fetchMore()` are no-ops).
 - **`debounce` / `throttle`** – Delay or limit how often variable changes trigger requests.
 - **`keepPreviousResult`** – Retain old data while fetching new results to avoid UI flicker.
 - **`prefetch`** – Run on server during SSR for instant data on hydration (default: true).

@@ -205,6 +205,10 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     }
 
     const onNext = (value: ObservableQuery.Result<TData, 'complete' | 'empty' | 'partial' | 'streaming'>) => {
+        if (!enabled.value) {
+            return
+        }
+
         loading.value = value.loading
         networkStatus.value = value.networkStatus
 
@@ -225,6 +229,10 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     }
 
     const onError = (e: ErrorLike) => {
+        if (!enabled.value) {
+            return
+        }
+
         error.value = e
         void onErrorEvent.trigger(e, { client })
     }
@@ -335,7 +343,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     }
 
     const refetch = async (variables?: TVariables) => {
-        if (!query.value) {
+        if (!enabled.value || !query.value) {
             return
         }
         error.value = undefined
@@ -344,7 +352,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     }
 
     const fetchMore = async (options: Pick<ObservableQuery.FetchMoreOptions<TData, TVariables>, 'updateQuery' | 'variables'>) => {
-        if (!query.value) {
+        if (!enabled.value || !query.value) {
             return
         }
 
