@@ -218,11 +218,11 @@ Checklist nay la nguon theo doi chinh cho cach lam "tung file mot":
 - [x] `references/nuxt-custom-integration.md`
 - [x] `references/troubleshooting.md`
 - [x] `references/testing-checklist.md`
-- [ ] `assets/component-samples/QueryListExample.vue`
-- [ ] `assets/component-samples/MutationFormExample.vue`
-- [ ] `assets/component-samples/SubscriptionFeedExample.vue`
-- [ ] `assets/component-samples/FragmentCardExample.vue`
-- [ ] `assets/component-samples/NuxtAsyncQueryPage.vue`
+- [x] `assets/component-samples/QueryListExample.vue`
+- [x] `assets/component-samples/MutationFormExample.vue`
+- [x] `assets/component-samples/SubscriptionFeedExample.vue`
+- [x] `assets/component-samples/FragmentCardExample.vue`
+- [x] `assets/component-samples/NuxtAsyncQueryPage.vue`
 - [x] `SKILL.md`
 
 Quy tac checklist:
