@@ -103,7 +103,7 @@ const { error, loading, result } = useQuery(GET_POSTS)
 | `useApolloClient`  | Access current Apollo client                   |
 | `useApolloClients` | Access Apollo clients                          |
 
-See the [full API reference](https://vue3-apollo.guen.dev/core/composables/use-query) for details.
+See the [full API reference](https://vue3-apollo.guen.dev/composables/useQuery) for details.
 
 ---
 
