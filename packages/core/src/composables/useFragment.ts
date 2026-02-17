@@ -306,6 +306,10 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
             return
         }
 
+        if (subscription.value && !subscription.value.closed) {
+            return
+        }
+
         const id = cacheId.value
 
         if (!id) {
@@ -335,10 +339,18 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
 
             subscription.value = observable.subscribe({
                 error: (e) => {
+                    if (!enabled.value) {
+                        return
+                    }
+
                     error.value = e as ErrorLike
                     void onErrorEvent.trigger(e as ErrorLike, { client })
                 },
                 next: (value) => {
+                    if (!enabled.value) {
+                        return
+                    }
+
                     result.value = value as UseFragmentResult<TData>
                     error.value = undefined
 
@@ -355,10 +367,10 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
     }
 
     const stop = () => {
-        if (subscription.value) {
+        if (subscription.value && !subscription.value.closed) {
             subscription.value.unsubscribe()
-            subscription.value = undefined
         }
+        subscription.value = undefined
     }
 
     const restart = () => {
@@ -527,16 +539,17 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
 
         /**
          * Manually start watching the fragment.
-         * Useful after stopping the fragment or when using enabled: false initially.
+         * Useful after stopping the fragment.
+         * If enabled is false, this is a no-op.
          *
          * @example
          * ```ts
          * const { start, stop } = useFragment({
          *   fragment: MY_FRAGMENT,
-         *   from: { __typename: 'User', id: '123' },
-         *   enabled: false
+         *   from: { __typename: 'User', id: '123' }
          * })
          * // Later...
+         * stop()
          * start()
          * ```
          */
