@@ -60,10 +60,10 @@ onError((e) => {
       console.error('Subscription error from client:', context.client)
   })
   ```
-- **`start()`** – manually start or restart the subscription.
+- **`start()`** – manually start or restart the subscription when `enabled` is `true`.
 - **`stop()`** – stop and unsubscribe.
 
 ## Options
-- **`enabled`** – `boolean | Ref<boolean>` (default: `true`). When `false`, the subscription won’t start until enabled or `start()` is called.
+- **`enabled`** – `boolean | Ref<boolean> | () => boolean` (default: `true`). When `false`, the subscription is fully blocked (`start()` is a no-op) until `enabled` becomes `true`.
 - **Apollo subscribe options** – you can pass standard Apollo `subscribe` options (e.g., `context`), except `query` and `variables`, which are supplied by the composable.
 - **`clientId`** – from `UseBaseOption`, target a specific Apollo client instance if using multiple clients.

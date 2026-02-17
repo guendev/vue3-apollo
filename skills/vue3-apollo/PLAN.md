@@ -209,7 +209,7 @@ Checklist nay la nguon theo doi chinh cho cach lam "tung file mot":
 - [x] `references/setup-nuxt4.md`
 - [x] `references/composables-use-query.md`
 - [x] `references/composables-use-mutation.md`
-- [ ] `references/composables-use-subscription.md`
+- [x] `references/composables-use-subscription.md`
 - [ ] `references/composables-use-fragment.md`
 - [ ] `references/composables-use-apollo-client.md`
 - [ ] `references/tracking-and-loading.md`
