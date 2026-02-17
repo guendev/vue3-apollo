@@ -56,6 +56,7 @@ skills/vue3-apollo/
 - references/composables-use-subscription.md
 - references/composables-use-fragment.md
 - references/composables-use-apollo-client.md
+- references/caching.md
 - references/tracking-and-loading.md
 - references/typescript-and-codegen.md
 - references/migration-from-vue-apollo-composable.md
@@ -87,6 +88,7 @@ Ghi chu:
 | `composables-use-subscription.md` | Subscription runtime | useSubscription doc + useSubscription.ts + createApolloClient.ts | case restart khi variables doi, case enabled toggle, case ws missing `graphql-ws` |
 | `composables-use-fragment.md` | Fragment cache read/watch | useFragment doc + useFragment.ts | case new overload, case legacy overload, case partial/complete typing, case SSR prefetch |
 | `composables-use-apollo-client.md` | Imperative API va multi-client | useApolloClient.md + useApolloClient.ts + useApolloClients.ts | case query imperative, case mutate imperative, case clientId not found |
+| `caching.md` | Chien luoc cache Apollo cho Vue/Nuxt | core/nuxt source + Apollo cache patterns | case fetchPolicy, case typePolicies/keyArgs/merge, case SSR hydration cache |
 | `tracking-and-loading.md` | Tracking loading theo owner/global | tracking.md + helpers/* | case loading global, case loading theo component uid, case custom id chia se |
 | `typescript-and-codegen.md` | TypedDocumentNode + codegen | typescript.md | case manual typing, case client preset, case mapping voi composables |
 | `migration-from-vue-apollo-composable.md` | Lo trinh migration | migration.md | case import migration, case `useAsyncQuery` object options, case bo `useLazyAsyncQuery`, case fetchPolicy thay `cache` |
@@ -212,9 +214,10 @@ Checklist nay la nguon theo doi chinh cho cach lam "tung file mot":
 - [x] `references/composables-use-subscription.md`
 - [x] `references/composables-use-fragment.md`
 - [x] `references/composables-use-apollo-client.md`
+- [x] `references/caching.md`
 - [x] `references/tracking-and-loading.md`
 - [x] `references/typescript-and-codegen.md`
-- [ ] `references/migration-from-vue-apollo-composable.md`
+- [x] `references/migration-from-vue-apollo-composable.md`
 - [x] `references/nuxt-custom-integration.md`
 - [x] `references/troubleshooting.md`
 - [x] `references/testing-checklist.md`

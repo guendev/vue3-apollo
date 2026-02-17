@@ -49,6 +49,7 @@ Read these files based on task type:
 - `references/composables-use-subscription.md`: client-only subscription lifecycle.
 - `references/composables-use-fragment.md`: fragment cache reading, new and legacy overloads.
 - `references/composables-use-apollo-client.md`: imperative client access and multi-client usage.
+- `references/caching.md`: cache normalization, policies, mutation cache updates, and Nuxt SSR hydration behavior.
 - `references/tracking-and-loading.md`: tracking store and owner-scoped loading helpers.
 - `references/typescript-and-codegen.md`: typed documents and codegen workflow.
 - `references/migration-from-vue-apollo-composable.md`: migration behavior and compatibility notes.
