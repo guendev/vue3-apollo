@@ -8,6 +8,7 @@ import { nextTick, ref, shallowRef, toValue } from 'vue'
 import type { HookContext, UseBaseOption } from '../utils/type'
 
 import { useApolloTracking } from '../helpers/useApolloTracking'
+import { omit } from '../utils/omit'
 import { useApolloClient } from './useApolloClient'
 
 /**
@@ -39,6 +40,21 @@ export type UseMutationOptions<
      * ```
      */
     throws?: 'always' | 'auto' | 'never'
+
+    /**
+     * Custom loading group identifier for tracking.
+     * Use this when multiple components/composables should share one loading state bucket.
+     *
+     * @example
+     * ```ts
+     * const key = 'profile-save-group'
+     * const { mutate } = useMutation(UPDATE_PROFILE, { loadingKey: key })
+     *
+     * // In another component:
+     * const isSaving = useMutationsLoading(key)
+     * ```
+     */
+    loadingKey?: number | string
 } & Omit<ApolloClient.MutateOptions<TData, TVariables, TCache>, 'mutation' | 'variables'> & UseBaseOption
 
 /**
@@ -94,7 +110,16 @@ export function useMutation<
     const onDone = createEventHook<[TData, HookContext]>()
     const onError = createEventHook<[ErrorLike, HookContext]>()
 
+    const getMutationBaseOptions = () => {
+        if (!options) {
+            return {}
+        }
+
+        return omit(options, ['throws', 'clientId', 'loadingKey'])
+    }
+
     useApolloTracking({
+        id: options?.loadingKey,
         state: loading,
         type: 'mutations'
     })
@@ -111,7 +136,7 @@ export function useMutation<
             const result = await client.mutate<TData, TVariables, TCache>({
                 mutation: toValue(document),
                 variables: variables as TVariables ?? undefined,
-                ...options,
+                ...getMutationBaseOptions(),
                 ...mutateOptions
             })
 

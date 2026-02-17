@@ -8,18 +8,19 @@ import { isServer } from '../utils/isServer'
 import { useApolloTrackingStore } from './useApolloTracker'
 
 interface UseApolloTrackingOptions {
+    id?: number | string
     state: Ref<boolean>
     type: ApolloOperationType
 }
 
-export function useApolloTracking({ state, type }: UseApolloTrackingOptions) {
+export function useApolloTracking({ id: customId, state, type }: UseApolloTrackingOptions) {
     // Setup loading tracking
     const currentScope = getCurrentScope()
     if (currentScope && !isServer()) {
         const { track } = useApolloTrackingStore()
         const currentInstance = getCurrentInstance()
 
-        const id = currentInstance?.uid ?? Math.random().toString(36).slice(2)
+        const id = customId ?? currentInstance?.uid ?? Math.random().toString(36).slice(2)
 
         watch(state, (state) => {
             track({
@@ -27,7 +28,7 @@ export function useApolloTracking({ state, type }: UseApolloTrackingOptions) {
                 state,
                 type
             })
-        })
+        }, { immediate: true })
 
         onScopeDispose(() => track({
             id,

@@ -63,6 +63,7 @@ function useQuery<TData, TVariables>(
 - `throttle?: number`
 - `keepPreviousResult?: boolean`
 - `prefetch?: boolean` (default: `true`)
+- `loadingKey?: string | number` (custom key for grouped loading tracking)
 - All Apollo watch options except `query` and `variables`
 - `clientId?: string`
 
@@ -123,6 +124,23 @@ await fetchMore({
   }
 })
 ```
+
+### Case 4: Shared loading key across components
+
+```ts
+import { useQueriesLoading, useQuery } from '@vue3-apollo/core'
+
+const loadingKey = 'users-shared'
+
+// Component A
+useQuery(GET_USERS, undefined, { loadingKey })
+
+// Component B
+useQuery(GET_USER_STATS, undefined, { loadingKey })
+const isAnyLoading = useQueriesLoading(loadingKey)
+```
+
+Use this when one place in UI (for example spinner in component B) should react to loading states triggered by multiple query owners (A and B).
 
 ## Related
 - [`useMutation`](/composables/useMutation)

@@ -48,7 +48,8 @@ Return behavior note:
 4. `keepPreviousResult`: keep stale value while new variables are loading.
 5. `prefetch`: default `true`; runs SSR prefetch via `onServerPrefetch`.
 6. `clientId`: use a named Apollo client.
-7. Standard Apollo watchQuery options are supported (except `query` and `variables`).
+7. `loadingKey`: custom loading group key (`string | number`) for tracking across multiple query owners.
+8. Standard Apollo watchQuery options are supported (except `query` and `variables`).
 
 Important behavior:
 
@@ -177,6 +178,28 @@ Recovery:
 2. Verify `clientId` matches registered key.
 3. Fallback to default client first to isolate client routing issues.
 
+### Case 6: Shared loading group (A/B components)
+
+Goal: spinner in component B should react when either A or B is loading.
+
+```ts
+import { useQueriesLoading, useQuery } from '@vue3-apollo/core'
+
+const loadingKey = 'shared-users'
+
+// Component A
+useQuery(GET_USERS, undefined, { loadingKey })
+
+// Component B
+useQuery(GET_USER_STATS, undefined, { loadingKey })
+const isAnyLoading = useQueriesLoading(loadingKey)
+```
+
+Note:
+
+1. Same `loadingKey` means both queries contribute to the same tracking bucket.
+2. Use unique keys when you want isolated loading indicators.
+
 ## Verification checklist
 
 1. Query runs and updates when variables change.
@@ -187,6 +210,7 @@ Recovery:
 6. `refetch/fetchMore` no-op behavior is handled in guarded flows.
 7. If polling is used, `pollInterval` behavior is observed and documented.
 8. If Nuxt SSR page flow is needed, decision against `useAsyncQuery` is explicit.
+9. If grouped loading is used, verify all intended queries share the same `loadingKey`.
 
 ## Pitfalls
 
@@ -197,6 +221,7 @@ Recovery:
 5. Using wrong `clientId` in multi-client setups.
 6. Running outside component scope and forgetting manual cleanup concerns.
 7. Treating `refetch()` as guaranteed even when query is disabled.
+8. Reusing one `loadingKey` accidentally across unrelated screens and coupling loading UX unintentionally.
 
 ## Cross-reference
 
