@@ -213,7 +213,7 @@ Checklist nay la nguon theo doi chinh cho cach lam "tung file mot":
 - [x] `references/composables-use-fragment.md`
 - [x] `references/composables-use-apollo-client.md`
 - [x] `references/tracking-and-loading.md`
-- [ ] `references/typescript-and-codegen.md`
+- [x] `references/typescript-and-codegen.md`
 - [ ] `references/migration-from-vue-apollo-composable.md`
 - [ ] `references/nuxt-custom-integration.md`
 - [ ] `references/troubleshooting.md`
