@@ -205,7 +205,7 @@ Da chot theo huong npm consumer repo (import public tu `@vue3-apollo/core` va `@
 Checklist nay la nguon theo doi chinh cho cach lam "tung file mot":
 
 - [x] `references/overview-and-decision-tree.md`
-- [ ] `references/setup-core-vue3.md`
+- [x] `references/setup-core-vue3.md`
 - [ ] `references/setup-nuxt4.md`
 - [ ] `references/composables-use-query.md`
 - [ ] `references/composables-use-mutation.md`
