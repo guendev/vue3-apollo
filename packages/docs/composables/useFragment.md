@@ -57,7 +57,7 @@ This composable automatically tracks and updates when the underlying cache data 
 - **`complete`** – Boolean indicating whether the entire fragment is present in the cache.
 - **`missing`** – Missing tree info reported by the cache (if any).
 - **`error`** – Apollo error object, if an error occurs while reading or watching.
-- **`start()` / `stop()`** – Manually control fragment watching lifecycle.
+- **`start()` / `stop()`** – Manually control fragment watching lifecycle (`start()` is a no-op when `enabled` is `false`).
 - **`onResult((payload, context) => {})`** – Triggered when fragment data updates.
   ```ts
   onResult(({ data, complete }, { client }) => {
@@ -80,7 +80,7 @@ This composable automatically tracks and updates when the underlying cache data 
   - A reactive ref or computed getter returning one of the above.
 - **`variables`** – *Record<string, any> | Ref | getter*. Fragment variables (for fragments with `@arguments`).
 - **`fragmentName`** – *string | Ref | getter*. Required only if the provided document contains multiple fragments.
-- **`enabled`** – *boolean | Ref | getter* (default: `true`). Enables or disables fragment watching.
+- **`enabled`** – *boolean | Ref | getter* (default: `true`). Hard gate for fragment watching: when `false`, active watching is stopped and `start()` becomes a no-op until re-enabled.
 - **`optimistic`** – *boolean* (default: `true`). Include optimistic layer when reading from cache.
 - **`prefetch`** – *boolean* (default: `true`). For SSR: prefetch fragment data during server rendering to avoid hydration flicker.
 - **`clientId`** – *string*. Apollo client identifier if multiple clients are registered.
@@ -105,6 +105,7 @@ const { result } = useFragment({
 ## Notes
 - Watching is based on **reference equality** of `from` and `variables`. Changing references will re-subscribe.
 - When `from` is `null` or `undefined`, no watching occurs and `complete` is `false`.
+- Incoming fragment `next/error` events are ignored while `enabled` is `false`.
 - `data` is exposed as **`DeepPartial<TData>`** since fragments can be partial.
 - Recommended: Use `result` for best TypeScript type narrowing.
 - For SSR, keep `prefetch: true` for smoother hydration.
