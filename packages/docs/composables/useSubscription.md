@@ -47,6 +47,7 @@ function useSubscription<TData, TVariables>(
 
 ## Options
 - `enabled?: boolean | Ref | Getter` (default: `true`)
+- `loadingKey?: string | number` (custom key for grouped loading tracking)
 - All Apollo subscribe options except `query` and `variables`.
 - `clientId?: string`
 
@@ -92,6 +93,23 @@ const subscriptionVars = computed(() => ({ roomId: roomId.value }))
 
 useSubscription(ROOM_SUBSCRIPTION, subscriptionVars)
 ```
+
+### Case 4: Shared loading key across components
+
+```ts
+import { useSubscription, useSubscriptionsLoading } from '@vue3-apollo/core'
+
+const loadingKey = 'chat-shared'
+
+// Component A
+useSubscription(ROOM_SUBSCRIPTION, () => ({ roomId: 'room-1' }), { loadingKey })
+
+// Component B
+useSubscription(TYPING_SUBSCRIPTION, () => ({ roomId: 'room-1' }), { loadingKey })
+const isAnyConnecting = useSubscriptionsLoading(loadingKey)
+```
+
+Use this when one place in UI should react to subscription loading states triggered by multiple components/composables.
 
 ## Related
 - [`Nuxt Integration`](/nuxt)

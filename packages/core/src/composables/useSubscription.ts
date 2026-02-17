@@ -40,6 +40,21 @@ export type UseSubscriptionOptions<
      * ```
      */
     enabled?: MaybeRefOrGetter<boolean>
+
+    /**
+     * Custom loading group identifier for tracking.
+     * Use this when multiple components/composables should share one loading state bucket.
+     *
+     * @example
+     * ```ts
+     * const key = 'chat-shared'
+     * useSubscription(ROOM_SUBSCRIPTION, vars, { loadingKey: key })
+     *
+     * // In another component:
+     * const isConnecting = useSubscriptionsLoading(key)
+     * ```
+     */
+    loadingKey?: number | string
 } & Omit<ApolloClient.SubscribeOptions<TData, TVariables>, 'query' | 'variables'> & UseBaseOption
 
 export function useSubscription<
@@ -72,10 +87,11 @@ export function useSubscription<
             return {}
         }
 
-        return omit(options, ['enabled', 'clientId'])
+        return omit(options, ['enabled', 'clientId', 'loadingKey'])
     }
 
     useApolloTracking({
+        id: options?.loadingKey,
         state: loading,
         type: 'subscriptions'
     })

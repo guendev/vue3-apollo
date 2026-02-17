@@ -83,6 +83,7 @@ function useMutation<TData, TVariables, TCache>(
 
 ## Options
 - `throws?: 'always' | 'auto' | 'never'` (default: `'auto'`)
+- `loadingKey?: string | number` (custom key for grouped loading tracking)
 - All Apollo mutate options except `mutation` and `variables`.
 - `clientId?: string` to target a named client.
 
@@ -137,6 +138,23 @@ catch (error) {
   console.error('Mutation failed', error)
 }
 ```
+
+### Case 4: Shared loading key across components
+
+```ts
+import { useMutation, useMutationsLoading } from '@vue3-apollo/core'
+
+const loadingKey = 'profile-shared'
+
+// Component A
+const { mutate: saveProfile } = useMutation(SAVE_PROFILE, { loadingKey })
+
+// Component B
+const { mutate: saveAvatar } = useMutation(SAVE_AVATAR, { loadingKey })
+const isAnySaving = useMutationsLoading(loadingKey)
+```
+
+Use this when one place in UI should react to mutation loading states triggered by multiple components/composables.
 
 ## Related
 - [`useQuery`](/composables/useQuery)

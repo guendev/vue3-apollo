@@ -32,7 +32,7 @@ const isBusy = useQueriesLoading()
 | Hook | Purpose | Signature |
 |---|---|---|
 | `useApolloTrackingStore` | Global counters + per-owner map + manual `track` | `const { activeGlobal, activeByOwner, track } = useApolloTrackingStore()` |
-| `useApolloTracking` | Forward a `Ref<boolean>` into tracker counters | `useApolloTracking({ state, type })` |
+| `useApolloTracking` | Forward a `Ref<boolean>` into tracker counters | `useApolloTracking({ id?, state, type })` |
 | `useMutationsLoading` | Owner-scoped mutation activity | `useMutationsLoading(id?) => ComputedRef<boolean>` |
 | `useQueriesLoading` | Owner-scoped query activity | `useQueriesLoading(id?) => ComputedRef<boolean>` |
 | `useSubscriptionsLoading` | Owner-scoped subscription activity | `useSubscriptionsLoading(id?) => ComputedRef<boolean>` |
@@ -68,6 +68,7 @@ export function useSaveItem() {
   const saving = ref(false)
 
   useApolloTracking({
+    id: 'save-item',
     state: saving,
     type: 'mutations'
   })
@@ -75,3 +76,18 @@ export function useSaveItem() {
   return { saving }
 }
 ```
+
+```ts
+import { useQueriesLoading, useQuery } from '@vue3-apollo/core'
+
+const loadingKey = 'users-shared'
+
+// Component A
+useQuery(GET_USERS, undefined, { loadingKey })
+
+// Component B
+useQuery(GET_USER_STATS, undefined, { loadingKey })
+const isAnyLoading = useQueriesLoading(loadingKey)
+```
+
+`useQuery({ loadingKey })` maps to the same owner id bucket used by tracking helpers.

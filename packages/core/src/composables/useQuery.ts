@@ -62,6 +62,21 @@ export type UseQueryOptions<TData = unknown, TVariables extends OperationVariabl
     enabled?: MaybeRefOrGetter<boolean>
 
     /**
+     * Custom loading group identifier for tracking.
+     * Use this when multiple components/composables should share one loading state bucket.
+     *
+     * @example
+     * ```ts
+     * const key = 'users-list-group'
+     * useQuery(USERS_QUERY, undefined, { loadingKey: key })
+     *
+     * // In another component:
+     * const isLoading = useQueriesLoading(key)
+     * ```
+     */
+    loadingKey?: number | string
+
+    /**
      * Keep the previous query result while fetching new data.
      * When true, prevents a result from being reset to undefined when variables change
      * and cache doesn't have data yet.
@@ -160,6 +175,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
 
     // Setup loading tracking
     useApolloTracking({
+        id: options?.loadingKey,
         state: loading,
         type: 'queries'
     })
@@ -174,7 +190,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
 
         return omit(
             options,
-            ['debounce', 'enabled', 'keepPreviousResult', 'throttle', 'clientId', 'prefetch']
+            ['debounce', 'enabled', 'keepPreviousResult', 'throttle', 'clientId', 'prefetch', 'loadingKey']
         )
     }
 

@@ -12,7 +12,7 @@ Use tracking helpers when UI needs loading visibility across GraphQL operations:
 
 1. `useApolloTrackingStore()`:
 - global store with `activeGlobal`, `activeByOwner`, and `track()`.
-2. `useApolloTracking({ state, type })`:
+2. `useApolloTracking({ id?, state, type })`:
 - auto-track a `Ref<boolean>` into store counters.
 3. `useQueriesLoading(id?)`
 4. `useMutationsLoading(id?)`
@@ -27,6 +27,7 @@ Use tracking helpers when UI needs loading visibility across GraphQL operations:
 - owner-scoped (`activeByOwner[id]`)
 3. Store clamps counters at `0` to avoid negative values.
 4. `useApolloTracking` only runs on client and inside active scope.
+5. `useQuery({ loadingKey })` uses `loadingKey` as owner id for query counters.
 
 ## Quick setup
 
@@ -52,6 +53,7 @@ import { useApolloTracking } from '@vue3-apollo/core'
 const saving = ref(false)
 
 useApolloTracking({
+  id: 'save-item',
   state: saving,
   type: 'mutations',
 })
@@ -81,6 +83,17 @@ With explicit shared id:
 ```ts
 const ownerId = 'dashboard'
 const isDashboardBusy = useQueriesLoading(ownerId)
+```
+
+With `useQuery` integration:
+
+```ts
+const ownerId = 'checkout'
+
+useQuery(GET_CHECKOUT_SUMMARY, undefined, { loadingKey: ownerId })
+useQuery(GET_CHECKOUT_DISCOUNTS, undefined, { loadingKey: ownerId })
+
+const isCheckoutBusy = useQueriesLoading(ownerId)
 ```
 
 ## Case examples

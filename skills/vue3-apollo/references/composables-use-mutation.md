@@ -42,8 +42,9 @@ Return behavior note:
 
 1. `clientId`: route mutation to named Apollo client.
 2. `throws`: `'always' | 'auto' | 'never'`.
-3. Standard Apollo mutate options are supported (except `mutation` and `variables`, which are controlled by the composable and mutate call).
-4. Per-call `mutateOptions` override base options for that call.
+3. `loadingKey`: custom loading group key (`string | number`) for tracking across multiple mutation owners.
+4. Standard Apollo mutate options are supported (except `mutation` and `variables`, which are controlled by the composable and mutate call).
+5. Per-call `mutateOptions` override base options for that call.
 
 `throws` behavior in current implementation:
 
@@ -152,6 +153,28 @@ if (error.value) {
 }
 ```
 
+### Case 5: Shared loading group (A/B components)
+
+Goal: one saving indicator should react when either component A or B is mutating.
+
+```ts
+import { useMutation, useMutationsLoading } from '@vue3-apollo/core'
+
+const loadingKey = 'profile-shared'
+
+// Component A
+const { mutate: saveProfile } = useMutation(SAVE_PROFILE, { loadingKey })
+
+// Component B
+const { mutate: saveAvatar } = useMutation(SAVE_AVATAR, { loadingKey })
+const isAnySaving = useMutationsLoading(loadingKey)
+```
+
+Note:
+
+1. Same `loadingKey` means both mutations contribute to the same tracking bucket.
+2. Use unique keys when loading indicators must stay isolated.
+
 ## Cache update patterns
 
 Use these patterns when mutation result alone is not enough to refresh UI:
@@ -228,6 +251,7 @@ const { data } = await client.mutate({
 6. `reset()` clears `data`, `error`, `loading`, and `called`.
 7. If `throws: 'always'` is used, caller has `try/catch` path.
 8. Cache update or refetch strategy is explicit for write-heavy screens.
+9. If grouped loading is used, verify all intended mutations share the same `loadingKey`.
 
 ## Pitfalls
 
@@ -237,6 +261,7 @@ const { data } = await client.mutate({
 4. Missing `reset()` in retry-heavy forms, causing stale UI error/data state.
 5. Using wrong `clientId` in multi-client configuration.
 6. Mixing both broad `refetchQueries` and heavy manual cache edits without clear reason.
+7. Reusing one `loadingKey` across unrelated features and coupling saving UX unintentionally.
 
 ## Cross-reference
 

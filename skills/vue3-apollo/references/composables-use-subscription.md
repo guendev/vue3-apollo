@@ -43,7 +43,8 @@ Behavior notes:
 1. `enabled`: `boolean | Ref<boolean> | () => boolean`, default `true`.
 2. When `enabled` is `false`, subscription is fully gated: it will stop, avoid handling events, and `start()` is a no-op until `enabled` becomes `true`.
 3. `clientId`: route to named Apollo client.
-4. Standard Apollo subscribe options are supported (except `query` and `variables`).
+4. `loadingKey`: custom loading group key (`string | number`) for tracking across multiple subscription owners.
+5. Standard Apollo subscribe options are supported (except `query` and `variables`).
 
 Lifecycle notes:
 
@@ -162,6 +163,28 @@ Recovery:
 2. Ensure `graphql-ws` package is installed.
 3. Confirm server supports `graphql-ws` protocol.
 
+### Case 5: Shared loading group (A/B components)
+
+Goal: one connection indicator should react when either component A or B is subscribing.
+
+```ts
+import { useSubscription, useSubscriptionsLoading } from '@vue3-apollo/core'
+
+const loadingKey = 'chat-shared'
+
+// Component A
+useSubscription(ROOM_SUBSCRIPTION, () => ({ roomId: 'room-1' }), { loadingKey })
+
+// Component B
+useSubscription(TYPING_SUBSCRIPTION, () => ({ roomId: 'room-1' }), { loadingKey })
+const isAnyConnecting = useSubscriptionsLoading(loadingKey)
+```
+
+Note:
+
+1. Same `loadingKey` means both subscriptions contribute to the same tracking bucket.
+2. Use unique keys when loading indicators must stay isolated.
+
 ## Verification checklist
 
 1. Subscription starts on client when `enabled` is true.
@@ -172,6 +195,7 @@ Recovery:
 6. Variable change restarts stream correctly.
 7. `stop()` unsubscribes and halts updates.
 8. Outside scope usage includes explicit stop strategy.
+9. If grouped loading is used, verify all intended subscriptions share the same `loadingKey`.
 
 ## Pitfalls
 
@@ -181,6 +205,7 @@ Recovery:
 4. Assuming `data` accumulates automatically instead of representing latest event.
 5. Forgetting to stop when running outside component scope.
 6. Using wrong `clientId` in multi-client setups.
+7. Reusing one `loadingKey` across unrelated features and coupling connection UX unintentionally.
 
 ## Cross-reference
 
