@@ -215,7 +215,7 @@ Checklist nay la nguon theo doi chinh cho cach lam "tung file mot":
 - [x] `references/tracking-and-loading.md`
 - [x] `references/typescript-and-codegen.md`
 - [ ] `references/migration-from-vue-apollo-composable.md`
-- [ ] `references/nuxt-custom-integration.md`
+- [x] `references/nuxt-custom-integration.md`
 - [ ] `references/troubleshooting.md`
 - [ ] `references/testing-checklist.md`
 - [ ] `assets/component-samples/QueryListExample.vue`
