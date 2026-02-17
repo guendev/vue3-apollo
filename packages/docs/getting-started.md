@@ -94,4 +94,4 @@ const client = useApolloClient()
 const { data } = await client.query({ query: GET_USERS })
 ```
 
-If you use TypeScript, check out the Advanced → [TypeScript & Codegen](../../advance/typescript) page for strongly typed queries and results.
+If you use TypeScript, check out Advanced → [TypeScript & Codegen](/advance/typescript) for strongly typed queries and results.

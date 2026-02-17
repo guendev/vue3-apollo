@@ -1,50 +1,61 @@
 # useMutation
 
-Composable for executing GraphQL **mutations**.
+`useMutation` executes GraphQL mutations and exposes reactive mutation state plus lifecycle hooks.
 
 ## Quick start
 
 ```ts
-import { useMutation } from '@vue3-apollo/core'
 import { gql } from 'graphql-tag'
+import { useMutation } from '@vue3-apollo/core'
 
 const CREATE_POST = gql`
   mutation CreatePost($post: CreatePostInput!) {
-    createPost(post: $post) { 
-      id 
-      title 
+    createPost(post: $post) {
+      id
+      title
       body
     }
   }
 `
 
-const {
-  data,
-  error,
-  loading,
-  mutate,
-  onDone,
-} = useMutation(CREATE_POST)
-
-async function submit() {
-  await mutate({
-    post: { 
-        title: 'Hello',
-        body: 'World',
-        userId: 1 
-    }
-  })
-}
+const { mutate, data, loading, error, onDone, onError } = useMutation(CREATE_POST)
 
 onDone((payload) => {
   console.log('Created post:', payload)
 })
+
+onError((mutationError) => {
+  console.error(mutationError.message)
+})
+
+await mutate(
+  {
+    post: {
+      title: 'Hello',
+      body: 'World',
+      userId: 1
+    }
+  },
+  {
+    optimisticResponse: {
+      createPost: {
+        __typename: 'Post',
+        id: 'temp-id',
+        title: 'Hello',
+        body: 'World'
+      }
+    }
+  }
+)
 ```
 
-## API
+## Signature
 
 ```ts
-const {
+function useMutation<TData, TVariables, TCache>(
+  document: DocumentNode | TypedDocumentNode<TData, TVariables> | Ref | Getter,
+  options?: UseMutationOptions<TData, TVariables, TCache>
+): {
   mutate,
   data,
   loading,
@@ -52,51 +63,81 @@ const {
   called,
   onDone,
   onError,
-  reset,
-} = useMutation(document, options)
+  reset
+}
 ```
 
-### Returns
-- **`mutate(variables?, mutateOptions?)`** → `Promise<Result | void>` – execute the mutation. Per‑call options override base options.
-  ```ts
-  await mutate({ 
-      post: { 
-        title: 'New title',
-        body: '...',
-        userId: 1
-      }
-    })
-  ```
-- **`data`** – reactive result data (undefined until success).
-- **`loading`** – `true` while the mutation is running.
-- **`error`** – GraphQL or network error if one occurred.
-- **`called`** – `true` after `mutate()` has been called at least once.
-- **`onDone((data, context) => {})`** – Fires when the mutation completes successfully. The `context` provides access to the Apollo client.
-  ```ts
-  onDone((data, context) => {
-      toast.success('User created!')
-      router.push(`/users/${data.createUser.id}`)
-      context.client.cache.evict({ fieldName: 'users' })
-  })
-  ```
+## Parameters
+- `document`: Mutation document (or reactive ref/getter).
+- `options?`: Mutation options.
 
-- **`onError((error, context) => {})`** – Fires when the mutation encounters an error (network or GraphQL). The `context` contains the active Apollo client.
-  ```ts
-  onError((error, context) => {
-      toast.error(error.message)
-      console.error('Mutation failed:', error)
-      context.client.clearStore()
-  })
-  ```
-- **`reset()`** – clear `data`, `error`, `loading`, and `called` back to initial state.
+## Returns
+- `mutate(variables?, mutateOptions?)`: Runs the mutation.
+- `data`: Reactive mutation data.
+- `loading`: `true` while mutation is running.
+- `error`: Last mutation error.
+- `called`: `true` after first `mutate()` call.
+- `onDone((data, context) => void)`: Fires on successful mutation with `data` and `{ client }` context.
+- `onError((error, context) => void)`: Fires on GraphQL/network errors with `{ client }` context.
+- `reset()`: Clears all mutation state (`data`, `loading`, `error`, `called`).
 
 ## Options
-Pass as the second argument to `useMutation`.
+- `throws?: 'always' | 'auto' | 'never'` (default: `'auto'`)
+- All Apollo mutate options except `mutation` and `variables`.
+- `clientId?: string` to target a named client.
 
-- **`throws`**: `'always' | 'auto' | 'never'` (default: `'auto'`)
-  - `'always'`: throw on error (use `try/catch`).
-  - `'never'`: never throw; rely on reactive `error` & `onError`.
-  - `'auto'`: Apollo default behavior.
-- **Apollo mutate options** (except `mutation` & `variables`, which are provided): `refetchQueries`, `awaitRefetchQueries`, `optimisticResponse`, `update`, `context`, etc.
-  - When `optimisticResponse` is provided, the `onOptimistic` hook will fire with the optimistic data.
- - **`clientId`** (from `UseBaseOption`) – target a specific Apollo client if you registered multiple.
+## Notes
+- `throws: 'always'` rethrows caught mutation exceptions after emitting `onError`.
+- Other `throws` values keep errors in reactive state/hooks.
+- Per-call `mutateOptions` overrides base options provided to `useMutation`.
+
+## Examples
+
+### Case 1: Form submit with success side effect
+
+```ts
+const { mutate, onDone } = useMutation(CREATE_USER)
+
+onDone((data, context) => {
+  context.client.cache.evict({ fieldName: 'users' })
+  router.push(`/users/${data.createUser.id}`)
+})
+
+await mutate({
+  input: { name: form.value.name }
+})
+```
+
+### Case 2: Per-call override options
+
+```ts
+const { mutate } = useMutation(UPDATE_PROFILE, {
+  awaitRefetchQueries: true
+})
+
+await mutate(
+  { input: profileForm.value },
+  {
+    refetchQueries: ['GetProfile']
+  }
+)
+```
+
+### Case 3: Strict throw flow
+
+```ts
+const { mutate } = useMutation(UPDATE_USER_MUTATION, {
+  throws: 'always'
+})
+
+try {
+  await mutate({ id: '1', name: 'Updated name' })
+}
+catch (error) {
+  console.error('Mutation failed', error)
+}
+```
+
+## Related
+- [`useQuery`](/composables/useQuery)
+- [`useSubscription`](/composables/useSubscription)

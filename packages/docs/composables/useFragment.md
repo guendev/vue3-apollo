@@ -1,115 +1,108 @@
 # useFragment
 
-A reactive composable for **reading and watching GraphQL fragments** from the Apollo cache in **Vue 3**.
+`useFragment` reads and watches Apollo cache fragments reactively.
 
 ## Quick start
 
 ```ts
-import { useFragment } from '@vue3-apollo/core'
 import { gql } from 'graphql-tag'
+import { useFragment } from '@vue3-apollo/core'
 
-export const USER_FRAGMENT = gql`
+const USER_FRAGMENT = gql`
   fragment UserFragment on User {
     id
     name
     email
-    company { 
-      name 
-    }
   }
 `
 
-const { result, data, complete, error, onResult } = useFragment(USER_FRAGMENT, {
-  from: 'User:1',
-  variables: { 
-      withPosts: true
-  }
+const { result, complete, missing, onResult } = useFragment(USER_FRAGMENT, {
+  from: 'User:1'
 })
 
-onResult(({ data, complete }) => {
-  if (complete) console.log('Fragment ready:', data)
+onResult((payload) => {
+  if (payload.complete) {
+    console.log(payload.data.name)
+  }
 })
 ```
 
-This composable automatically tracks and updates when the underlying cache data changes.
+## Signature
 
-## How it works
-
-- **Cache-driven:** Reads data directly from the Apollo cache and re-renders when it updates.
-- **Reactive watching:** Automatically resubscribes when `from` or `variables` (refs or getters) change.
-- **Type-safe:** Exposes a full `result` object for advanced TypeScript narrowing.
-- **SSR ready:** When `prefetch` is enabled, fragments are resolved during server-side rendering.
-
-## API
-
-### Returns
-- **`result`** – Full fragment result including `data`, `complete`, and `missing` information. Ideal for TypeScript narrowing.
-  ```ts
-  const { result } = useFragment<User>(USER_FRAGMENT, { from: 'User:1' })
-
-  if (result.value?.complete) {
-    console.log(result.value.data.name) // ✅ Fully typed
-  } else {
-    console.log(result.value?.missing) // Partial data info
-  }
-  ```
-- **`data`** – Reactive fragment data (`DeepPartial<TData>`). May be incomplete if fields are missing from cache.
-- **`complete`** – Boolean indicating whether the entire fragment is present in the cache.
-- **`missing`** – Missing tree info reported by the cache (if any).
-- **`error`** – Apollo error object, if an error occurs while reading or watching.
-- **`start()` / `stop()`** – Manually control fragment watching lifecycle (`start()` is a no-op when `enabled` is `false`).
-- **`onResult((payload, context) => {})`** – Triggered when fragment data updates.
-  ```ts
-  onResult(({ data, complete }, { client }) => {
-    if (complete) console.log('Updated:', data)
-    console.log('Client:', client)
-  })
-  ```
-- **`onError((error, context) => {})`** – Triggered when a cache read or watch error occurs.
-  ```ts
-  onError((error, { client }) => {
-    console.error('Fragment error:', error)
-    client.clearStore()
-  })
-  ```
-
-### Options (new API)
-- **`from`** – *string | object | Ref | getter* (**required**). The source entity to read from cache. Accepts:
-  - A cache ID string (e.g., `'User:1'`).
-  - An entity object with `__typename` and an identifier.
-  - A reactive ref or computed getter returning one of the above.
-- **`variables`** – *Record<string, any> | Ref | getter*. Fragment variables (for fragments with `@arguments`).
-- **`fragmentName`** – *string | Ref | getter*. Required only if the provided document contains multiple fragments.
-- **`enabled`** – *boolean | Ref | getter* (default: `true`). Hard gate for fragment watching: when `false`, active watching is stopped and `start()` becomes a no-op until re-enabled.
-- **`optimistic`** – *boolean* (default: `true`). Include optimistic layer when reading from cache.
-- **`prefetch`** – *boolean* (default: `true`). For SSR: prefetch fragment data during server rendering to avoid hydration flicker.
-- **`clientId`** – *string*. Apollo client identifier if multiple clients are registered.
-
-#### Overloads
-- New (recommended): `useFragment(document, options?)`
-- Legacy (deprecated, still supported): `useFragment({ fragment, ...options })`
-
-#### Legacy usage (deprecated)
 ```ts
-// Prefer the new API above. This legacy form remains for backward compatibility.
-const { result } = useFragment({
-  fragment: USER_FRAGMENT,
-  from: { 
-      __typename: 'User', 
-      id: '123'
-  },
-  fragmentName: 'UserFragment'
-})
+useFragment(document, options?)
+useFragment({ fragment, ...options }) // legacy overload (deprecated)
 ```
+
+## Parameters
+- `document`: Fragment document (`DocumentNode` or `TypedDocumentNode`).
+
+## Returns
+- `result`: Full fragment result (`data`, `complete`, optional `missing`).
+- `data`: Computed fragment data.
+- `complete`: Computed boolean for full fragment availability.
+- `missing`: Computed missing tree from cache diff.
+- `error`: Last fragment error.
+- `onResult((payload, context) => void)`: Fragment result events.
+- `onError((error, context) => void)`: Fragment error events.
+- `start()`: Start watching (no-op when disabled).
+- `stop()`: Stop watching.
+
+## Options
+- `from?`: Cache entity source (`string`, entity object, cache reference, ref/getter).
+- `fragmentName?`: Required when the document contains multiple fragments.
+- `variables?`: Fragment variables.
+- `enabled?`: Default `true`.
+- `prefetch?`: SSR prefetch toggle, default `true`.
+- `optimistic?`: Include optimistic cache layer, default `true`.
+- `clientId?`: Target a named Apollo client.
 
 ## Notes
-- Watching is based on **reference equality** of `from` and `variables`. Changing references will re-subscribe.
-- When `from` is `null` or `undefined`, no watching occurs and `complete` is `false`.
-- Incoming fragment `next/error` events are ignored while `enabled` is `false`.
-- `data` is exposed as **`DeepPartial<TData>`** since fragments can be partial.
-- Recommended: Use `result` for best TypeScript type narrowing.
-- For SSR, keep `prefetch: true` for smoother hydration.
+- `from` is optional. If it is missing/empty, the composable returns an incomplete result.
+- For strict type narrowing, prefer `result` and check `result.value?.complete`.
 
-## Types
-- `UseFragmentOptions<TData, TVariables>`: Options type for the new API (no `fragment` field).
-- `UseLegacyFragmentOptions<TData, TVariables>`: Extends `UseFragmentOptions` and adds `fragment`. Deprecated — prefer the new API.
+## Examples
+
+### Case 1: Cache-backed entity card
+
+```ts
+import { computed, ref } from 'vue'
+import { useFragment } from '@vue3-apollo/core'
+
+const userId = ref<string | null>('1')
+
+const { result } = useFragment(USER_FRAGMENT, {
+  from: computed(() => (userId.value ? `User:${userId.value}` : undefined))
+})
+
+if (result.value?.complete) {
+  console.log(result.value.data.email)
+}
+```
+
+### Case 2: Multiple fragments in one document
+
+```ts
+const { result } = useFragment(MULTI_FRAGMENT_DOC, {
+  from: 'User:1',
+  fragmentName: 'UserCard'
+})
+```
+
+### Case 3: Delayed watcher with enabled gate
+
+```ts
+const enabled = ref(false)
+
+const { start } = useFragment(USER_FRAGMENT, {
+  from: 'User:1',
+  enabled
+})
+
+start() // no-op while disabled
+enabled.value = true
+```
+
+## Related
+- [`useQuery`](/composables/useQuery)
+- [`TypeScript & Codegen`](/advance/typescript)

@@ -38,7 +38,7 @@ import { useQuery } from '@vue/apollo-composable'
 import { useMutation, useQuery, useSubscription } from '@vue3-apollo/core'
 ```
 
-All composables maintain the same API, so migration typically only involves updating import paths.
+Most composables keep familiar APIs, so migration is usually straightforward after updating imports.
 
 ## 2. Enhanced Loading Tracking
 
@@ -194,7 +194,7 @@ onDone((data, context) => {
 | Async Query (SSR)               | `useAsyncQuery` from old package | `useAsyncQuery` (object options)                    | Unified API for Nuxt 4                                       |
 | Lazy Async Query                | `useLazyAsyncQuery`              | Removed → use `useAsyncQuery` with `{ lazy: true }` | Simplified lazy fetching                                     |
 | Query / Mutation / Subscription | `@vue/apollo-composable`         | `@vue3-apollo/core`                                 | Same core API, except for `useMutation`'s `onDone` callback. |
-| Global Loading Tracking         | ✅                                | ✅                                                   | via `useApolloTracker`                                       |
+| Global Loading Tracking         | ✅                                | ✅                                                   | via `useApolloTrackingStore` (`useApolloTracker` deprecated alias) |
 | Component-scoped Loading        | ❌                                | ✅                                                   | pass `id` to track across scopes                             |
 | Apollo v4 Support               | Manual                           | ✅                                                   | Native                                                       |
 

@@ -1,13 +1,13 @@
 # useQuery
 
-A reactive GraphQL query composable for **Vue 3** and **Apollo Client**.
+`useQuery` runs a reactive GraphQL query using Apollo `watchQuery` and Vue reactivity.
 
 ## Quick start
 
 ```ts
+import { gql } from 'graphql-tag'
 import { ref } from 'vue'
 import { useQuery } from '@vue3-apollo/core'
-import { gql } from 'graphql-tag'
 
 const GET_USERS = gql`
   query GetUsers($first: Int) {
@@ -21,73 +21,109 @@ const GET_USERS = gql`
 
 const first = ref(5)
 
-const { error, loading, refetch, result } = useQuery(
+const { result, loading, error, networkStatus, refetch } = useQuery(
   GET_USERS,
-  () => ({ 
-    first: first.value 
-  }),
+  () => ({ first: first.value }),
   {
-      keepPreviousResult: true
+    keepPreviousResult: true
   }
 )
 ```
 
-The query automatically updates when `first.value` changes.
-
-### A very basic example without variables
+## Signature
 
 ```ts
-import { useQuery } from '@vue3-apollo/core'
-import { gql } from 'graphql-tag'
-
-const GET_POSTS = gql`
-  query GetPosts { 
-    posts {
-      id
-      title
-    }
-  }
-`
-
-const { result, loading, error } = useQuery(GET_POSTS)
+function useQuery<TData, TVariables>(
+  document: DocumentNode | TypedDocumentNode<TData, TVariables> | Ref | Getter,
+  variables?: TVariables | Ref | Getter,
+  options?: UseQueryOptions<TData, TVariables>
+)
 ```
 
-## How it works
+## Parameters
+- `document`: Query document (or reactive ref/getter).
+- `variables?`: Query variables (or reactive ref/getter).
+- `options?`: Query options.
 
-- **Reactive variables:** Automatically watches refs or getters passed as variables.
-- **Lifecycle management:** Starts and stops queries with Vue component lifecycle.
-- **Smart updates:** Uses Apollo cache and network status to minimize requests.
-- **SSR support:** When `prefetch` is enabled, queries run on the server for immediate hydration on the client.
+## Returns
+- `result`: Reactive query data.
+- `loading`: Query loading state.
+- `error`: Last query error.
+- `networkStatus`: Apollo `NetworkStatus` value.
+- `onResult((data, context) => void)`: Fired when data is available.
+- `onError((error, context) => void)`: Fired on query errors.
+- `refetch(variables?)`: Manually refetch query.
+- `fetchMore({ variables, updateQuery })`: Pagination/incremental fetch.
+- `start()`: Start query observer.
+- `stop()`: Stop query observer.
 
-## API
+## Options
+- `enabled?: boolean | Ref | Getter` (default: `true`)
+- `debounce?: number`
+- `throttle?: number`
+- `keepPreviousResult?: boolean`
+- `prefetch?: boolean` (default: `true`)
+- All Apollo watch options except `query` and `variables`
+- `clientId?: string`
 
-### Returns
-- **`result`** – Reactive query data. Updates automatically when data changes.
-- **`loading`** – Boolean flag indicating if the query is in progress.
-- **`error`** – Holds GraphQL or network errors if any occur.
-- **`refetch(variables?)`** – Manually re-run the query with optional new variables.
-- **`fetchMore({ variables, updateQuery })`** – Fetch and merge additional data (e.g., for pagination).
-- **`start()` / `stop()`** – Manually control when to start or pause the query.
-- **`onResult((data, context) => {})`** – Fires when new data is received. The `context` includes the active Apollo client instance.
-  ```ts
-  onResult((data, context) => {
-      console.log('New data:', data)
-      console.log('Client:', context.client)
-  })
-  ```
+## Notes
+- On server, data is prefetched via `onServerPrefetch` when `prefetch` is enabled.
+- If both `debounce` and `throttle` are set, `debounce` takes priority.
+- When `enabled` is `false`, `start`, `refetch`, and `fetchMore` are effectively blocked.
 
-- **`onError((error, context) => {})`** – Fires when a query error occurs. Use to handle or log errors. `context.client` provides the source client.
-  ```ts
-  onError((error, context) => {
-      toast.error(error.message)
-      console.error('Query failed via client:', context.client)
-  })
-  ```
+## Examples
 
-### Options
-- **`enabled`** – Enable or disable automatic execution. Useful for conditional queries.
-  - When `enabled` is `false`, the query is fully blocked (`start()`, `refetch()`, and `fetchMore()` are no-ops).
-- **`debounce` / `throttle`** – Delay or limit how often variable changes trigger requests.
-- **`keepPreviousResult`** – Retain old data while fetching new results to avoid UI flicker.
-- **`prefetch`** – Run on server during SSR for instant data on hydration (default: true).
-- **`fetchPolicy`, `pollInterval`, etc.** – You can also pass standard Apollo options.
+### Case 1: Reactive search with debounce
+
+```ts
+const search = ref('')
+
+const { result, loading } = useQuery(
+  SEARCH_USERS,
+  () => ({ q: search.value }),
+  {
+    debounce: 300,
+    keepPreviousResult: true
+  }
+)
+```
+
+### Case 2: Manual enable flow
+
+```ts
+const enabled = ref(false)
+const filters = ref({ status: 'open' })
+
+const { result, refetch } = useQuery(GET_TICKETS, filters, { enabled })
+
+enabled.value = true
+await refetch()
+```
+
+### Case 3: Pagination with fetchMore
+
+```ts
+const { result, fetchMore } = useQuery(
+  LIST_POSTS,
+  () => ({ offset: 0, limit: 10 }),
+  { keepPreviousResult: true }
+)
+
+await fetchMore({
+  variables: { offset: result.value?.posts.length ?? 0, limit: 10 },
+  updateQuery: (previous, { fetchMoreResult }) => {
+    if (!fetchMoreResult) {
+      return previous
+    }
+
+    return {
+      ...previous,
+      posts: [...previous.posts, ...fetchMoreResult.posts]
+    }
+  }
+})
+```
+
+## Related
+- [`useMutation`](/composables/useMutation)
+- [`useSubscription`](/composables/useSubscription)

@@ -1,49 +1,99 @@
 # useAsyncQuery
 
-Nuxt-friendly helper that runs an Apollo **query** inside Nuxt’s `useAsyncData`, returning an `AsyncData` object (`data`, `pending`, `error`, `refresh`, …) with full SSR support.
-
-It accepts Apollo `QueryOptions`, an optional `key`, and an optional `clientId` for multi-client setups.
+`useAsyncQuery` runs an Apollo `client.query` through Nuxt `useAsyncData`, providing SSR-ready `AsyncData`.
 
 ## Quick start
 
 ```vue
 <script setup lang="ts">
-import { useAsyncQuery } from '@vue3-apollo/nuxt'
 import { gql } from 'graphql-tag'
 
 const GET_POSTS = gql`
-  query GetPosts($first: Int) { 
+  query GetPosts($first: Int) {
     posts(first: $first) {
       id
-      title 
-   }
+      title
+    }
   }
 `
 
 const { data, pending, error, refresh } = await useAsyncQuery({
   query: GET_POSTS,
-  variables: { first: 10 },
+  variables: { first: 10 }
 })
 </script>
 ```
 
-## API
+## Signature
 
 ```ts
-const asyncData = useAsyncQuery(options, config?)
+useAsyncQuery(options, config?)
 ```
 
-- `options` – `UseAsyncQueryOptions<TData, TVariables>`
-- `config?` – Nuxt `AsyncDataOptions` (e.g., `lazy`, `server`, `immediate`, `transform`, `pick`, `default`, …)
+## Parameters
+- `options: UseAsyncQueryOptions<TData, TVariables>`
+- `config?: AsyncDataOptions`
 
-Returns: `AsyncData<T, ErrorLike | NuxtError | undefined>`
+## Returns
+- `AsyncData<T, ErrorLike | NuxtError | undefined>`
 
-## Error handling
-- If Apollo returns `result.error`, it is thrown; Nuxt catches it and sets the `error` field.
-- Use `try/catch` with `await refresh()` for manual retries.
+## Options
+- `options.key?: string | Ref | Getter`
+- `options.clientId?: string`
+- `options` also includes Apollo query options.
+- `config` follows Nuxt `AsyncDataOptions`.
 
----
+## Notes
+- `useAsyncQuery` is auto-imported when `apollo.autoImports` is enabled (default).
+- If auto-imports are disabled, import from `#imports`.
+- If Apollo returns `result.error`, `useAsyncQuery` throws and Nuxt exposes it on `error`.
+- Use `await refresh()` for retries.
 
-See also
-- [`useQuery`](../../composables/useQuery) — reactive queries in Vue components.
-- Nuxt [`useAsyncData`](https://nuxt.com/docs/api/composables/use-async-data) — underlying fetching API used by this helper.
+## Examples
+
+### Case 1: SSR page data (default client)
+
+```ts
+const { data, pending, error } = await useAsyncQuery({
+  query: GET_DASHBOARD
+})
+```
+
+### Case 2: Named client + stable key + lazy mode
+
+```ts
+const route = useRoute()
+
+const { data, pending, refresh } = await useAsyncQuery(
+  {
+    query: GET_ANALYTICS,
+    variables: { id: route.params.id },
+    clientId: 'analytics',
+    key: () => `analytics:${String(route.params.id)}`
+  },
+  {
+    lazy: true
+  }
+)
+
+await refresh()
+```
+
+### Case 3: Manual retry flow in action handler
+
+```ts
+const { refresh, error } = await useAsyncQuery({
+  query: GET_REPORT
+})
+
+const retry = async () => {
+  await refresh()
+  if (error.value) {
+    console.error('Retry failed:', error.value)
+  }
+}
+```
+
+## Related
+- [`useQuery`](/composables/useQuery)
+- [Nuxt `useAsyncData`](https://nuxt.com/docs/api/composables/use-async-data)

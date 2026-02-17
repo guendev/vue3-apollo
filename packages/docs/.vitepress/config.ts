@@ -26,6 +26,10 @@ export default defineConfig({
             {
                 link: '/nuxt',
                 text: 'Nuxt'
+            },
+            {
+                link: '/advance/skills',
+                text: 'Skills'
             }
         ],
         search: {
@@ -45,6 +49,14 @@ export default defineConfig({
                     {
                         link: '/migration',
                         text: 'Migration'
+                    },
+                    {
+                        link: '/guide/apollo-plugin',
+                        text: 'Apollo Plugin'
+                    },
+                    {
+                        link: '/about/credits',
+                        text: 'Credits'
                     }
                 ],
                 text: 'Guide'
@@ -56,8 +68,16 @@ export default defineConfig({
                         text: 'Integration'
                     },
                     {
+                        link: '/nuxt/configuration',
+                        text: 'Configuration'
+                    },
+                    {
                         link: '/nuxt/composables/useAsyncQuery',
                         text: 'useAsyncQuery'
+                    },
+                    {
+                        link: '/nuxt/hooks',
+                        text: 'Hooks'
                     }
                 ],
                 text: 'Nuxt'
@@ -67,6 +87,10 @@ export default defineConfig({
                     {
                         link: '/composables/useApolloClient',
                         text: 'useApolloClient'
+                    },
+                    {
+                        link: '/composables/useApolloClients',
+                        text: 'useApolloClients'
                     },
                     {
                         link: '/composables/useFragment',
@@ -106,7 +130,7 @@ export default defineConfig({
                         text: 'Skills'
                     }
                 ],
-                text: 'Advance'
+                text: 'Advanced'
             }
         ],
         socialLinks: [

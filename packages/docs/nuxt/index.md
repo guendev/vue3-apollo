@@ -1,6 +1,6 @@
 # Nuxt Integration
 
-Lightweight Nuxt module for Apollo Client v4 with SSR and WebSocket subscription support.
+Lightweight Nuxt module for Apollo Client v4 with SSR and optional WebSocket subscriptions.
 
 ## Installation
 
@@ -16,45 +16,69 @@ pnpm add @vue3-apollo/nuxt @apollo/client graphql
 
 :::
 
-## Quick Start
+## Quick start
 
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-    apollo: {
-        clients: {
-            default: {
-                // HTTP link
-                httpEndpoint: 'https://graphqlplaceholder.vercel.app/graphql',
-                // WebSocket link (optional; install `graphql-ws` in your project)
-                wsEndpoint: 'wss://graphqlplaceholder.vercel.app/graphql'
-            }
-        },
-
-        // Common transport options
-        httpLinkOptions: { credentials: 'include' },
-        wsLinkOptions: { retryAttempts: 3 }
+  modules: ['@vue3-apollo/nuxt'],
+  apollo: {
+    clients: {
+      default: {
+        httpEndpoint: 'https://graphqlplaceholder.vercel.app/graphql',
+        wsEndpoint: 'wss://graphqlplaceholder.vercel.app/graphql'
+      }
     },
-    modules: ['@vue3-apollo/nuxt']
+    httpLinkOptions: {
+      credentials: 'include'
+    },
+    wsLinkOptions: {
+      retryAttempts: 3
+    }
+  }
 })
 ```
 
-> 💡 **Tip:** This setup works for most use cases.  
-> For advanced customization (e.g., runtime Apollo links, auth flow, or cache policies), see [Nuxt Custom Integration](/advance/nuxt-custom-integration).
-
-Use anywhere in your app:
+Use in pages/components:
 
 ```ts
-// Query
-const { error, loading, result } = useQuery(GET_POSTS)
-
-// Subscription
-const { result: livePost } = useSubscription(POST_ADDED)
+const { result, loading, error } = useQuery(GET_POSTS)
+const { data: livePost } = useSubscription(POST_ADDED)
 ```
 
-> **Note:**
-> 1. To enable WebSocket subscriptions, you need to install `graphql-ws`.
-> 2. WebSocket connections only support the **`graphql-ws`** subprotocol.
+These composables are auto-imported by default (`apollo.autoImports: true`).
+If auto-imports are disabled, import from `#imports`.
+
+## Authentication
+
+Tokens are read from cookies (SSR-safe).
+
+```ts
+export default defineNuxtConfig({
+  modules: ['@vue3-apollo/nuxt'],
+  apollo: {
+    auth: {
+      authHeader: 'Authorization',
+      authType: 'Bearer',
+      tokenName: 'auth-token'
+    }
+  }
+})
+```
+
+To disable auth injection:
+
+```ts
+export default defineNuxtConfig({
+  modules: ['@vue3-apollo/nuxt'],
+  apollo: {
+    auth: false
+  }
+})
+```
+
+## WebSocket subscriptions
+Install `graphql-ws` if you configure `wsEndpoint`:
 
 ::: code-group
 
@@ -68,22 +92,7 @@ pnpm add graphql-ws
 
 :::
 
-## Authentication
-
-The token is only read from cookies (SSR‑safe) for now.
-
-```ts
-// nuxt.config.ts
-export default defineNuxtConfig({
-    apollo: {
-        auth: {
-            authHeader: 'Authorization', // custom header name
-            authType: 'Bearer', // set null to send raw token
-            tokenName: 'auth-token' // default: apollo:{clientId}:token
-        }
-    // or disable entirely:
-    // auth: false
-    },
-    modules: ['@vue3-apollo/nuxt']
-})
-```
+## Related
+- [`Nuxt Configuration`](/nuxt/configuration)
+- [`useAsyncQuery`](/nuxt/composables/useAsyncQuery)
+- [`Custom Apollo Integration`](/advance/nuxt-custom-integration)

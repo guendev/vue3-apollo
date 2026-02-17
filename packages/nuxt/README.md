@@ -85,7 +85,7 @@ export default defineNuxtConfig({
     apollo: {
         auth: {
             authHeader: 'Authorization', // custom header name
-            authType: 'Bearer', // set null to send raw token
+            authType: 'Bearer',
             tokenName: 'auth-token' // default: apollo:{clientId}:token
         }
 

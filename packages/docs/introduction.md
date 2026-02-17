@@ -1,12 +1,15 @@
 # Introduction
 
-Vue3 Apollo is a lightweight, modern integration between Vue 3 and Apollo Client v4.
-It provides the latest Apollo features with full TypeScript support and a composable-first API for seamless GraphQL development.
+Vue3 Apollo is a composable-first integration between Vue 3 and Apollo Client v4.
+It provides typed, reactive GraphQL primitives with minimal setup for Vue and Nuxt 4 apps.
 
-After years of using Apollo GraphQL across my projects, I wanted a faster and more up-to-date alternative to the official Vue Apollo packages, which often lag behind Apollo Client releases.
-Vue3 Apollo is built from the ground up for simplicity, reactivity, and compatibility with modern Vue 3 workflows.
+I created it because, for some production projects, I needed a faster and more up-to-date option while official Vue Apollo integrations were optimizing for a different release cadence.
 
-This project was developed with the help of modern AI tools — **ChatGPT**, **Claude**, and **Junie** (JetBrains AI Coding Agent) — which supported code generation, refactoring, and documentation.
+## Who it's for
+
+- Teams building Vue 3 or Nuxt 4 apps with GraphQL
+- Projects migrating from `@vue/apollo-composable`
+- Apps that need both reactive composables and imperative Apollo client access
 
 ## Key Features
 
@@ -15,3 +18,5 @@ This project was developed with the help of modern AI tools — **ChatGPT**, **C
 - Reactive queries with automatic cache updates
 - Easy configuration for multiple Apollo clients
 - SSR and Nuxt compatibility
+
+For project background and acknowledgements, see [Credits](/about/credits).

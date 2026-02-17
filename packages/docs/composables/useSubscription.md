@@ -1,69 +1,98 @@
 # useSubscription
 
-Reactive GraphQL **subscription** composable.
-
-> Subscriptions are **client-only**. They are not initialized on the server (SSR).
+`useSubscription` runs a reactive GraphQL subscription and updates data as events arrive.
 
 ## Quick start
 
 ```ts
 import { useSubscription } from '@vue3-apollo/core'
 
-import { NEW_MESSAGES_SUB } from './gql' // your subscription document
-
-const {
-    data,
-    error,
-    loading,
-    onData,
-    onError,
-} = useSubscription(
-    NEW_MESSAGES_SUB,
-    () => ({
-        chatId: 'room-1',
-    }),
+const { data, loading, error, onData, onError } = useSubscription(
+  NEW_MESSAGES_SUB,
+  () => ({ chatId: 'room-1' })
 )
 
 onData((payload) => {
-    console.log('New message:', payload)
+  console.log('Message update:', payload)
 })
 
-onError((e) => {
-    console.error('Subscription error:', e)
+onError((subscriptionError) => {
+  console.error(subscriptionError.message)
 })
 ```
 
-## How it works
-- **Reactive variables:** Pass a plain object, a `ref`, or a getter; when variables change, the subscription restarts.
-- **Lifecycle-aware:** Starts automatically on mount if `enabled` is `true`; stops on scope dispose.
-- **Client-only:** Skips initialization during SSR; requires a WebSocket link in your Apollo client.
-- **Tracking:** Integrates with internal tracking to reflect subscription activity.
+## Signature
 
-## API
+```ts
+function useSubscription<TData, TVariables>(
+  document: DocumentNode | TypedDocumentNode<TData, TVariables> | Ref | Getter,
+  variables?: TVariables | Ref | Getter,
+  options?: UseSubscriptionOptions<TData, TVariables>
+)
+```
 
-### Returns
-- **`data`** – the latest payload received (undefined until first event).
-- **`loading`** – `true` while connecting / before first event.
-- **`error`** – connection/transport/GraphQL error, if any.
-- **`onData((data, context) => {})`** – subscribe to each incoming payload. The `context` includes the active Apollo client.
-  ```ts
-  onData((payload, context) => {
-      console.log('New message:', payload)
-      console.log('Client:', context.client)
-  })
-  ```
+## Parameters
+- `document`: Subscription document (or reactive ref/getter).
+- `variables?`: Subscription variables (or reactive ref/getter).
+- `options?`: Subscription options.
 
-- **`onError((error, context) => {})`** – subscribe to errors, including connection or GraphQL issues. The `context` contains the Apollo client instance.
-  ```ts
-  onError((e, context) => {
-      toast.error(e.message)
-      console.error('Subscription error from client:', context.client)
-  })
-  ```
-- **`start()`** – manually start or restart the subscription when `enabled` is `true`.
-- **`stop()`** – stop and unsubscribe.
+## Returns
+- `data`: Latest pushed payload.
+- `loading`: `true` while connecting / waiting for first payload.
+- `error`: Last subscription error.
+- `onData((data, context) => void)`: Fired for each payload.
+- `onError((error, context) => void)`: Fired for subscription errors.
+- `start()`: Start/restart subscription.
+- `stop()`: Stop/unsubscribe.
 
 ## Options
-- **`enabled`** – `boolean | Ref<boolean> | () => boolean` (default: `true`). When `false`, the subscription is fully blocked (`start()` is a no-op) until `enabled` becomes `true`.
-- **Apollo subscribe options** – you can pass standard Apollo `subscribe` options (e.g., `context`), except `query` and `variables`, which are supplied by the composable.
-- **`clientId`** – from `UseBaseOption`, target a specific Apollo client instance if using multiple clients.
+- `enabled?: boolean | Ref | Getter` (default: `true`)
+- All Apollo subscribe options except `query` and `variables`.
+- `clientId?: string`
+
+## Notes
+- Subscriptions are client-only; they are not initialized during SSR.
+- Variables/document changes restart the underlying subscription.
+
+## Examples
+
+### Case 1: Realtime feed in component scope
+
+```ts
+const { data, onData } = useSubscription(FEED_SUBSCRIPTION)
+
+onData((payload) => {
+  feedItems.value.unshift(payload.feedUpdated)
+})
+```
+
+### Case 2: Enabled gate + manual control
+
+```ts
+import { ref } from 'vue'
+import { useSubscription } from '@vue3-apollo/core'
+
+const enabled = ref(false)
+
+const { data, start, stop } = useSubscription(NEW_MESSAGES_SUB, undefined, {
+  enabled
+})
+
+enabled.value = true
+start()
+// ...
+stop()
+```
+
+### Case 3: Stable variables to avoid noisy restarts
+
+```ts
+const roomId = ref('room-1')
+const subscriptionVars = computed(() => ({ roomId: roomId.value }))
+
+useSubscription(ROOM_SUBSCRIPTION, subscriptionVars)
+```
+
+## Related
+- [`Nuxt Integration`](/nuxt)
+- [`useQuery`](/composables/useQuery)

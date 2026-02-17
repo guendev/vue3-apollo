@@ -59,11 +59,11 @@ If you use Apollo Client and `graphql-tag`, make sure the runtime deps are insta
 ::: code-group
 
 ```bash [npm]
-npm i -D @apollo/client graphql graphql-tag
+npm i @apollo/client graphql graphql-tag
 ```
 
 ```bash [pnpm]
-pnpm add -D @apollo/client graphql graphql-tag
+pnpm add @apollo/client graphql graphql-tag
 ```
 
 :::
