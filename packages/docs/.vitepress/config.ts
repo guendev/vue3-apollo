@@ -100,6 +100,10 @@ export default defineConfig({
                     {
                         link: '/advance/tracking',
                         text: 'Tracking'
+                    },
+                    {
+                        link: '/advance/skills',
+                        text: 'Skills'
                     }
                 ],
                 text: 'Advance'

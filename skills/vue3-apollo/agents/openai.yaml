@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vue3 Apollo"
+  short_description: "Help with Vue3 Apollo core and Nuxt workflows"
+  default_prompt: "Use $vue3-apollo to implement or debug Vue 3 and Nuxt Apollo workflows."

@@ -10,13 +10,14 @@ import type { DocumentNode } from 'graphql'
 import type { MaybeRefOrGetter } from 'vue'
 
 import { createEventHook } from '@vueuse/core'
-import { computed, getCurrentScope, onScopeDispose, ref, shallowRef, toRef, toValue, watch } from 'vue'
+import { computed, getCurrentScope, onScopeDispose, ref, shallowRef, toValue, watch } from 'vue'
 
 import type { HookContext, UseBaseOption } from '../utils/type'
 
 import { useApolloTracking } from '../helpers/useApolloTracking'
 import { isDefined } from '../utils/isDefined'
 import { isServer } from '../utils/isServer'
+import { omit } from '../utils/omit'
 import { useApolloClient } from './useApolloClient'
 
 export type UseSubscriptionOptions<
@@ -24,17 +25,17 @@ export type UseSubscriptionOptions<
     TVariables extends OperationVariables = OperationVariables
 > = {
     /**
-     * Whether the query should be executed.
+     * Whether the subscription should be executed.
      * Can be a ref or getter for reactive control.
-     * When false, the query will be stopped and no requests will be made.
+     * When false, the subscription will be stopped and no requests will be made.
      *
      * @default true
      *
      * @example
      * ```ts
      * const shouldFetch = ref(false)
-     * useQuery(MY_QUERY, variables, {
-     *   enabled: shouldFetch // Query only runs when shouldFetch is true
+     * useSubscription(MY_SUBSCRIPTION, variables, {
+     *   enabled: shouldFetch // Subscription only runs when shouldFetch is true
      * })
      * ```
      */
@@ -54,10 +55,10 @@ export function useSubscription<
     const subscription = shallowRef<SubscriptionObservable<ApolloClient.SubscribeResult<TData>>>()
     const observer = shallowRef<ReturnType<Observable<TData>['subscribe']>>()
 
-    const enabled = toRef(options?.enabled ?? true)
+    const enabled = computed(() => toValue(options?.enabled ?? true))
 
     const data = shallowRef<TData>()
-    const loading = ref(toValue(enabled))
+    const loading = ref(enabled.value)
     const error = ref<ErrorLike>()
 
     const subscriptionData = createEventHook<[TData, HookContext]>()
@@ -66,12 +67,24 @@ export function useSubscription<
     const reactiveVariables = computed(() => toValue(variables) ?? {} as TVariables)
     const reactiveDocument = computed(() => toValue(document))
 
+    const getSubscriptionOptions = () => {
+        if (!options) {
+            return {}
+        }
+
+        return omit(options, ['enabled', 'clientId'])
+    }
+
     useApolloTracking({
         state: loading,
         type: 'subscriptions'
     })
 
     const onNext = (value: { data?: TData }) => {
+        if (!enabled.value) {
+            return
+        }
+
         loading.value = false
 
         if (isDefined(value.data)) {
@@ -81,6 +94,10 @@ export function useSubscription<
     }
 
     const onError = (e: ErrorLike) => {
+        if (!enabled.value) {
+            return
+        }
+
         loading.value = false
         error.value = e
         void subscriptionError.trigger(e, { client })
@@ -122,10 +139,12 @@ export function useSubscription<
             return
         }
 
+        loading.value = true
+
         subscription.value = client.subscribe<TData, TVariables>({
             query: reactiveDocument.value,
             variables: reactiveVariables.value,
-            ...options
+            ...getSubscriptionOptions()
         })
 
         startObserver()
@@ -231,21 +250,19 @@ export function useSubscription<
 
         /**
          * Manually start or restart the subscription.
-         * Useful when using enabled: false initially or after stopping.
+         * Useful after stopping the subscription.
+         * If enabled is false, this is a no-op.
          * Automatically called on mount if enabled is true.
          *
          * @example
          * ```ts
          * const { start, stop } = useSubscription(
          *   SUBSCRIPTION,
-         *   variables,
-         *   { enabled: false }
+         *   variables
          * )
          *
-         * // Start when user logs in
-         * onLogin(() => {
-         *   start()
-         * })
+         * // Start again after manual stop
+         * start()
          * ```
          */
         start,
