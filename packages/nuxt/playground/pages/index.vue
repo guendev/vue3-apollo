@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { PostsQueryVariables } from '@vue3-apollo/operations'
+import type { LazyPostsDemoQuery, LazyPostsDemoQueryVariables, PostsQueryVariables } from '@vue3-apollo/operations'
 
 import { gql } from '@apollo/client'
-import { PostDetailFragmentDoc, PostsDocument, UpdatePostDocument } from '@vue3-apollo/operations'
+import { LazyPostsDemoDocument, PostDetailFragmentDoc, PostsDocument, UpdatePostDocument } from '@vue3-apollo/operations'
 import { reactive, ref } from 'vue'
 
 // Constants
@@ -22,6 +22,8 @@ const enabled = ref(true)
 const title = ref('')
 const fragmentPostId = ref(1)
 const fragmentEnabled = ref(true)
+const lazyExecuteError = ref<unknown>()
+const lazyReturnedData = ref<LazyPostsDemoQuery>()
 
 // Reactive variables
 const vars = reactive<PostsQueryVariables>({
@@ -30,6 +32,10 @@ const vars = reactive<PostsQueryVariables>({
 })
 
 const rawQueryVars = computed(() => ({ userId: vars.userId }))
+const lazyVars = reactive<LazyPostsDemoQueryVariables>({
+    first: 2,
+    userId: 1
+})
 
 // Queries
 const { error, onResult, refetch, result } = useQuery(PostsDocument, vars, {
@@ -48,6 +54,17 @@ const { data: ssrData, error: ssrError } = await useAsyncQuery(
 
 const { error: rawQueryError, result: rawQueryResult } = useQuery(rawQuery, rawQueryVars, {
     enabled,
+    keepPreviousResult: true
+})
+
+const {
+    called: lazyCalled,
+    error: lazyError,
+    execute: executeLazyQuery,
+    loading: lazyLoading,
+    result: lazyResult
+} = useLazyQuery(LazyPostsDemoDocument, lazyVars, {
+    fetchPolicy: 'cache-first',
     keepPreviousResult: true
 })
 
@@ -106,6 +123,17 @@ watch(isLoading, (loading) => {
         finish()
     }
 })
+
+const runLazyQuery = async () => {
+    lazyExecuteError.value = undefined
+
+    try {
+        lazyReturnedData.value = await executeLazyQuery()
+    }
+    catch (e) {
+        lazyExecuteError.value = e
+    }
+}
 </script>
 
 <template>
@@ -219,6 +247,74 @@ watch(isLoading, (loading) => {
           <pre class="w-full overflow-auto text-sm leading-relaxed bg-slate-950/60 border border-white/10 rounded-lg p-3">
 {{ (rawQueryResult as any)?.users }}
           </pre>
+        </div>
+
+        <div class="border-t border-white/10 pt-4 space-y-3">
+          <div class="flex flex-wrap items-center gap-3">
+            <h3 class="text-sm font-medium text-gray-300">
+              Lazy Query Demo (useLazyQuery)
+            </h3>
+            <button
+              type="button"
+              class="inline-flex cursor-pointer items-center gap-2 px-3 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 text-white transition-colors"
+              @click="runLazyQuery"
+            >
+              {{ lazyLoading ? 'Executing...' : 'Execute Lazy Query' }}
+            </button>
+            <span class="text-xs text-gray-400">called: <strong class="text-gray-200">{{ lazyCalled ? 'true' : 'false' }}</strong></span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <label class="block text-sm text-gray-300">Lazy User ID</label>
+              <input
+                v-model.number="lazyVars.userId"
+                type="number"
+                placeholder="User ID"
+                class="w-full px-3 py-2 rounded-lg bg-slate-800/70 text-gray-100 placeholder:text-gray-500 border border-slate-700 focus:(outline-none ring-2 ring-cyan-500)"
+              >
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-sm text-gray-300">Lazy First</label>
+              <input
+                v-model.number="lazyVars.first"
+                type="number"
+                min="1"
+                step="1"
+                placeholder="First"
+                class="w-full px-3 py-2 rounded-lg bg-slate-800/70 text-gray-100 placeholder:text-gray-500 border border-slate-700 focus:(outline-none ring-2 ring-cyan-500)"
+              >
+            </div>
+          </div>
+
+          <div v-if="lazyError" class="text-sm text-rose-400 bg-rose-900/20 border border-rose-700/40 rounded-lg p-3">
+            Reactive Error: {{ lazyError }}
+          </div>
+
+          <div v-if="lazyExecuteError" class="text-sm text-rose-400 bg-rose-900/20 border border-rose-700/40 rounded-lg p-3">
+            Execute Error: {{ lazyExecuteError }}
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <div class="text-xs text-gray-400 mb-2">
+                execute() returned data:
+              </div>
+              <pre class="w-full overflow-auto text-sm leading-relaxed bg-slate-950/60 border border-white/10 rounded-lg p-3">
+{{ lazyReturnedData?.posts }}
+              </pre>
+            </div>
+
+            <div>
+              <div class="text-xs text-gray-400 mb-2">
+                reactive result:
+              </div>
+              <pre class="w-full overflow-auto text-sm leading-relaxed bg-slate-950/60 border border-white/10 rounded-lg p-3">
+{{ lazyResult?.posts }}
+              </pre>
+            </div>
+          </div>
         </div>
 
         <!-- Fragment Testing Section -->

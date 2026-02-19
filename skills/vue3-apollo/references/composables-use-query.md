@@ -8,6 +8,8 @@ Use `useQuery` when data must stay reactive with Vue state changes:
 2. UI needs `loading`, `error`, and live `result` updates.
 3. Query lifecycle should follow component lifecycle (auto cleanup in component scope).
 
+Choose `useLazyQuery` instead when the query must be fully manual and button-triggered.
+
 ## Signature
 
 ```ts
@@ -30,15 +32,17 @@ import { gql } from 'graphql-tag'
 4. `networkStatus`
 5. `refetch(variables?)`
 6. `fetchMore({ variables, updateQuery })`
-7. `start()`
-8. `stop()`
-9. `onResult((data, context) => {})`
-10. `onError((error, context) => {})`
+7. `query` (Apollo `ObservableQuery` ref for advanced usage)
+8. `start()`
+9. `stop()`
+10. `onResult((data, context) => {})`
+11. `onError((error, context) => {})`
 
 Return behavior note:
 
 1. `refetch()` and `fetchMore()` may return `undefined` when query is disabled or not started.
 2. Treat manual operations as conditional calls, not always-guaranteed network requests.
+3. `query.value` can be `undefined` before observer starts or when query is stopped.
 
 ## Key options
 
@@ -228,7 +232,8 @@ Note:
 1. `references/overview-and-decision-tree.md`
 2. `references/setup-core-vue3.md`
 3. `references/setup-nuxt4.md`
-4. `references/composables-use-apollo-client.md`
-5. `references/tracking-and-loading.md`
-6. `references/nuxt-custom-integration.md`
-7. `references/testing-checklist.md`
+4. `references/composables-use-lazy-query.md`
+5. `references/composables-use-apollo-client.md`
+6. `references/tracking-and-loading.md`
+7. `references/nuxt-custom-integration.md`
+8. `references/testing-checklist.md`

@@ -19,7 +19,7 @@ hero:
       link: /migration
 features:
   - title: Composable-First
-    details: Typed Vue composables for query, mutation, subscription, fragment, and client access.
+    details: Typed Vue composables for query, lazy query, mutation, subscription, fragment, and client access.
   - title: Nuxt 4 Support
     details: Module setup, AsyncData-friendly fetching, cookie auth, and runtime hooks.
   - title: Multi-Client + SSR

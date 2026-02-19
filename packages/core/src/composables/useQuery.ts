@@ -483,6 +483,12 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         refetch,
 
         /**
+         * The current Apollo ObservableQuery instance.
+         * Exposed for advanced use cases.
+         */
+        query,
+
+        /**
          * The query result data.
          * Can be undefined if no data has been loaded yet.
          * When keepPreviousResult is true, retains previous data during refetch.

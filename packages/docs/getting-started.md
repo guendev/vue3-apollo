@@ -59,7 +59,10 @@ The plugin injects all Apollo clients into your app context, allowing you to acc
 
 ## Your first query
 
-To actually run a query, you first define it using `gql` and then use `useQuery` (reactive) or `client.query` (imperative).
+To actually run a query, you first define it using `gql` and then use:
+- `useQuery` for auto/reactive execution
+- `useLazyQuery` for manual execution (`execute()` on demand)
+- `client.query` for imperative client usage
 
 ```ts
 import { gql } from 'graphql-tag'
@@ -82,6 +85,19 @@ import { useQuery } from '@vue3-apollo/core'
 import { GET_USERS } from '@/graphql/queries'
 
 const { result, loading, error } = useQuery(GET_USERS)
+```
+
+Using `useLazyQuery` for click-to-fetch:
+
+```ts
+import { useLazyQuery } from '@vue3-apollo/core'
+import { GET_USERS } from '@/graphql/queries'
+
+const { execute, called, result, loading, error } = useLazyQuery(GET_USERS)
+
+const loadUsers = async () => {
+  await execute()
+}
 ```
 
 Or run it directly with a client (imperative):

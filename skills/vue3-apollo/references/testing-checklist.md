@@ -9,7 +9,7 @@ Use this file before merging any change that touches `@vue3-apollo/core` or `@vu
 Apply checks in this order:
 
 1. Setup integrity (plugin/module/client registry).
-2. Operation behavior (query, mutation, subscription, fragment).
+2. Operation behavior (query, lazy query, mutation, subscription, fragment).
 3. Nuxt SSR + hydration behavior.
 4. Multi-client routing behavior.
 5. Error and tracking behavior.
@@ -35,10 +35,11 @@ If this is a consumer app (not library repo), run equivalent local scripts:
 1. `apolloPlugin` is installed with non-empty `clients`.
 2. `useApolloClient()` returns a valid default client.
 3. `useQuery` returns data and updates loading state.
-4. `useMutation` handles success and error path.
-5. `useSubscription` receives events on client when ws is configured.
-6. `useFragment` reads cache data and reacts to cache updates.
-7. No runtime error for missing client registry or wrong `clientId`.
+4. `useLazyQuery` does not run before `execute()`, then resolves data on execute.
+5. `useMutation` handles success and error path.
+6. `useSubscription` receives events on client when ws is configured.
+7. `useFragment` reads cache data and reacts to cache updates.
+8. No runtime error for missing client registry or wrong `clientId`.
 
 Smoke snippet:
 
@@ -173,6 +174,7 @@ Block merge if any of these are true:
 3. `references/nuxt-custom-integration.md`
 4. `references/troubleshooting.md`
 5. `references/composables-use-query.md`
-6. `references/composables-use-mutation.md`
-7. `references/composables-use-subscription.md`
-8. `references/tracking-and-loading.md`
+6. `references/composables-use-lazy-query.md`
+7. `references/composables-use-mutation.md`
+8. `references/composables-use-subscription.md`
+9. `references/tracking-and-loading.md`

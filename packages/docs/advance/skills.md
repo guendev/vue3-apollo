@@ -10,7 +10,7 @@ It helps agents work with:
 
 - Vue 3
 - Nuxt 4
-- composables: `useQuery`, `useMutation`, `useSubscription`, `useFragment`, `useAsyncQuery`
+- composables: `useQuery`, `useLazyQuery`, `useMutation`, `useSubscription`, `useFragment`, `useAsyncQuery`
 - migration, caching, SSR, tracking, and troubleshooting
 
 ## Install

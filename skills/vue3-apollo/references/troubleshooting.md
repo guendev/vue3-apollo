@@ -152,7 +152,7 @@ Fix:
 1. Enable `apollo.autoImports: true`, or import manually:
 
 ```ts
-import { useQuery } from '@vue3-apollo/core'
+import { useLazyQuery, useQuery } from '@vue3-apollo/core'
 import { useAsyncQuery } from '@vue3-apollo/nuxt'
 ```
 

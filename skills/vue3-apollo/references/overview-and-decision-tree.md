@@ -27,7 +27,9 @@ flowchart LR
   B -- "Yes" --> C{"Need SSR page data?"}
   C -- "Yes" --> D["Use useAsyncQuery from @vue3-apollo/nuxt"]
   C -- "No" --> E{"Operation type?"}
-  E -- "Read" --> F["Use useQuery"]
+  E -- "Read" --> F{"Manual trigger only?"}
+  F -- "Yes" --> F2["Use useLazyQuery"]
+  F -- "No" --> F1["Use useQuery"]
   E -- "Write" --> G["Use useMutation"]
   E -- "Realtime" --> H["Use useSubscription"]
   E -- "Fragment/cache" --> I["Use useFragment"]
@@ -35,7 +37,8 @@ flowchart LR
   J -- "Yes" --> E
   J -- "No" --> K["Use useApolloClient().query/mutate/subscribe"]
   D --> L["See references/nuxt-custom-integration.md for runtime customization"]
-  F --> M["See references/composables-use-query.md"]
+  F1 --> M["See references/composables-use-query.md"]
+  F2 --> M2["See references/composables-use-lazy-query.md"]
   G --> N["See references/composables-use-mutation.md"]
   H --> O["See references/composables-use-subscription.md"]
   I --> P["See references/composables-use-fragment.md"]
@@ -50,6 +53,7 @@ flowchart LR
 | "Can useQuery prefetch replace useAsyncData?"            | Nuxt SSR decision       | Treat `useQuery({ prefetch: true })` as SSR-capable, but prefer `useAsyncQuery` for Nuxt page data flow |
 | "Nuxt says composable is not defined"                    | Nuxt setup check        | Confirm module is installed and `apollo.autoImports` is enabled, or add explicit imports                |
 | "My data should react to ref/computed changes"           | `useQuery`              | Start with `useQuery(document, () => variables)`                                                        |
+| "I need click-to-fetch/manual query execution"           | `useLazyQuery`          | Use `useLazyQuery(...)` and call `await execute()` from handler                                          |
 | "I need submit/save action with callbacks"               | `useMutation`           | Use `useMutation` + `mutate` + `onDone`/`onError`                                                       |
 | "I need live updates"                                    | `useSubscription`       | Ensure `graphql-ws` is installed and `wsEndpoint` is configured                                         |
 | "I only need direct client calls"                        | `useApolloClient`       | Use `const client = useApolloClient()` then `client.query/mutate`                                       |
@@ -144,13 +148,14 @@ Use these files after routing:
 1. `references/setup-core-vue3.md`
 2. `references/setup-nuxt4.md`
 3. `references/composables-use-query.md`
-4. `references/composables-use-mutation.md`
-5. `references/composables-use-subscription.md`
-6. `references/composables-use-fragment.md`
-7. `references/composables-use-apollo-client.md`
-8. `references/tracking-and-loading.md`
-9. `references/typescript-and-codegen.md`
-10. `references/migration-from-vue-apollo-composable.md`
-11. `references/nuxt-custom-integration.md`
-12. `references/troubleshooting.md`
-13. `references/testing-checklist.md`
+4. `references/composables-use-lazy-query.md`
+5. `references/composables-use-mutation.md`
+6. `references/composables-use-subscription.md`
+7. `references/composables-use-fragment.md`
+8. `references/composables-use-apollo-client.md`
+9. `references/tracking-and-loading.md`
+10. `references/typescript-and-codegen.md`
+11. `references/migration-from-vue-apollo-composable.md`
+12. `references/nuxt-custom-integration.md`
+13. `references/troubleshooting.md`
+14. `references/testing-checklist.md`

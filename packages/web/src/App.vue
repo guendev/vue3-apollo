@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import type {
+    LazyPostsDemoQuery,
+    LazyPostsDemoQueryVariables,
     PostsQueryVariables,
     TodosQuery,
     TodosQueryVariables
 } from '@vue3-apollo/operations'
 
 import { gql } from '@apollo/client'
-import { useFragment, useMutation, useQuery } from '@vue3-apollo/core'
-import { PostDetailFragmentDoc, PostsDocument, UpdatePostDocument } from '@vue3-apollo/operations'
+import { useFragment, useLazyQuery, useMutation, useQuery } from '@vue3-apollo/core'
+import { LazyPostsDemoDocument, PostDetailFragmentDoc, PostsDocument, UpdatePostDocument } from '@vue3-apollo/operations'
 import { computed, reactive, ref } from 'vue'
 
 const enabled = ref(true)
@@ -52,6 +54,27 @@ const todoQuery = computed(() => gql(rawTodoQuery.value))
 const { result: todosResult } = useQuery<TodosQuery, TodosQueryVariables>(todoQuery, vars, {
     keepPreviousResult: true
 })
+
+const lazyUserId = ref(1)
+const lazyFirst = ref(2)
+
+const {
+    called: lazyCalled,
+    error: lazyError,
+    execute: executeLazyQuery,
+    loading: lazyLoading,
+    result: lazyResult
+} = useLazyQuery<LazyPostsDemoQuery, LazyPostsDemoQueryVariables>(LazyPostsDemoDocument, undefined, {
+    keepPreviousResult: true
+})
+
+async function handleExecuteLazyQuery() {
+    const nextData = await executeLazyQuery({
+        first: lazyFirst.value,
+        userId: lazyUserId.value
+    })
+    console.warn('onLazyExecuteData', nextData)
+}
 
 function handleUpdate() {
     mutate({
@@ -151,6 +174,57 @@ function handleUpdate() {
           </div>
           <pre class="w-full overflow-auto text-sm leading-relaxed bg-slate-950/60 border border-white/10 rounded-lg p-3">
  {{ data }}
+          </pre>
+        </div>
+      </section>
+
+      <section class="bg-slate-900/60 border border-white/10 rounded-xl shadow-lg backdrop-blur p-4 sm:p-6 space-y-4 mt-10">
+        <div class="flex flex-wrap items-center gap-3">
+          <h2 class="text-lg font-medium text-gray-100">
+            Manual Query (useLazyQuery)
+          </h2>
+          <span class="ml-auto text-xs text-gray-400">Called: <strong class="text-gray-200">{{ lazyCalled ? 'Yes' : 'No' }}</strong></span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="space-y-2">
+            <label class="block text-sm text-gray-300">User ID</label>
+            <input
+              v-model.number="lazyUserId" type="number" min="1" step="1" placeholder="User ID"
+              class="w-full px-3 py-2 rounded-lg bg-slate-800/70 text-gray-100 placeholder:text-gray-500 border border-slate-700 focus:(outline-none ring-2 ring-indigo-500)"
+            >
+          </div>
+
+          <div class="space-y-2">
+            <label class="block text-sm text-gray-300">First</label>
+            <input
+              v-model.number="lazyFirst" type="number" min="1" step="1" placeholder="First"
+              class="w-full px-3 py-2 rounded-lg bg-slate-800/70 text-gray-100 placeholder:text-gray-500 border border-slate-700 focus:(outline-none ring-2 ring-indigo-500)"
+            >
+          </div>
+
+          <div class="space-y-2">
+            <label class="block text-sm text-gray-300">Action</label>
+            <button
+              type="button"
+              class="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white transition-colors"
+              @click="handleExecuteLazyQuery"
+            >
+              {{ lazyLoading ? 'Executing...' : 'Execute Lazy Query' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="border-t border-white/10 pt-4 space-y-3">
+          <div v-if="lazyError" class="text-sm text-rose-400 bg-rose-900/20 border border-rose-700/40 rounded-lg p-3">
+            {{ lazyError }}
+          </div>
+
+          <div class="text-sm text-gray-300">
+            Lazy Posts:
+          </div>
+          <pre class="w-full overflow-auto text-sm leading-relaxed bg-slate-950/60 border border-white/10 rounded-lg p-3">
+ {{ lazyResult?.posts }}
           </pre>
         </div>
       </section>
