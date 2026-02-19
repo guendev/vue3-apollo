@@ -2,6 +2,7 @@ export * from './composables/useApolloClient'
 export * from './composables/useApolloClients'
 
 export * from './composables/useFragment'
+export * from './composables/useLazyQuery'
 export * from './composables/useMutation'
 export * from './composables/useQuery'
 export * from './composables/useSubscription'

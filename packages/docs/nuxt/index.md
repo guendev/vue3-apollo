@@ -43,6 +43,7 @@ Use in pages/components:
 
 ```ts
 const { result, loading, error } = useQuery(GET_POSTS)
+const { called, execute } = useLazyQuery(GET_POSTS)
 const { data: livePost } = useSubscription(POST_ADDED)
 ```
 
@@ -93,6 +94,7 @@ pnpm add graphql-ws
 :::
 
 ## Related
+- [`useLazyQuery`](/composables/useLazyQuery)
 - [`Nuxt Configuration`](/nuxt/configuration)
 - [`useAsyncQuery`](/nuxt/composables/useAsyncQuery)
 - [`Custom Apollo Integration`](/advance/nuxt-custom-integration)

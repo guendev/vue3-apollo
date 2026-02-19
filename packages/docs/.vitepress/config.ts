@@ -97,6 +97,10 @@ export default defineConfig({
                         text: 'useFragment'
                     },
                     {
+                        link: '/composables/useLazyQuery',
+                        text: 'useLazyQuery'
+                    },
+                    {
                         link: '/composables/useMutation',
                         text: 'useMutation'
                     },

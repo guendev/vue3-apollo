@@ -162,9 +162,10 @@ Recovery order:
 
 1. `references/overview-and-decision-tree.md`
 2. `references/composables-use-query.md`
-3. `references/composables-use-mutation.md`
-4. `references/composables-use-subscription.md`
-5. `references/composables-use-fragment.md`
-6. `references/composables-use-apollo-client.md`
-7. `references/troubleshooting.md`
-8. `references/testing-checklist.md`
+3. `references/composables-use-lazy-query.md`
+4. `references/composables-use-mutation.md`
+5. `references/composables-use-subscription.md`
+6. `references/composables-use-fragment.md`
+7. `references/composables-use-apollo-client.md`
+8. `references/troubleshooting.md`
+9. `references/testing-checklist.md`

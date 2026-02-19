@@ -1,6 +1,6 @@
 ---
 name: vue3-apollo
-description: Vue 3 and Nuxt 4 Apollo workflow for @vue3-apollo/core and @vue3-apollo/nuxt. Use when implementing, debugging, documenting, or migrating GraphQL features with useQuery, useMutation, useSubscription, useFragment, useApolloClient, useAsyncQuery, multi-client setup, SSR hydration, cookie auth, tracking hooks, and TypeScript codegen in consumer applications.
+description: Vue 3 and Nuxt 4 Apollo workflow for @vue3-apollo/core and @vue3-apollo/nuxt. Use when implementing, debugging, documenting, or migrating GraphQL features with useQuery, useLazyQuery, useMutation, useSubscription, useFragment, useApolloClient, useAsyncQuery, multi-client setup, SSR hydration, cookie auth, tracking hooks, and TypeScript codegen in consumer applications.
 ---
 
 # Vue3 Apollo
@@ -45,6 +45,7 @@ Read these files based on task type:
 - `references/setup-core-vue3.md`: Vue 3 core setup and plugin wiring.
 - `references/setup-nuxt4.md`: Nuxt module setup and runtime behavior.
 - `references/composables-use-query.md`: query lifecycle, SSR prefetch, debounce/throttle.
+- `references/composables-use-lazy-query.md`: manual query execution flow and `execute()` behavior.
 - `references/composables-use-mutation.md`: mutation flow, throws modes, callbacks.
 - `references/composables-use-subscription.md`: client-only subscription lifecycle.
 - `references/composables-use-fragment.md`: fragment cache reading, new and legacy overloads.
@@ -74,7 +75,8 @@ Read these files based on task type:
 4. Nuxt auth is cookie-based in current runtime creation flow.
 5. Nuxt `useAsyncQuery` uses object options and integrates with `useAsyncData`.
 6. Nuxt runtime provides `apollo:error` hook payload for centralized handling.
-7. Nuxt module `apollo.autoImports` is enabled by default; if disabled, import composables manually.
+7. `useLazyQuery` is built on top of `useQuery`, exposes `called` and `execute()`, and `execute()` follows Apollo cache policy.
+8. Nuxt module `apollo.autoImports` is enabled by default; if disabled, import composables manually.
 
 ## Implementation Checklist
 

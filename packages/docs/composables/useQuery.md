@@ -54,6 +54,7 @@ function useQuery<TData, TVariables>(
 - `onError((error, context) => void)`: Fired on query errors.
 - `refetch(variables?)`: Manually refetch query.
 - `fetchMore({ variables, updateQuery })`: Pagination/incremental fetch.
+- `query`: Apollo `ObservableQuery` ref for advanced cases (`undefined` before observer starts).
 - `start()`: Start query observer.
 - `stop()`: Stop query observer.
 
@@ -71,6 +72,7 @@ function useQuery<TData, TVariables>(
 - On server, data is prefetched via `onServerPrefetch` when `prefetch` is enabled.
 - If both `debounce` and `throttle` are set, `debounce` takes priority.
 - When `enabled` is `false`, `start`, `refetch`, and `fetchMore` are effectively blocked.
+- `query.value` is for advanced control (for example `reobserve`/`setVariables`) after the query is started.
 
 ## Examples
 
@@ -143,5 +145,6 @@ const isAnyLoading = useQueriesLoading(loadingKey)
 Use this when one place in UI (for example spinner in component B) should react to loading states triggered by multiple query owners (A and B).
 
 ## Related
+- [`useLazyQuery`](/composables/useLazyQuery)
 - [`useMutation`](/composables/useMutation)
 - [`useSubscription`](/composables/useSubscription)

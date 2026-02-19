@@ -18,3 +18,15 @@ query Todos($userId: Int, $first: Int) {
         id
     }
 }
+
+query LazyPostsDemo($userId: Int, $first: Int) {
+    posts(userId: $userId, first: $first) {
+        id
+        title
+        body
+        user {
+            id
+            name
+        }
+    }
+}

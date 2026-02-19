@@ -39,6 +39,7 @@ export default defineNuxtModule<ApolloModuleOptions>({
                         'useApolloClients',
                         'useApolloClient',
                         'useFragment',
+                        'useLazyQuery',
                         'useMutation',
                         'useQuery',
                         'useSubscription',

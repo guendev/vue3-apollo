@@ -46,7 +46,7 @@ Top-level shared options are merged into each client config. Per-client values o
 
 ## Auto-imports
 When `autoImports: true`, the module auto-imports:
-- Core composables: `useApolloClients`, `useApolloClient`, `useFragment`, `useMutation`, `useQuery`, `useSubscription`
+- Core composables: `useApolloClients`, `useApolloClient`, `useFragment`, `useLazyQuery`, `useMutation`, `useQuery`, `useSubscription`
 - Tracking helpers: `useApolloTrackingStore`, `useApolloTracker`, `useApolloTracking`, `useMutationsLoading`, `useQueriesLoading`, `useSubscriptionsLoading`
 - Nuxt helper: `useAsyncQuery`
 

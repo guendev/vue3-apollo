@@ -47,6 +47,7 @@ Important defaults:
 1. `apollo.autoImports` defaults to `true`.
 2. At least one client must exist under `apollo.clients`.
 3. `apollo` config is exposed into runtime config by the module.
+4. Auto-imported core composables include `useQuery`, `useLazyQuery`, `useMutation`, `useSubscription`, `useFragment`, `useApolloClient`, and `useApolloClients`.
 
 ## Use in pages and components
 
@@ -71,7 +72,7 @@ const { data, pending, error } = await useAsyncQuery({
 If `apollo.autoImports` is disabled, import manually:
 
 ```ts
-import { useQuery } from '@vue3-apollo/core'
+import { useLazyQuery, useQuery } from '@vue3-apollo/core'
 import { useAsyncQuery } from '@vue3-apollo/nuxt'
 ```
 
@@ -230,7 +231,8 @@ Recovery:
 1. `references/overview-and-decision-tree.md`
 2. `references/nuxt-custom-integration.md`
 3. `references/composables-use-query.md`
-4. `references/composables-use-subscription.md`
-5. `references/composables-use-apollo-client.md`
-6. `references/troubleshooting.md`
-7. `references/testing-checklist.md`
+4. `references/composables-use-lazy-query.md`
+5. `references/composables-use-subscription.md`
+6. `references/composables-use-apollo-client.md`
+7. `references/troubleshooting.md`
+8. `references/testing-checklist.md`
