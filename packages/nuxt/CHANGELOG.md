@@ -1,5 +1,28 @@
 # @vue3-apollo/nuxt
 
+## 1.6.0
+
+### Minor Changes
+
+- 82ea9a4: Add `useLazyQuery` for manual query execution with `called` and `execute()`.
+  Expose `query` from `useQuery` for advanced ObservableQuery flows.
+  Update Nuxt auto-imports to include `useLazyQuery` and refresh playground/docs.
+
+### Patch Changes
+
+- 8d4112e: Improve `useFragment` start/stop gating to avoid duplicate subscriptions and ignore events while disabled.
+- 4750b5c: Block query updates and imperative calls when enabled is false.
+- fc6d71d: rename useApolloTracker to useApolloTrackingStore and keep deprecated alias
+- 4942282: Update package dependencies across the workspace.
+- d055fd3: Add `loadingKey` support to `useQuery`, `useMutation`, and `useSubscription`, and allow custom owner ids in Apollo loading tracking.
+- Updated dependencies [82ea9a4]
+- Updated dependencies [8d4112e]
+- Updated dependencies [4750b5c]
+- Updated dependencies [fc6d71d]
+- Updated dependencies [4942282]
+- Updated dependencies [d055fd3]
+  - @vue3-apollo/core@1.6.0
+
 ## 1.5.3
 
 ### Patch Changes
