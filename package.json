@@ -20,7 +20,7 @@
     "typecheck": "pnpm run typecheck:core && pnpm run typecheck:web",
     "typecheck:core": "pnpm --filter @vue3-apollo/core run typecheck",
     "typecheck:web": "pnpm --filter @vue3-apollo/web run typecheck",
-    "update:dependencies": "ncu --deep -u",
+    "update:dependencies": "taze",
     "version": "changeset version && pnpm install --lockfile-only"
   },
   "devDependencies": {
@@ -28,6 +28,7 @@
     "@changesets/cli": "^2.29.8",
     "eslint": "^10.0.0",
     "eslint-plugin-perfectionist": "^5.5.0",
+    "taze": "^19.14.1",
     "typescript": "^5.9.3",
     "unbuild": "^3.6.1"
   }
