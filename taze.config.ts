@@ -1,9 +1,9 @@
 import { defineConfig } from 'taze'
 
 export default defineConfig({
-  recursive: true,
-  write: true,
-  install: false,
-  mode: 'major',
-  exclude: [],
+    exclude: [],
+    install: false,
+    mode: 'major',
+    recursive: true,
+    write: true
 })

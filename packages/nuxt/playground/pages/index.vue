@@ -124,7 +124,7 @@ watch(isLoading, (loading) => {
     }
 })
 
-const runLazyQuery = async () => {
+async function runLazyQuery() {
     lazyExecuteError.value = undefined
 
     try {

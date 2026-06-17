@@ -12,11 +12,11 @@
     "docs:preview": "vitepress preview"
   },
   "dependencies": {
-    "vitepress-plugin-group-icons": "^1.7.1",
-    "vue": "^3.5.28"
+    "vitepress-plugin-group-icons": "^1.7.5",
+    "vue": "^3.5.38"
   },
   "devDependencies": {
-    "typescript": "^5.9.3",
-    "vitepress": "^2.0.0-alpha.12"
+    "typescript": "^6.0.3",
+    "vitepress": "^2.0.0-alpha.17"
   }
 }
