@@ -20,7 +20,7 @@
     "typecheck": "pnpm run typecheck:core && pnpm run typecheck:web",
     "typecheck:core": "pnpm --filter @vue3-apollo/core run typecheck",
     "typecheck:web": "pnpm --filter @vue3-apollo/web run typecheck",
-    "update:dependencies": "pnpm dlx taze major -r -w",
+    "update:dependencies": "pnpm dlx taze",
     "version": "changeset version && pnpm install --lockfile-only"
   },
   "devDependencies": {
