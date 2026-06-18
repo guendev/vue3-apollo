@@ -183,16 +183,13 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     const reactiveVariables = computed(() => toValue(variables) ?? {} as TVariables)
     const reactiveDocument = computed(() => toValue(document))
 
-    const getQueryOptions = () => {
-        if (!options) {
-            return {}
-        }
-
-        return omit(
+    // The custom options are static, so the Apollo-only options can be derived once.
+    const queryOptions = options
+        ? omit(
             options,
             ['debounce', 'enabled', 'keepPreviousResult', 'throttle', 'clientId', 'prefetch', 'loadingKey']
         )
-    }
+        : {}
 
     // SSR Support: Prefetch a query on server during SSR
     const prefetch = options?.prefetch ?? true
@@ -200,7 +197,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         onServerPrefetch(async () => {
             try {
                 const queryResult = await client.query<TData, TVariables>({
-                    ...getQueryOptions(),
+                    ...queryOptions,
                     query: reactiveDocument.value,
                     variables: reactiveVariables.value
                 })
@@ -249,6 +246,9 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
             return
         }
 
+        // The error callback terminates the subscription, so onNext won't fire
+        // again to clear the loading flag — reset it here to avoid it sticking true.
+        loading.value = false
         error.value = e
         void onErrorEvent.trigger(e, { client })
     }
@@ -270,6 +270,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
 
     const stop = () => {
         loading.value = false
+        networkStatus.value = undefined
 
         if (observer.value && !observer.value.closed) {
             observer.value.unsubscribe()
@@ -283,7 +284,9 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     }
 
     const start = () => {
-        if (!enabled.value) {
+        // Bail out when disabled, or when a query is already running, so start()
+        // is idempotent and never orphans a previous ObservableQuery.
+        if (!enabled.value || query.value) {
             return
         }
 
@@ -307,7 +310,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         }
 
         query.value = client.watchQuery<TData, TVariables>({
-            ...getQueryOptions(),
+            ...queryOptions,
             notifyOnNetworkStatusChange: options?.notifyOnNetworkStatusChange ?? options?.keepPreviousResult,
             query: reactiveDocument.value,
             variables: reactiveVariables.value
@@ -331,9 +334,15 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         })
 
         const updateVariables = (newVariables: TVariables) => {
-            if (enabled.value && query.value) {
-                void query.value.setVariables(newVariables)
+            if (!enabled.value || !query.value) {
+                return
             }
+
+            error.value = undefined
+            loading.value = true
+            // Errors surface through the observer's error handler, which resets
+            // loading; catch the rejection here only to avoid an unhandled promise.
+            void query.value.setVariables(newVariables).catch(() => {})
         }
 
         // Debounce has priority over throttle if both are provided
@@ -364,7 +373,13 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         }
         error.value = undefined
         loading.value = true
-        return query.value.refetch(variables)
+        try {
+            return await query.value.refetch(variables)
+        }
+        finally {
+            // Ensure loading is cleared even if the refetch rejects.
+            loading.value = false
+        }
     }
 
     const fetchMore = async (options: Pick<ObservableQuery.FetchMoreOptions<TData, TVariables>, 'updateQuery' | 'variables'>) => {
@@ -374,7 +389,13 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
 
         error.value = undefined
         loading.value = true
-        return query.value.fetchMore(options)
+        try {
+            return await query.value.fetchMore(options)
+        }
+        finally {
+            // Ensure loading is cleared even if fetchMore rejects.
+            loading.value = false
+        }
     }
 
     if (getCurrentScope()) {
