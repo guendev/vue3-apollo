@@ -3,7 +3,7 @@ export async function openViewSource(url: string) {
         const response = await fetch(url)
         const html = await response.text()
 
-        // Tạo HTML formatted để hiển thị source
+        // Build formatted HTML to display the source
         const formattedHtml = `<!DOCTYPE html>
 <html>
 <head>

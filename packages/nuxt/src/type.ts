@@ -7,17 +7,17 @@ import type { ClientOptions } from 'graphql-ws'
  */
 export interface ApolloClientConfig extends ApolloSharedConfig {
     /**
-     * URI của GraphQL endpoint qua HTTP/HTTPS.
+     * URI of the GraphQL endpoint over HTTP/HTTPS.
      *
      * @example 'https://api.example.com/graphql'
      */
     httpEndpoint: string
 
     /**
-     * URI của WebSocket endpoint cho GraphQL subscriptions.
-     * Khi được cấu hình, subscriptions sẽ sử dụng kết nối WebSocket.
+     * URI of the WebSocket endpoint for GraphQL subscriptions.
+     * When configured, subscriptions will use a WebSocket connection.
      *
-     * @remarks Yêu cầu cài đặt package 'graphql-ws'
+     * @remarks Requires the 'graphql-ws' package to be installed
      * @example 'wss://api.example.com/graphql'
      */
     wsEndpoint?: string
@@ -99,8 +99,8 @@ export interface ApolloSharedAuthConfig {
  */
 export interface ApolloSharedConfig extends Pick<ApolloClient.Options, 'assumeImmutableResults' | 'dataMasking' | 'defaultOptions' | 'localState' | 'queryDeduplication'> {
     /**
-     * Tùy chọn bổ sung cho HTTP link.
-     * Cho phép tùy chỉnh headers, credentials, fetch options, v.v.
+     * Additional options for the HTTP link.
+     * Allows customizing headers, credentials, fetch options, etc.
      *
      * @example
      * ```ts
