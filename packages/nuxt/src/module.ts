@@ -1,5 +1,4 @@
 import { addImports, addPlugin, addTemplate, addTypeTemplate, createResolver, defineNuxtModule, resolvePath, updateRuntimeConfig } from '@nuxt/kit'
-import { existsSync } from 'node:fs'
 
 import type { ApolloModuleOptions } from './type'
 
@@ -28,14 +27,7 @@ export default defineNuxtModule<ApolloModuleOptions>({
         const clientConfigPaths: Record<string, string> = {}
         for (const [clientId, clientConfig] of Object.entries(options.clients)) {
             if (clientConfig.configFile) {
-                const resolved = await resolvePath(clientConfig.configFile)
-                if (!existsSync(resolved)) {
-                    throw new Error(
-                        `[@vue3-apollo/nuxt] configFile for client "${clientId}" not found: `
-                        + `"${clientConfig.configFile}" (resolved to "${resolved}").`
-                    )
-                }
-                clientConfigPaths[clientId] = resolved
+                clientConfigPaths[clientId] = await resolvePath(clientConfig.configFile)
             }
         }
 
