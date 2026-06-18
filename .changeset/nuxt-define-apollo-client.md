@@ -10,4 +10,6 @@ The builder receives a context of factories (`createAuthLink`, `createErrorLink`
 
 The builder runs with the Nuxt context restored, so app-level composables (`useCookie`, `useRuntimeConfig`, `useRequestURL`, …) work inside it.
 
+`defineApolloClient` is auto-imported in builder files; it can also be imported explicitly from `@vue3-apollo/nuxt/config` (along with its `ApolloClientContext` type).
+
 This is fully additive and opt-in: clients without a `configFile` behave exactly as before.
