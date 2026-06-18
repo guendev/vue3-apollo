@@ -8,6 +8,7 @@ import { nextTick, ref, shallowRef, toValue } from 'vue'
 import type { HookContext, UseBaseOption } from '../utils/type'
 
 import { useApolloTracking } from '../helpers/useApolloTracking'
+import { isDefined } from '../utils/isDefined'
 import { omit } from '../utils/omit'
 import { useApolloClient } from './useApolloClient'
 
@@ -27,7 +28,9 @@ export type UseMutationOptions<
     /**
      * Controls when the mutation should throw errors.
      * - 'always': Always throw errors (useful with try/catch)
-     * - 'auto': Default Apollo behavior
+     * - 'auto': Mirror Apollo's default behavior — throw unless an error policy
+     *   other than 'none' is in effect (in which case errors are surfaced via
+     *   the `error` ref instead of rejecting)
      * - 'never': Never throw, only set error state
      *
      * @default 'auto'
@@ -110,19 +113,42 @@ export function useMutation<
     const onDone = createEventHook<[TData, HookContext]>()
     const onError = createEventHook<[ErrorLike, HookContext]>()
 
-    const getMutationBaseOptions = () => {
-        if (!options) {
-            return {}
-        }
-
-        return omit(options, ['throws', 'clientId', 'loadingKey'])
-    }
+    // The custom options are static, so the Apollo-only options can be derived once.
+    const mutationBaseOptions = options
+        ? omit(options, ['throws', 'clientId', 'loadingKey'])
+        : {}
 
     useApolloTracking({
         id: options?.loadingKey,
         state: loading,
         type: 'mutations'
     })
+
+    /**
+     * Decide whether a caught error should be re-thrown, based on the `throws`
+     * option:
+     * - 'always': always throw
+     * - 'never': never throw, only set the error state
+     * - 'auto' (default): mirror Apollo's default behavior — throw unless an
+     *   error policy other than 'none' is in effect (in which case GraphQL
+     *   errors are surfaced via `result.error` instead of rejecting).
+     */
+    const shouldThrowOnError = (
+        mutateOptions?: Omit<ApolloClient.MutateOptions<TData, TVariables, TCache>, 'mutation' | 'variables'>
+    ) => {
+        if (options?.throws === 'always') {
+            return true
+        }
+        if (options?.throws === 'never') {
+            return false
+        }
+
+        const errorPolicy = mutateOptions?.errorPolicy
+            ?? options?.errorPolicy
+            ?? client.defaultOptions?.mutate?.errorPolicy
+
+        return errorPolicy == null || errorPolicy === 'none'
+    }
 
     const mutate = async (
         variables?: TVariables,
@@ -136,18 +162,22 @@ export function useMutation<
             const result = await client.mutate<TData, TVariables, TCache>({
                 mutation: toValue(document),
                 variables: variables as TVariables ?? undefined,
-                ...getMutationBaseOptions(),
+                ...mutationBaseOptions,
                 ...mutateOptions
             })
 
             if (result.error) {
                 error.value = result.error
+                await nextTick()
                 void onError.trigger(result.error, { client })
             }
             else {
                 data.value = result.data
                 await nextTick()
-                void onDone.trigger(result.data as TData, { client })
+                // Only fire onDone when actual data was returned, mirroring useQuery.
+                if (isDefined(result.data)) {
+                    void onDone.trigger(result.data as TData, { client })
+                }
             }
 
             return result
@@ -158,7 +188,7 @@ export function useMutation<
 
             await nextTick()
             void onError.trigger(mutationErrorValue, { client })
-            if (options?.throws === 'always') {
+            if (shouldThrowOnError(mutateOptions)) {
                 throw e
             }
         }
@@ -204,7 +234,9 @@ export function useMutation<
          *
          * @param variables - Variables for the mutation
          * @param mutateOptions - Per-call options that override base options
-         * @returns Promise resolving to the mutation result
+         * @returns Promise resolving to the mutation result, or `undefined` when
+         * the mutation errors and `throws` is not `'always'` (the error is
+         * surfaced via the `error` ref and the `onError` hook instead).
          *
          * @example
          * ```ts

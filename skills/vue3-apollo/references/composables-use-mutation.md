@@ -48,8 +48,15 @@ Return behavior note:
 
 `throws` behavior in current implementation:
 
-1. `throws: 'always'` re-throws only in the `catch` path.
-2. If Apollo returns `result.error` without throwing, error is stored and `onError` fires, but no throw is forced by composable.
+1. `throws: 'always'` re-throws caught mutation exceptions (in the `catch` path).
+2. `throws: 'auto'` (default) re-throws caught exceptions unless an error policy
+   other than `'none'` is in effect (resolved from per-call options, base
+   options, then the client's default mutate options). This mirrors Apollo's
+   default behavior.
+3. `throws: 'never'` never re-throws; the error is only stored in `error` and
+   emitted via `onError`.
+4. If Apollo returns `result.error` without throwing (e.g. `errorPolicy: 'all'`),
+   the error is stored and `onError` fires, but no throw is forced.
 
 ## Basic usage
 
