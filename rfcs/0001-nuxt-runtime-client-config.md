@@ -142,6 +142,16 @@ type ApolloClientSetup =
 
 Khuyến nghị mặc định: trả **options object** để module vẫn quản nhất quán SSR (extract/restore cache) + devtools. Trả full `ApolloClient` là escape hatch cuối, có cảnh báo trong doc.
 
+### 4.4. Truy cập Vue/Nuxt composables trong builder
+
+Builder chạy bên trong `runtime/plugin.ts` (Nuxt context active), nên truy cập được các composable **cấp Nuxt app**: `useCookie`, `useRuntimeConfig`, `useRequestHeaders`, `useRequestEvent`, `useState`, `useRoute`... (code hiện tại đã dùng `useCookie` ngay trong plugin — `createApolloClient.ts:37`). **Không** truy cập được composable cấp component instance (cần `getCurrentInstance()`), vì chưa có component nào setup.
+
+Cạm bẫy: sau lần `await` đầu tiên trong builder async, Nuxt context ngầm có thể mất ("Nuxt instance is unavailable"). Hai cách an toàn:
+- Gọi composable **trước** mọi `await`; hoặc
+- Bọc qua `ctx.nuxtApp.runWithContext(() => ...)` (lý do `nuxtApp` được expose trong `ctx`).
+
+Lưu ý: không thể `inject(APOLLO_CLIENTS_KEY)` trong builder (registry được provide *sau* khi dựng xong client). Nhu cầu auth phổ biến đã có `ctx.createAuthLink()` xử lý cookie sẵn.
+
 ## 5. Cơ chế build-time (module)
 
 1. Đọc `apollo.clients` từ `nuxt.config`. Với mỗi client:
