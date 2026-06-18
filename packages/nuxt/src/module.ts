@@ -1,4 +1,4 @@
-import { addPlugin, createResolver, defineNuxtModule, updateRuntimeConfig } from '@nuxt/kit'
+import { addImports, addPlugin, addTemplate, addTypeTemplate, createResolver, defineNuxtModule, resolvePath, updateRuntimeConfig } from '@nuxt/kit'
 
 import type { ApolloModuleOptions } from './type'
 
@@ -13,7 +13,7 @@ export default defineNuxtModule<ApolloModuleOptions>({
         configKey: 'apollo',
         name: '@vue3-apollo/nuxt'
     },
-    setup(options, nuxt) {
+    async setup(options, nuxt) {
         const resolver = createResolver(import.meta.url)
 
         if (!options.clients || Object.keys(options.clients).length === 0) {
@@ -21,10 +21,66 @@ export default defineNuxtModule<ApolloModuleOptions>({
             return
         }
 
+        // Resolve each client's optional `configFile` (a runtime builder) to an
+        // absolute path. These are imported by a generated module at build time so
+        // non-serializable config (links, cache, typePolicies functions) survives.
+        const clientConfigPaths: Record<string, string> = {}
+        for (const [clientId, clientConfig] of Object.entries(options.clients)) {
+            if (clientConfig.configFile) {
+                clientConfigPaths[clientId] = await resolvePath(clientConfig.configFile)
+            }
+        }
+
+        // Runtime config must stay JSON-serializable: drop the `configFile` paths
+        // (the plugin imports the resolved builders from the generated template).
+        const runtimeClients = Object.fromEntries(
+            Object.entries(options.clients).map(([clientId, clientConfig]) => {
+                const { configFile: _configFile, ...rest } = clientConfig
+                return [clientId, rest]
+            })
+        )
+
         updateRuntimeConfig({
             public: {
-                apollo: options
+                apollo: {
+                    ...options,
+                    clients: runtimeClients
+                }
             }
+        })
+
+        // Generate a module mapping clientId -> builder. Always emitted (possibly
+        // empty) so the plugin's `#build/apollo/client-configs` import resolves.
+        addTemplate({
+            filename: 'apollo/client-configs.mjs',
+            getContents: () => {
+                const ids = Object.keys(clientConfigPaths)
+                const imports = ids
+                    .map((id, index) => `import client_${index} from ${JSON.stringify(clientConfigPaths[id])}`)
+                    .join('\n')
+                const entries = ids
+                    .map((id, index) => `  ${JSON.stringify(id)}: client_${index}`)
+                    .join(',\n')
+                return `${imports}\nexport const clientConfigs = {\n${entries}\n}\n`
+            },
+            write: true
+        })
+
+        // Type declaration for the generated module so the runtime plugin's
+        // `#build/apollo/client-configs` import resolves under `nuxi typecheck`.
+        addTypeTemplate({
+            filename: 'types/apollo-client-configs.d.ts',
+            getContents: () => [
+                'declare module \'#build/apollo/client-configs\' {',
+                '  export const clientConfigs: Record<string, any>',
+                '}'
+            ].join('\n')
+        })
+
+        // Make the builder helper available inside `configFile` files.
+        addImports({
+            from: resolver.resolve('./runtime/defineApolloClient'),
+            name: 'defineApolloClient'
         })
 
         addPlugin(resolver.resolve('./runtime/plugin'))

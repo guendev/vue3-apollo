@@ -21,6 +21,19 @@ export interface ApolloClientConfig extends ApolloSharedConfig {
      * @example 'wss://api.example.com/graphql'
      */
     wsEndpoint?: string
+
+    /**
+     * Path to a runtime builder file that default-exports `defineApolloClient(...)`.
+     *
+     * Use this for advanced setups that cannot be expressed as serializable
+     * `nuxt.config` options — custom links, a custom cache instance, or
+     * `typePolicies` with functions (which are lost when serialized through
+     * runtime config). The builder runs at runtime with full access to the
+     * default link/cache factories so you can compose rather than replace.
+     *
+     * @example '~/apollo/default'
+     */
+    configFile?: string
 }
 
 /**

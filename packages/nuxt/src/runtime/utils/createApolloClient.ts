@@ -1,4 +1,7 @@
+import type { InMemoryCacheConfig } from '@apollo/client'
 import type { NormalizedCacheObject } from '@apollo/client/core'
+import type { HttpLink as HttpLinkType } from '@apollo/client/link/http'
+import type { RetryLink as RetryLinkType } from '@apollo/client/link/retry'
 import type { NuxtApp } from 'nuxt/app'
 
 import { ApolloClient, ApolloLink, HttpLink, InMemoryCache } from '@apollo/client'
@@ -12,6 +15,7 @@ import { defu } from 'defu'
 import { useCookie } from 'nuxt/app'
 
 import type { ApolloClientConfig } from '../../type'
+import type { ApolloClientBuilder, ApolloClientContext } from '../defineApolloClient'
 import type { ApolloErrorHookPayload } from '../types'
 
 import { pick } from '../utils/pick'
@@ -22,9 +26,11 @@ interface CreateApolloClientParams {
     clientId: string
     config: ApolloClientConfig
     nuxtApp: Pick<NuxtApp, 'callHook' | 'hook' | 'payload'>
+    /** Optional runtime builder (from a client's `configFile`). */
+    setup?: ApolloClientBuilder
 }
 
-export async function createApolloClient({ clientId, config, nuxtApp }: CreateApolloClientParams) {
+export async function createApolloClient({ clientId, config, nuxtApp, setup }: CreateApolloClientParams) {
     const mergedAuthConfig = config.auth && defu(
         config.auth,
         {
@@ -49,8 +55,9 @@ export async function createApolloClient({ clientId, config, nuxtApp }: CreateAp
         }
     }
 
-    // Create an auth combinedLink to inject authentication token into headers
-    const authLink = new SetContextLink((prevContext) => {
+    // --- Link / cache factories (exposed to the builder so it can compose) ---
+
+    const createAuthLink = () => new SetContextLink((prevContext) => {
         return defu(
             {
                 headers: {
@@ -61,15 +68,13 @@ export async function createApolloClient({ clientId, config, nuxtApp }: CreateAp
         )
     })
 
-    // Create an HTTP combinedLink
-    const httpLink = new HttpLink({
+    const createHttpLink = (options?: Partial<HttpLinkType.Options>) => new HttpLink({
         ...config.httpLinkOptions,
-        uri: config.httpEndpoint
+        ...options,
+        uri: options?.uri ?? config.httpEndpoint
     })
 
-    // Create an error combinedLink to handle and broadcast errors
-    const errorLink = new ErrorLink(({ error, operation }) => {
-        // Prepare typed payload for hook
+    const createErrorLink = () => new ErrorLink(({ error, operation }) => {
         const payload: ApolloErrorHookPayload = {
             clientId,
             operation
@@ -91,54 +96,27 @@ export async function createApolloClient({ clientId, config, nuxtApp }: CreateAp
         void nuxtApp.callHook('apollo:error', payload)
     })
 
-    // Create a cache instance
-    const cache = new InMemoryCache({
-        ...config.inMemoryCacheOptions
+    const createRetryLink = (options?: RetryLinkType.Options) => new RetryLink(options)
+
+    const createCache = (options?: InMemoryCacheConfig) => new InMemoryCache({
+        ...config.inMemoryCacheOptions,
+        ...options
     })
 
-    // Restore cache on client-side from server state
-    if (import.meta.client) {
-        const stateKey = `${APOLLO_STATE_KEY_PREFIX}${clientId}`
-        const cachedState = nuxtApp.payload.data[stateKey]
-
-        if (cachedState) {
-            cache.restore(cachedState as NormalizedCacheObject)
-        }
-    }
-
-    // Create a WebSocket combinedLink for subscriptions (client-side only)
-    let combinedLink = httpLink
+    // WebSocket factory. Pre-import graphql-ws (client-only, optional peer dep) so
+    // the factory itself stays synchronous for the builder.
+    let createWsLink: () => ApolloLink | undefined = () => undefined
     if (import.meta.client && config.wsEndpoint) {
         try {
             // Dynamic import to avoid bundling graphql-ws on the server
-            // - graphql-ws is an optional peer dependency
             const { createClient } = await import('graphql-ws')
 
-            const wsLink = new GraphQLWsLink(
+            createWsLink = () => new GraphQLWsLink(
                 createClient({
                     ...config.wsLinkOptions,
-                    connectionParams: () => {
-                        return {
-                            ...getAuthCredentials()
-                        }
-                    },
-                    url: config.wsEndpoint
+                    connectionParams: () => ({ ...getAuthCredentials() }),
+                    url: config.wsEndpoint as string
                 })
-            )
-
-            // Use split to route operations:
-            // - Subscriptions go through WebSocket
-            // - Queries and mutations go through HTTP
-            combinedLink = ApolloLink.split(
-                ({ query }) => {
-                    const definition = getMainDefinition(query)
-                    return (
-                        definition.kind === 'OperationDefinition'
-                        && definition.operation === 'subscription'
-                    )
-                },
-                wsLink,
-                httpLink
             )
         }
         catch (error) {
@@ -150,9 +128,91 @@ export async function createApolloClient({ clientId, config, nuxtApp }: CreateAp
         }
     }
 
-    const retryLink = new RetryLink()
+    // --- Default cache ---
 
-    const mergedConfig: Omit<ApolloClient.Options, 'cache' | 'devtools' | 'link' | 'ssrForceFetchDelay' | 'ssrMode'> = defu(
+    const defaultCache = createCache()
+
+    // Restore SSR state into whichever cache the client ends up using (the builder
+    // may return its own cache, so restore must run on the final instance).
+    const restoreCache = (cache: { restore: (state: NormalizedCacheObject) => unknown }) => {
+        if (import.meta.client) {
+            const cachedState = nuxtApp.payload.data[`${APOLLO_STATE_KEY_PREFIX}${clientId}`]
+            if (cachedState) {
+                cache.restore(cachedState as NormalizedCacheObject)
+            }
+        }
+    }
+
+    // --- Default link chain: auth -> error -> retry -> http | ws-split ---
+
+    const buildDefaultLink = () => {
+        const httpLink = createHttpLink()
+        const wsLink = createWsLink()
+
+        const transport = wsLink
+            ? ApolloLink.split(
+                ({ query }) => {
+                    const definition = getMainDefinition(query)
+                    return (
+                        definition.kind === 'OperationDefinition'
+                        && definition.operation === 'subscription'
+                    )
+                },
+                wsLink,
+                httpLink
+            )
+            : httpLink
+
+        return ApolloLink.from([createAuthLink(), createErrorLink(), createRetryLink(), transport])
+    }
+
+    const defaultLink = buildDefaultLink()
+
+    // --- Run the optional builder ---
+
+    const ctx: ApolloClientContext = {
+        clientId,
+        config,
+        createAuthLink,
+        createCache,
+        createErrorLink,
+        createHttpLink,
+        createRetryLink,
+        createWsLink,
+        defaultCache,
+        defaultLink,
+        isServer: import.meta.server,
+        nuxtApp: nuxtApp as NuxtApp
+    }
+
+    const overrides = setup ? await setup(ctx) : undefined
+
+    const wireSSR = (client: ApolloClient) => {
+        // Extract Apollo state on the server-side for SSR hydration
+        if (import.meta.server) {
+            nuxtApp.hook('app:rendered', () => {
+                const stateKey = `${APOLLO_STATE_KEY_PREFIX}${clientId}`
+                nuxtApp.payload.data[stateKey] = client.cache.extract()
+            })
+        }
+    }
+
+    // Escape hatch: the builder returned a fully constructed client.
+    if (overrides instanceof ApolloClient) {
+        restoreCache(overrides.cache)
+        wireSSR(overrides)
+        return overrides
+    }
+
+    const { cache: overrideCache, link: overrideLink, ...overrideRest } = overrides ?? {}
+
+    const finalCache = overrideCache ?? defaultCache
+    restoreCache(finalCache)
+
+    // Server forces network-only so SSR always fetches fresh data; user/builder
+    // options are merged on top (explicit options win, server policy is the default).
+    const mergedOptions = defu(
+        overrideRest,
         {
             defaultOptions: import.meta.server
                 ? {
@@ -166,32 +226,23 @@ export async function createApolloClient({ clientId, config, nuxtApp }: CreateAp
                 : {}
         },
         pick(config, ['assumeImmutableResults', 'dataMasking', 'defaultOptions', 'localState', 'queryDeduplication'])
-    )
+    ) as Partial<ApolloClient.Options>
 
-    // Create an Apollo Client instance
     const client = new ApolloClient({
-        ...mergedConfig,
-        cache,
+        ...mergedOptions,
+        cache: finalCache,
         devtools: {
             enabled: config.devtools ?? import.meta.dev,
             name: clientId
         },
-        // Combine the auth combinedLink, error combinedLink, and main combinedLink chain
-        // Order matters: auth -> error -> http/ws
-        link: ApolloLink.from([authLink, errorLink, retryLink, combinedLink]),
+        link: overrideLink ?? defaultLink,
         // Prevent refetching immediately after SSR hydration
         ssrForceFetchDelay: 100,
         // Enable server-side rendering support
         ssrMode: import.meta.server
     })
 
-    // Extract Apollo state on the server-side for SSR
-    if (import.meta.server) {
-        nuxtApp.hook('app:rendered', () => {
-            const stateKey = `${APOLLO_STATE_KEY_PREFIX}${clientId}`
-            nuxtApp.payload.data[stateKey] = client.cache.extract()
-        })
-    }
+    wireSSR(client)
 
     return client
 }

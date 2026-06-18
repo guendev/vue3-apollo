@@ -2,6 +2,8 @@ export default defineNuxtConfig({
     apollo: {
         clients: {
             default: {
+                // Advanced runtime setup (custom cache + typePolicies functions)
+                configFile: '~/apollo/default',
                 defaultOptions: {
                     query: {
                         errorPolicy: 'none'
