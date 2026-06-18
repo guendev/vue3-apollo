@@ -92,13 +92,15 @@ export function useLazyQuery<
     variables?: MaybeRefOrGetter<TVariables>,
     options?: UseLazyQueryOptions<TData, TVariables>
 ): ReturnType<typeof useQuery<TData, TVariables>> & UseLazyQueryReturn<TData, TVariables> {
-    const called = ref(false)
     const enabled = ref(false)
     const executeVariables = ref<TVariables>()
 
     const reactiveVariables = computed(() => executeVariables.value ?? toValue(variables) ?? {} as TVariables)
 
-    const { query, start, ...rest } = useQuery<TData, TVariables>(
+    // Reuse useQuery's `called` flag instead of tracking a second one. `execute()`
+    // writes to it synchronously below, so the manual-trigger semantics are kept
+    // while there is a single source of truth shared with the underlying query.
+    const { called, query, start, ...rest } = useQuery<TData, TVariables>(
         document,
         reactiveVariables,
         {
