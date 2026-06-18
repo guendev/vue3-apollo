@@ -14,15 +14,19 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         throw new Error('[vue3-apollo] No Apollo clients configured')
     }
 
-    const apolloClients: Record<string, ApolloClient> = {}
-
-    for (const [clientId, config] of Object.entries(apolloConfig.clients)) {
-        apolloClients[clientId] = await createApolloClient({
-            clientId,
-            config: defu(config, omit(apolloConfig, ['clients', 'autoImports'])),
-            nuxtApp
+    // Create all clients in parallel
+    const entries = await Promise.all(
+        Object.entries(apolloConfig.clients).map(async ([clientId, config]) => {
+            const client = await createApolloClient({
+                clientId,
+                config: defu(config, omit(apolloConfig, ['clients', 'autoImports'])),
+                nuxtApp
+            })
+            return [clientId, client] as const
         })
-    }
+    )
+
+    const apolloClients: Record<string, ApolloClient> = Object.fromEntries(entries)
 
     nuxtApp.vueApp.provide(APOLLO_CLIENTS_KEY, apolloClients)
 

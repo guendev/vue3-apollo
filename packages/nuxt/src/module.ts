@@ -4,8 +4,7 @@ import type { ApolloModuleOptions } from './type'
 
 export default defineNuxtModule<ApolloModuleOptions>({
     defaults: {
-        autoImports: true,
-        devtools: true
+        autoImports: true
     },
     meta: {
         compatibility: {

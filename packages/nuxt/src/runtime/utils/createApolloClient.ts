@@ -36,17 +36,16 @@ export async function createApolloClient({ clientId, config, nuxtApp }: CreateAp
 
     const tokenRef = mergedAuthConfig ? useCookie(mergedAuthConfig.tokenName) : undefined
 
-    const getAuthCredentials = () => {
-        if (!mergedAuthConfig || !tokenRef?.value) {
+    const getAuthCredentials = (): Record<string, string> => {
+        if (!mergedAuthConfig || !mergedAuthConfig.authHeader || !tokenRef?.value) {
             return {}
         }
 
-        if (!mergedAuthConfig.authHeader) {
-            return
-        }
+        // `authType` may be null/empty to send the token without any prefix
+        const prefix = mergedAuthConfig.authType ? `${mergedAuthConfig.authType} ` : ''
 
         return {
-            [mergedAuthConfig.authHeader]: `${mergedAuthConfig.authType} ${tokenRef.value}`
+            [mergedAuthConfig.authHeader]: `${prefix}${tokenRef.value}`
         }
     }
 
@@ -69,7 +68,7 @@ export async function createApolloClient({ clientId, config, nuxtApp }: CreateAp
     })
 
     // Create an error combinedLink to handle and broadcast errors
-    const errorLink = new ErrorLink(({ error, forward, operation }) => {
+    const errorLink = new ErrorLink(({ error, operation }) => {
         // Prepare typed payload for hook
         const payload: ApolloErrorHookPayload = {
             clientId,
@@ -85,10 +84,11 @@ export async function createApolloClient({ clientId, config, nuxtApp }: CreateAp
             payload.networkError = error
         }
 
-        // Trigger Nuxt hook for centralized error handling
+        // Broadcast the error for centralized handling, then let it propagate.
+        // Do NOT `return forward(operation)` here: retrying unconditionally on
+        // every error (including persistent GraphQL errors) would loop forever.
+        // Network-level retries are handled by RetryLink instead.
         void nuxtApp.callHook('apollo:error', payload)
-
-        return forward(operation)
     })
 
     // Create a cache instance
