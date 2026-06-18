@@ -26,7 +26,7 @@ Notes:
 ## Returns
 
 1. All `useQuery` return fields (`result`, `loading`, `error`, `networkStatus`, `refetch`, `fetchMore`, `query`, `start`, `stop`, `onResult`, `onError`).
-2. `called: Ref<boolean>` (`false` until first `execute()`).
+2. `called: Ref<boolean>` (`false` until first `execute()`); this is the same sticky flag exposed by `useQuery`.
 3. `execute(variables?) => Promise<TData>`.
 
 ## Execution flow

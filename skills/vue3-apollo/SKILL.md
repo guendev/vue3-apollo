@@ -75,7 +75,7 @@ Read these files based on task type:
 4. Nuxt auth is cookie-based in current runtime creation flow.
 5. Nuxt `useAsyncQuery` uses object options and integrates with `useAsyncData`.
 6. Nuxt runtime provides `apollo:error` hook payload for centralized handling.
-7. `useLazyQuery` is built on top of `useQuery`, exposes `called` and `execute()`, and `execute()` follows Apollo cache policy.
+7. `useLazyQuery` is built on top of `useQuery` and adds `execute()` (which follows Apollo cache policy); both composables share the same sticky `called` flag exposed by `useQuery`.
 8. Nuxt module `apollo.autoImports` is enabled by default; if disabled, import composables manually.
 
 ## Implementation Checklist
