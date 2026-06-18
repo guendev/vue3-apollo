@@ -1,5 +1,57 @@
 # @vue3-apollo/core
 
+## 2.0.0
+
+### Major Changes
+
+- 8417905: Align `useMutation` error/result handling with its documented behavior.
+
+  - **BREAKING:** `throws: 'auto'` (the default) now mirrors Apollo's default behavior — a failed `mutate()` rethrows unless an error policy other than `'none'` is in effect (resolved from per-call options, base options, then the client's default mutate options). Previously every error was swallowed unless `throws: 'always'` was set. Callers that relied on the old swallow-by-default behavior should switch to `throws: 'never'` or wrap `mutate()` in `try/catch`.
+  - `onDone` now only fires when the mutation returns defined data, matching the documentation and `useQuery`.
+  - `onError` now awaits `nextTick()` in the `result.error` branch so its timing is consistent with the `catch` path.
+  - The Apollo mutate options are now derived once instead of on every `mutate()` call.
+
+  `mutate()` continues to resolve to `undefined` when the mutation errors and `throws` is not `'always'` (the error is exposed via the `error` ref and the `onError` hook).
+
+### Minor Changes
+
+- 621e9f6: Overhaul core loading-state management:
+
+  - Prune empty owner buckets in the tracking store so `activeByOwner` no longer grows unbounded (one stale `{}` per mounted component/key) over the lifetime of a long-running app.
+  - Replace the per-track `{ ...map }` spread (O(owners) allocation on every operation) with `triggerRef`, and skip reactivity entirely for no-op decrements (e.g. the `immediate` watch firing with an initial `false`).
+  - Count in-flight calls in `useMutation` (and overlapping `refetch`/`fetchMore`/variable updates in `useQuery`) so concurrent operations no longer clear `loading` while another is still running.
+  - Namespace owner ids so a custom `loadingKey` can never collide with a component `uid`.
+  - Add `useGlobalLoading()` for app-wide loading state (`{ any, queries, mutations, subscriptions }`), and align return-type annotations across the owner-scoped loading helpers.
+
+- 5a275de: Add a `called` flag to `useQuery`.
+
+  `useQuery` now returns a sticky `called` ref that becomes `true` the first time the query actually starts fetching (SSR prefetch or client-side observer) and stays `true` across `stop()`/`start()` cycles. This makes it easy to tell "never fetched yet" apart from "fetched at least once" on the UI — for example to show an initial placeholder before the first request, or to gate an empty state until data has actually been requested. The naming mirrors the existing `called` in `useLazyQuery`.
+
+### Patch Changes
+
+- 1f3a5b3: Fix a Vue hydration mismatch when rendering the full `useFragment` result during SSR.
+
+  The server prefetch path (`diffToResult`) and the client `watchFragment` subscription produced result objects with different key orders (`{ complete, data, dataState }` on the server vs `{ data, dataState, complete }` from Apollo's emission on the client). The values were identical, but serializing the whole result (e.g. `{{ result }}` in a template) made Vue report a hydration text mismatch. The client emission is now normalized to the same shape and key order as the server, keeping SSR and client output byte-identical.
+
+- 7a989f3: Fix `useQuery` loading and lifecycle handling:
+
+  - Reset `loading` in the error handler so it no longer sticks `true` after an observable error terminates the subscription (default `errorPolicy`).
+  - Make `start()` idempotent so it never orphans a previous `ObservableQuery` (preventing a leak and a missing observer).
+  - Clear `loading` on `refetch`/`fetchMore` rejection.
+  - Set `loading` on reactive variable changes and swallow `setVariables` rejections to avoid unhandled promises.
+  - Reset `networkStatus` in `stop()`.
+
+- 402dc0f: Fix `useSubscription` lifecycle handling:
+
+  - Make `start()` idempotent so calling it while a subscription is already running is a safe no-op, instead of overwriting `subscription` with a new (never-subscribed) observable while the previous observer keeps running. This was reachable via the documented "enabled gate + manual control" usage (`enabled.value = true; start()`), where both the `enabled` watcher and the manual call would invoke `start()`.
+  - Initialize `loading` to `false` during SSR, since subscriptions are client-only and never connect on the server — avoiding a connecting state that can never resolve in the server-rendered output.
+
+- 23e11f3: Unify `useLazyQuery`'s `called` flag with `useQuery`.
+
+  `useLazyQuery` now reuses the `called` ref exposed by `useQuery` instead of tracking its own, so both composables share a single source of truth. There is no behavior change: `execute()` still flips `called` to `true` synchronously on the first call.
+
+- f7bc17b: Update runtime dependencies: bump `@vueuse/core` in core, and `@nuxt/kit` and `defu` in nuxt.
+
 ## 1.6.0
 
 ### Minor Changes

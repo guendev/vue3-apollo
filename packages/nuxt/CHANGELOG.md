@@ -1,5 +1,32 @@
 # @vue3-apollo/nuxt
 
+## 2.0.0
+
+### Minor Changes
+
+- 99d1f57: Fix several issues in the Nuxt module:
+
+  - **Error link no longer retries on every error.** The internal error link used to call `forward(operation)` unconditionally, which could retry an operation forever on persistent (e.g. GraphQL) errors. It now only broadcasts the `apollo:error` hook and lets the error propagate; network-level retries remain handled by `RetryLink`.
+  - **`auth.authType: null` now works as documented.** A `null`/empty `authType` sends the token without any prefix instead of producing a literal `"null <token>"` header. The type now accepts `null | string`.
+  - **Devtools are no longer force-enabled in production.** The module-level `devtools: true` default was merged into every client and shadowed the `?? import.meta.dev` fallback, leaving Apollo devtools enabled in production. Devtools now default to `import.meta.dev` and can still be toggled explicitly per client or globally.
+  - **`$apolloClients` is now typed** on `NuxtApp` (`nuxtApp.$apolloClients` / `useNuxtApp().$apolloClients`).
+  - Normalize the internal auth-credentials helper to always return an object.
+  - Remove an unused `NuxtPayload.apollo` type augmentation (SSR cache state is stored under `payload.data['apollo:{clientId}']`).
+  - Create Apollo clients in parallel instead of sequentially.
+
+### Patch Changes
+
+- f7bc17b: Update runtime dependencies: bump `@vueuse/core` in core, and `@nuxt/kit` and `defu` in nuxt.
+- Updated dependencies [621e9f6]
+- Updated dependencies [1f3a5b3]
+- Updated dependencies [8417905]
+- Updated dependencies [7a989f3]
+- Updated dependencies [402dc0f]
+- Updated dependencies [23e11f3]
+- Updated dependencies [f7bc17b]
+- Updated dependencies [5a275de]
+  - @vue3-apollo/core@2.0.0
+
 ## 1.6.0
 
 ### Minor Changes
