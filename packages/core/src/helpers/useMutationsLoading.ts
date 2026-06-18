@@ -1,6 +1,6 @@
-import { computed, getCurrentInstance } from 'vue'
+import type { ComputedRef } from 'vue'
 
-import { useApolloTrackingStore } from './useApolloTracker'
+import { useOperationLoading } from './useOperationLoading'
 
 /**
  * Track the loading state for Apollo mutations in a specific component or scope
@@ -17,22 +17,6 @@ import { useApolloTrackingStore } from './useApolloTracker'
  * const isLoading = useMutationsLoading('my-custom-id')
  * ```
  */
-export function useMutationsLoading(id?: number | string) {
-    const { activeByOwner } = useApolloTrackingStore()
-
-    const loadingId = id ?? getCurrentInstance()?.uid
-
-    return computed(() => {
-        if (!loadingId) {
-            return false
-        }
-
-        const ownerCounters = activeByOwner.value[loadingId]
-
-        if (!ownerCounters) {
-            return false
-        }
-
-        return (ownerCounters.mutations || 0) > 0
-    })
+export function useMutationsLoading(id?: number | string): ComputedRef<boolean> {
+    return useOperationLoading('mutations', id)
 }
