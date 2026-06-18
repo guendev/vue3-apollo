@@ -37,12 +37,14 @@ import { gql } from 'graphql-tag'
 9. `stop()`
 10. `onResult((data, context) => {})`
 11. `onError((error, context) => {})`
+12. `called` (`Ref<boolean>`; sticky, `true` once the query first starts fetching)
 
 Return behavior note:
 
 1. `refetch()` and `fetchMore()` may return `undefined` when query is disabled or not started.
 2. Treat manual operations as conditional calls, not always-guaranteed network requests.
 3. `query.value` can be `undefined` before observer starts or when query is stopped.
+4. `called` starts `false`, flips to `true` on first fetch (SSR prefetch or client observer), and stays `true` across `stop()`/`start()`. With `enabled: false` it stays `false` until the query actually runs. Use it to tell "never fetched yet" from "fetched at least once" (e.g. first-load placeholder vs empty state).
 
 ## Key options
 

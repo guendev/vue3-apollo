@@ -48,6 +48,7 @@ function useQuery<TData, TVariables>(
 ## Returns
 - `result`: Reactive query data.
 - `loading`: Query loading state.
+- `called`: Whether the query has started fetching at least once. Sticky `true` once the first request runs (SSR prefetch or client observer), kept across `stop()`/`start()`. Useful to tell "never fetched yet" from "fetched at least once" on the UI.
 - `error`: Last query error.
 - `networkStatus`: Apollo `NetworkStatus` value.
 - `onResult((data, context) => void)`: Fired when data is available.
@@ -143,6 +144,24 @@ const isAnyLoading = useQueriesLoading(loadingKey)
 ```
 
 Use this when one place in UI (for example spinner in component B) should react to loading states triggered by multiple query owners (A and B).
+
+### Case 5: First-load placeholder vs empty state with `called`
+
+```ts
+const enabled = ref(false)
+const { result, loading, called } = useQuery(GET_USERS, undefined, { enabled })
+
+// Skeleton only on the very first fetch, not on later refetches
+const showSkeleton = computed(() => loading.value && !called.value)
+
+// Empty state only after the query has actually run
+const showEmpty = computed(() => called.value && !loading.value && !result.value)
+
+// Trigger the first fetch
+enabled.value = true
+```
+
+`called` stays `false` until the query truly starts, so `enabled: false` queries report `called === false` until enabled.
 
 ## Related
 - [`useLazyQuery`](/composables/useLazyQuery)
