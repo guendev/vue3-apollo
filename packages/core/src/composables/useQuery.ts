@@ -170,6 +170,12 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     const networkStatus = ref<NetworkStatus>()
     const error = ref<ErrorLike>()
 
+    // Sticky flag: becomes true the first time the query actually starts fetching
+    // (either an SSR prefetch or a client-side observer). Stays true afterwards,
+    // even across stop()/start() cycles, so the UI can tell "never fetched yet"
+    // apart from "fetched at least once".
+    const called = ref(false)
+
     const onResultEvent = createEventHook<[TData, HookContext]>()
     const onErrorEvent = createEventHook<[ErrorLike, HookContext]>()
 
@@ -195,6 +201,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     const prefetch = options?.prefetch ?? true
     if (prefetch && enabled.value && isServer()) {
         onServerPrefetch(async () => {
+            called.value = true
             try {
                 const queryResult = await client.query<TData, TVariables>({
                     ...queryOptions,
@@ -289,6 +296,9 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         if (!enabled.value || query.value) {
             return
         }
+
+        // Past the guard we are committed to fetching: mark the query as called.
+        called.value = true
 
         // Check if we have cached data from SSR on the client-side
         if (!isServer()) {
@@ -408,6 +418,30 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     }
 
     return {
+        /**
+         * Whether the query has started fetching at least once.
+         * Becomes `true` the first time the query executes (SSR prefetch or
+         * client-side observer) and stays `true` afterwards, even across
+         * `stop()`/`start()` cycles.
+         *
+         * Useful in the UI to distinguish "never fetched yet" from
+         * "fetched at least once" — for example to show an initial placeholder
+         * before the first request, or to gate an empty state until data has
+         * actually been requested.
+         *
+         * @example
+         * ```ts
+         * const { called, loading, result } = useQuery(MY_QUERY, vars, { enabled })
+         *
+         * // Skeleton only on the very first load, not on later refetches
+         * const showSkeleton = computed(() => loading.value && !called.value)
+         *
+         * // Empty state only after the query has actually run
+         * const showEmpty = computed(() => called.value && !loading.value && !result.value)
+         * ```
+         */
+        called,
+
         /**
          * GraphQL error if the query failed.
          * Includes both network errors and GraphQL errors.
