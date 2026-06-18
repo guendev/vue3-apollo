@@ -73,7 +73,10 @@ export function useSubscription<
     const enabled = computed(() => toValue(options?.enabled ?? true))
 
     const data = shallowRef<TData>()
-    const loading = ref(enabled.value)
+    // Subscriptions never run during SSR, so there is nothing "connecting" on the
+    // server — start in a non-loading state there to avoid a spinner that can
+    // never resolve in the server-rendered output.
+    const loading = ref(!isServer() && enabled.value)
     const error = ref<ErrorLike>()
 
     const subscriptionData = createEventHook<[TData, HookContext]>()
@@ -151,7 +154,12 @@ export function useSubscription<
     }
 
     const start = () => {
-        if (!enabled.value) {
+        // Bail out when disabled, or when a subscription is already running, so
+        // start() is idempotent and never orphans a previous observable. Without
+        // the subscription.value guard a second start() would overwrite
+        // subscription.value with a new (never-subscribed) observable while the
+        // previous observer kept running — leaving inconsistent state.
+        if (!enabled.value || subscription.value) {
             return
         }
 
