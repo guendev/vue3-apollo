@@ -33,6 +33,7 @@ const isBusy = useQueriesLoading()
 |---|---|---|
 | `useApolloTrackingStore` | Global counters + per-owner map + manual `track` | `const { activeGlobal, activeByOwner, track } = useApolloTrackingStore()` |
 | `useApolloTracking` | Forward a `Ref<boolean>` into tracker counters | `useApolloTracking({ id?, state, type })` |
+| `useGlobalLoading` | App-wide activity across all owners | `useGlobalLoading() => ComputedRef<GlobalLoadingState>` |
 | `useMutationsLoading` | Owner-scoped mutation activity | `useMutationsLoading(id?) => ComputedRef<boolean>` |
 | `useQueriesLoading` | Owner-scoped query activity | `useQueriesLoading(id?) => ComputedRef<boolean>` |
 | `useSubscriptionsLoading` | Owner-scoped subscription activity | `useSubscriptionsLoading(id?) => ComputedRef<boolean>` |
@@ -45,19 +46,23 @@ const isBusy = useQueriesLoading()
 - `useApolloTracker` remains as a deprecated alias of `useApolloTrackingStore`.
 
 ## Notes
-- `useApolloTracking` is a no-op on the server.
-- `useApolloTracking` requires an active Vue scope to auto-clean counters on dispose.
+- `useApolloTracking` is a no-op on the server. The store is a process-wide singleton (`createGlobalState`), so tracking during SSR would leak loading state across concurrent requests.
+- `useApolloTracking` requires an active Vue scope to auto-clean counters on dispose. Owner buckets are pruned once their counters reach zero, so the per-owner map stays bounded across mount/unmount cycles.
 - Owner-scoped helpers without a component instance and without explicit `id` resolve to `false`.
+- Owner ids are namespaced internally: an explicit `id`/`loadingKey` is bucketed separately from component uids, so a numeric `loadingKey` can never collide with a component whose `uid` happens to match. `useQuery({ loadingKey })` and `useQueriesLoading(loadingKey)` always resolve to the same bucket.
 
 ## Examples
 
 ```ts
 import { computed } from 'vue'
-import { useApolloTrackingStore } from '@vue3-apollo/core'
+import { useGlobalLoading } from '@vue3-apollo/core'
 
-const { activeGlobal } = useApolloTrackingStore()
+const loading = useGlobalLoading()
 
-const isAnyQueryLoading = computed(() => (activeGlobal.value.queries ?? 0) > 0)
+// App-wide spinner while anything is in flight
+const isBusy = computed(() => loading.value.any)
+// Or only while queries are loading
+const isAnyQueryLoading = computed(() => loading.value.queries)
 ```
 
 ```ts

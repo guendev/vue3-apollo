@@ -11,7 +11,9 @@ export * from './constants/apollo'
 
 export * from './helpers/useApolloTracker'
 export * from './helpers/useApolloTracking'
+export * from './helpers/useGlobalLoading'
 export * from './helpers/useMutationsLoading'
+export * from './helpers/useOperationLoading'
 export * from './helpers/useQueriesLoading'
 export * from './helpers/useSubscriptionsLoading'
 

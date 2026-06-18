@@ -1,6 +1,6 @@
-import { computed, getCurrentInstance } from 'vue'
+import type { ComputedRef } from 'vue'
 
-import { useApolloTrackingStore } from './useApolloTracker'
+import { useOperationLoading } from './useOperationLoading'
 
 /**
  * Track the loading state for Apollo subscriptions in a specific component or scope
@@ -17,22 +17,6 @@ import { useApolloTrackingStore } from './useApolloTracker'
  * const isLoading = useSubscriptionsLoading('my-custom-id')
  * ```
  */
-export function useSubscriptionsLoading(id?: number | string) {
-    const { activeByOwner } = useApolloTrackingStore()
-
-    const loadingId = id ?? getCurrentInstance()?.uid
-
-    return computed(() => {
-        if (!loadingId) {
-            return false
-        }
-
-        const ownerCounters = activeByOwner.value[loadingId]
-
-        if (!ownerCounters) {
-            return false
-        }
-
-        return (ownerCounters.subscriptions || 0) > 0
-    })
+export function useSubscriptionsLoading(id?: number | string): ComputedRef<boolean> {
+    return useOperationLoading('subscriptions', id)
 }

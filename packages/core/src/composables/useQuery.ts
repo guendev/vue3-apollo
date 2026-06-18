@@ -176,6 +176,19 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     // apart from "fetched at least once".
     const called = ref(false)
 
+    // Number of in-flight manual operations (refetch / fetchMore / variable
+    // updates). Used so overlapping calls don't clear `loading` while another is
+    // still running.
+    const manualPending = ref(0)
+
+    // Clear the loading flag only once every manual operation has settled.
+    const settleManual = () => {
+        manualPending.value = Math.max(0, manualPending.value - 1)
+        if (manualPending.value === 0) {
+            loading.value = false
+        }
+    }
+
     const onResultEvent = createEventHook<[TData, HookContext]>()
     const onErrorEvent = createEventHook<[ErrorLike, HookContext]>()
 
@@ -277,6 +290,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
 
     const stop = () => {
         loading.value = false
+        manualPending.value = 0
         networkStatus.value = undefined
 
         if (observer.value && !observer.value.closed) {
@@ -349,10 +363,12 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
             }
 
             error.value = undefined
+            manualPending.value++
             loading.value = true
-            // Errors surface through the observer's error handler, which resets
-            // loading; catch the rejection here only to avoid an unhandled promise.
-            void query.value.setVariables(newVariables).catch(() => {})
+            // Errors surface through the observer's error handler; catch the
+            // rejection here only to avoid an unhandled promise. `settleManual`
+            // keeps `loading` true until every overlapping manual op resolves.
+            void query.value.setVariables(newVariables).catch(() => {}).finally(settleManual)
         }
 
         // Debounce has priority over throttle if both are provided
@@ -382,13 +398,15 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
             return
         }
         error.value = undefined
+        manualPending.value++
         loading.value = true
         try {
             return await query.value.refetch(variables)
         }
         finally {
-            // Ensure loading is cleared even if the refetch rejects.
-            loading.value = false
+            // Ensure loading is cleared even if the refetch rejects, but not
+            // while another overlapping manual op is still running.
+            settleManual()
         }
     }
 
@@ -398,13 +416,15 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
         }
 
         error.value = undefined
+        manualPending.value++
         loading.value = true
         try {
             return await query.value.fetchMore(options)
         }
         finally {
-            // Ensure loading is cleared even if fetchMore rejects.
-            loading.value = false
+            // Ensure loading is cleared even if fetchMore rejects, but not while
+            // another overlapping manual op is still running.
+            settleManual()
         }
     }
 

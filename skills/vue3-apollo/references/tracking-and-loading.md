@@ -14,10 +14,12 @@ Use tracking helpers when UI needs loading visibility across GraphQL operations:
 - global store with `activeGlobal`, `activeByOwner`, and `track()`.
 2. `useApolloTracking({ id?, state, type })`:
 - auto-track a `Ref<boolean>` into store counters.
-3. `useQueriesLoading(id?)`
-4. `useMutationsLoading(id?)`
-5. `useSubscriptionsLoading(id?)`
-6. Deprecated alias: `useApolloTracker` -> same as `useApolloTrackingStore`.
+3. `useGlobalLoading()`:
+- app-wide `ComputedRef<{ any, queries, mutations, subscriptions }>` across all owners.
+4. `useQueriesLoading(id?)`
+5. `useMutationsLoading(id?)`
+6. `useSubscriptionsLoading(id?)`
+7. Deprecated alias: `useApolloTracker` -> same as `useApolloTrackingStore`.
 
 ## Core model
 
@@ -28,8 +30,25 @@ Use tracking helpers when UI needs loading visibility across GraphQL operations:
 3. Store clamps counters at `0` to avoid negative values.
 4. `useApolloTracking` only runs on client and inside active scope.
 5. `useQuery({ loadingKey })` uses `loadingKey` as owner id for query counters.
+6. Owner ids are namespaced internally: an explicit `id`/`loadingKey` and a component `uid` live in separate buckets, so a numeric `loadingKey` can never collide with a component whose `uid` matches. `useQuery({ loadingKey })` and `useXxxLoading(loadingKey)` still resolve to the same bucket.
+7. Owner buckets are pruned once their counters reach `0`, so `activeByOwner` stays bounded across mount/unmount cycles (no leftover empty entries).
+8. `loading` from `useQuery`/`useMutation` counts in-flight calls, so overlapping `mutate()`/`refetch()`/`fetchMore()` stay `true` until the last one settles.
 
 ## Quick setup
+
+Prefer `useGlobalLoading()` for app-wide indicators:
+
+```ts
+import { computed } from 'vue'
+import { useGlobalLoading } from '@vue3-apollo/core'
+
+const loading = useGlobalLoading()
+
+const isAnythingLoading = computed(() => loading.value.any)
+// Per-type: loading.value.queries / .mutations / .subscriptions
+```
+
+Reading raw counters from the store stays available for advanced cases:
 
 ```ts
 import { computed } from 'vue'
@@ -103,14 +122,9 @@ const isCheckoutBusy = useQueriesLoading(ownerId)
 Goal: show one loading overlay for all operations.
 
 ```ts
-const { activeGlobal } = useApolloTrackingStore()
+const loading = useGlobalLoading()
 
-const showOverlay = computed(() => {
-  const q = activeGlobal.value.queries ?? 0
-  const m = activeGlobal.value.mutations ?? 0
-  const s = activeGlobal.value.subscriptions ?? 0
-  return q + m + s > 0
-})
+const showOverlay = computed(() => loading.value.any)
 ```
 
 ### Case 2: Edge case (shared owner id across components)

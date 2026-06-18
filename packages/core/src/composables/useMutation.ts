@@ -3,7 +3,7 @@ import type { DocumentNode } from 'graphql'
 import type { MaybeRefOrGetter } from 'vue'
 
 import { createEventHook } from '@vueuse/core'
-import { nextTick, ref, shallowRef, toValue } from 'vue'
+import { computed, nextTick, ref, shallowRef, toValue } from 'vue'
 
 import type { HookContext, UseBaseOption } from '../utils/type'
 
@@ -106,7 +106,10 @@ export function useMutation<
     const client = useApolloClient(options?.clientId)
 
     const data = shallowRef<TData>()
-    const loading = ref(false)
+    // Count in-flight calls instead of a single boolean so overlapping
+    // `mutate()` calls don't clear `loading` while another is still running.
+    const pending = ref(0)
+    const loading = computed(() => pending.value > 0)
     const error = ref<ErrorLike>()
     const called = ref(false)
 
@@ -154,7 +157,7 @@ export function useMutation<
         variables?: TVariables,
         mutateOptions?: Omit<ApolloClient.MutateOptions<TData, TVariables, TCache>, 'mutation' | 'variables'>
     ) => {
-        loading.value = true
+        pending.value++
         error.value = undefined
         called.value = true
 
@@ -193,13 +196,13 @@ export function useMutation<
             }
         }
         finally {
-            loading.value = false
+            pending.value = Math.max(0, pending.value - 1)
         }
     }
 
     const reset = () => {
         data.value = undefined
-        loading.value = false
+        pending.value = 0
         error.value = undefined
         called.value = false
     }
