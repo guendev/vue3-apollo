@@ -351,11 +351,28 @@ export function useFragment<TData = unknown, TVariables extends OperationVariabl
                         return
                     }
 
-                    result.value = value as UseFragmentResult<TData>
+                    // Normalize to the same key order/shape as the SSR prefetch path
+                    // (`diffToResult`). `watchFragment` emits its own object whose key
+                    // order (`data`, `dataState`, `complete`) differs from the server's
+                    // (`complete`, `data`, `dataState`); rendering the raw result then
+                    // produces a Vue hydration text mismatch even though the values are
+                    // identical. Rebuilding with a fixed key order keeps SSR and client
+                    // serialization byte-identical.
+                    const normalized = {
+                        complete: value.complete,
+                        data: value.data,
+                        dataState: value.dataState
+                    } as UseFragmentResult<TData>
+
+                    if (value.missing) {
+                        normalized.missing = value.missing
+                    }
+
+                    result.value = normalized
                     error.value = undefined
 
                     if (isDefined(value.data)) {
-                        void onResultEvent.trigger(value as UseFragmentResult<TData>, { client })
+                        void onResultEvent.trigger(normalized, { client })
                     }
                 }
             })
