@@ -25,6 +25,10 @@
     ".": {
       "types": "./dist/types.d.mts",
       "import": "./dist/module.mjs"
+    },
+    "./config": {
+      "types": "./dist/runtime/defineApolloClient.d.ts",
+      "import": "./dist/runtime/defineApolloClient.js"
     }
   },
   "main": "./dist/module.mjs",
@@ -32,6 +36,9 @@
     "*": {
       ".": [
         "./dist/types.d.mts"
+      ],
+      "config": [
+        "./dist/runtime/defineApolloClient.d.ts"
       ]
     }
   },
