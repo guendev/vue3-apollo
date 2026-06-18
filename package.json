@@ -24,12 +24,12 @@
     "version": "changeset version && pnpm install --lockfile-only"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^7.4.3",
-    "@changesets/cli": "^2.29.8",
-    "eslint": "^10.0.0",
-    "eslint-plugin-perfectionist": "^5.5.0",
+    "@antfu/eslint-config": "^9.0.0",
+    "@changesets/cli": "^2.31.0",
+    "eslint": "^10.5.0",
+    "eslint-plugin-perfectionist": "^5.9.1",
     "taze": "^19.14.1",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "unbuild": "^3.6.1"
   }
 }
