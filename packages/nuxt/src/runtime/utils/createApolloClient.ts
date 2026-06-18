@@ -25,7 +25,10 @@ const APOLLO_STATE_KEY_PREFIX = 'apollo:'
 interface CreateApolloClientParams {
     clientId: string
     config: ApolloClientConfig
-    nuxtApp: Pick<NuxtApp, 'callHook' | 'hook' | 'payload'>
+    // Subset used internally; cast to the full `NuxtApp` for the builder context,
+    // since the plugin's `nuxtApp` is the base `_NuxtApp` (before `$apolloClients`
+    // is provided), while builders expect the full, augmented `NuxtApp`.
+    nuxtApp: Pick<NuxtApp, 'callHook' | 'hook' | 'payload' | 'runWithContext'>
     /** Optional runtime builder (from a client's `configFile`). */
     setup?: ApolloClientBuilder
 }
@@ -209,15 +212,15 @@ export async function createApolloClient({ clientId, config, nuxtApp, setup }: C
         return overrides
     }
 
-    const { cache: overrideCache, link: overrideLink, ...overrideRest } = overrides ?? {}
+    const { cache: overrideCache, devtools: overrideDevtools, link: overrideLink, ...overrideRest } = overrides ?? {}
 
     const finalCache = overrideCache ?? defaultCache
     restoreCache(finalCache)
 
-    // Server forces network-only so SSR always fetches fresh data; user/builder
-    // options are merged on top (explicit options win, server policy is the default).
+    // On the server, force network-only so SSR always fetches fresh data. Server
+    // defaults take precedence (deep-merged first), then builder options, then the
+    // scalar config — so the SSR fetch policy can't be weakened by a builder/config.
     const mergedOptions = defu(
-        overrideRest,
         {
             defaultOptions: import.meta.server
                 ? {
@@ -230,13 +233,15 @@ export async function createApolloClient({ clientId, config, nuxtApp, setup }: C
                 }
                 : {}
         },
+        overrideRest,
         pick(config, ['assumeImmutableResults', 'dataMasking', 'defaultOptions', 'localState', 'queryDeduplication'])
     ) as Partial<ApolloClient.Options>
 
     const client = new ApolloClient({
         ...mergedOptions,
         cache: finalCache,
-        devtools: {
+        // The builder may override devtools; otherwise default to dev-only.
+        devtools: overrideDevtools ?? {
             enabled: config.devtools ?? import.meta.dev,
             name: clientId
         },

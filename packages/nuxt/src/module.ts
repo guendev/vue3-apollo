@@ -1,4 +1,5 @@
 import { addImports, addPlugin, addTemplate, addTypeTemplate, createResolver, defineNuxtModule, resolvePath, updateRuntimeConfig } from '@nuxt/kit'
+import { existsSync } from 'node:fs'
 
 import type { ApolloModuleOptions } from './type'
 
@@ -27,7 +28,14 @@ export default defineNuxtModule<ApolloModuleOptions>({
         const clientConfigPaths: Record<string, string> = {}
         for (const [clientId, clientConfig] of Object.entries(options.clients)) {
             if (clientConfig.configFile) {
-                clientConfigPaths[clientId] = await resolvePath(clientConfig.configFile)
+                const resolved = await resolvePath(clientConfig.configFile)
+                if (!existsSync(resolved)) {
+                    throw new Error(
+                        `[@vue3-apollo/nuxt] configFile for client "${clientId}" not found: `
+                        + `"${clientConfig.configFile}" (resolved to "${resolved}").`
+                    )
+                }
+                clientConfigPaths[clientId] = resolved
             }
         }
 
@@ -77,11 +85,15 @@ export default defineNuxtModule<ApolloModuleOptions>({
             ].join('\n')
         })
 
-        // Make the builder helper available inside `configFile` files.
-        addImports({
-            from: resolver.resolve('./runtime/defineApolloClient'),
-            name: 'defineApolloClient'
-        })
+        // Make the builder helper available inside `configFile` files (only when the
+        // builder feature is actually used). It can also be imported explicitly from
+        // `@vue3-apollo/nuxt/config`.
+        if (Object.keys(clientConfigPaths).length > 0) {
+            addImports({
+                from: resolver.resolve('./runtime/defineApolloClient'),
+                name: 'defineApolloClient'
+            })
+        }
 
         addPlugin(resolver.resolve('./runtime/plugin'))
 
