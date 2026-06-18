@@ -19,7 +19,7 @@ const vars = reactive<PostsQueryVariables>({
     userId: 1
 })
 
-const { error, result } = useQuery(PostsDocument, vars, {
+const { called, error, result } = useQuery(PostsDocument, vars, {
     enabled,
     fetchPolicy: 'cache-first',
     keepPreviousResult: true,
@@ -120,7 +120,7 @@ function handleUpdate() {
           <button type="button" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 active:bg-slate-800 text-gray-200 border border-white/10 transition-colors" @click="enabled = !enabled">
             {{ enabled ? 'Disable' : 'Enable' }} Query
           </button>
-          <span class="ml-auto text-xs text-gray-400">Query Status: <strong class="text-gray-200">{{ enabled ? 'Enabled' : 'Disabled' }}</strong></span>
+          <span class="ml-auto text-xs text-gray-400">Query Status: <strong class="text-gray-200">{{ enabled ? 'Enabled' : 'Disabled' }}</strong> • Called: <strong class="text-gray-200">{{ called ? 'Yes' : 'No' }}</strong></span>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
