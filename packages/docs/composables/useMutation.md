@@ -88,8 +88,15 @@ function useMutation<TData, TVariables, TCache>(
 - `clientId?: string` to target a named client.
 
 ## Notes
-- `throws: 'always'` rethrows caught mutation exceptions after emitting `onError`.
-- Other `throws` values keep errors in reactive state/hooks.
+- `throws` controls when `mutate()` rethrows after emitting `onError`:
+  - `'always'`: always rethrow caught mutation exceptions.
+  - `'auto'` (default): mirror Apollo's default behavior — rethrow unless an
+    error policy other than `'none'` is in effect (then errors are surfaced via
+    the `error` ref instead of rejecting).
+  - `'never'`: never rethrow, only keep errors in reactive state/hooks.
+- When the mutation errors and `throws` is not `'always'`, `mutate()` resolves to
+  `undefined` (the error is exposed through the `error` ref and `onError`).
+- `onDone` only fires when the mutation returns defined data.
 - Per-call `mutateOptions` overrides base options provided to `useMutation`.
 
 ## Examples
