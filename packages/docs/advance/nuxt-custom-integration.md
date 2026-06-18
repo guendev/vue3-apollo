@@ -100,16 +100,29 @@ export default defineApolloClient(ctx => ({
 
 ### Composables in the builder
 
-The builder runs inside the Nuxt plugin, so app-level composables work
-(`useCookie`, `useRuntimeConfig`, `useRequestHeaders`, …). Call them **before** the
-first `await`, or wrap them with `ctx.nuxtApp.runWithContext(() => …)`:
+The builder runs with the Nuxt context active, so app-level composables work
+(`useCookie`, `useRuntimeConfig`, `useRequestURL`, `useRequestHeaders`, …):
 
 ```ts
 export default defineApolloClient((ctx) => {
-  const token = useCookie('auth-token') // before any await
+  const token = useCookie('auth-token')
   // …
 })
 ```
+
+As with any Nuxt composable, call them before your builder's own first `await`.
+For calls *after* an `await`, wrap them with `ctx.nuxtApp.runWithContext(() => …)`:
+
+```ts
+export default defineApolloClient(async (ctx) => {
+  await somethingAsync()
+  const headers = await ctx.nuxtApp.runWithContext(() => useRequestHeaders(['cookie']))
+  // …
+})
+```
+
+> Component-level composables (those needing a component instance) are **not**
+> available — the builder runs before any component is set up.
 
 ### Returning a fully built client (escape hatch)
 

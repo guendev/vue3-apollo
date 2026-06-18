@@ -185,7 +185,12 @@ export async function createApolloClient({ clientId, config, nuxtApp, setup }: C
         nuxtApp: nuxtApp as NuxtApp
     }
 
-    const overrides = setup ? await setup(ctx) : undefined
+    // Run the builder with the Nuxt context restored, so app-level composables
+    // (useCookie, useRuntimeConfig, …) work even though the module may have
+    // already awaited internally (e.g. the graphql-ws import) before this point.
+    const overrides = setup
+        ? await ctx.nuxtApp.runWithContext(() => setup(ctx))
+        : undefined
 
     const wireSSR = (client: ApolloClient) => {
         // Extract Apollo state on the server-side for SSR hydration
