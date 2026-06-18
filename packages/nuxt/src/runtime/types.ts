@@ -1,4 +1,4 @@
-import type { ErrorLike, NormalizedCacheObject } from '@apollo/client/core'
+import type { ApolloClient, ErrorLike } from '@apollo/client/core'
 import type { CombinedGraphQLErrors, CombinedProtocolErrors } from '@apollo/client/errors'
 import type { ErrorLink } from '@apollo/client/link/error'
 import type { HookResult } from '@nuxt/schema'
@@ -31,10 +31,6 @@ export interface ApolloErrorHookPayload extends Omit<ErrorLink.ErrorHandlerOptio
 }
 
 declare module '@nuxt/schema' {
-    interface NuxtPayload {
-        apollo?: Record<string, NormalizedCacheObject>
-    }
-
     interface PublicRuntimeConfig {
         apollo?: ApolloRuntimeConfig
     }
@@ -64,16 +60,19 @@ declare module '@nuxt/schema' {
 }
 
 declare module 'nuxt/schema' {
-    interface NuxtPayload {
-        apollo?: Record<string, NormalizedCacheObject>
-    }
-
     interface PublicRuntimeConfig {
         apollo?: ApolloRuntimeConfig
     }
 }
 
 declare module '#app' {
+    interface NuxtApp {
+        /**
+         * Registry of Apollo clients keyed by client ID, provided by `@vue3-apollo/nuxt`.
+         */
+        $apolloClients: Record<string, ApolloClient>
+    }
+
     interface RuntimeNuxtHooks {
         /**
          * Called when an Apollo Client error occurs (GraphQL, Protocol, or Network error)

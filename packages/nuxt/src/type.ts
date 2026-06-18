@@ -83,7 +83,7 @@ export interface ApolloSharedAuthConfig {
      * @default 'Bearer'
      * @example 'Bearer' | 'JWT' | 'Token'
      */
-    authType?: string
+    authType?: null | string
 
     /**
      * Name of the HTTP header used to send the authentication token.
@@ -127,8 +127,9 @@ export interface ApolloSharedConfig extends Pick<ApolloClient.Options, 'assumeIm
     wsLinkOptions?: Omit<ClientOptions, 'connectionParams' | 'url'>
 
     /**
-     * Enable devtools integration for each client
-     * @default true
+     * Enable devtools integration for each client.
+     * When not set, defaults to `import.meta.dev` (enabled in development only).
+     * @default import.meta.dev
      */
     devtools?: boolean
 
