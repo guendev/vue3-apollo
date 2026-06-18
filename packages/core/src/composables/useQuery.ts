@@ -166,7 +166,7 @@ export function useQuery<TData = unknown, TVariables extends OperationVariables 
     const enabled = computed(() => toValue(options?.enabled ?? true))
 
     const result = shallowRef<TData>()
-    const loading = ref(enabled.value)
+    const loading = ref(toValue(enabled))
     const networkStatus = ref<NetworkStatus>()
     const error = ref<ErrorLike>()
 
